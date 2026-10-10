@@ -1609,7 +1609,30 @@
       "dropzoneActive": "Afbeelding hier neerzetten",
       "close": "Sluiten"
     },
-    "viewPhoto": "Foto bekijken"
+    "viewPhoto": "Foto bekijken",
+    "images": {
+      "title": "Afbeeldingen",
+      "add": "Afbeeldingen toevoegen",
+      "uploading": "Uploaden {done}/{total}",
+      "loading": "Afbeeldingen laden...",
+      "empty": "Nog geen afbeeldingen. Voeg foto's toe om ze bij deze persoon te bewaren.",
+      "view": "Afbeelding {number}",
+      "openOriginal": "Origineel openen",
+      "delete": "Verwijderen",
+      "close": "Sluiten",
+      "previous": "Vorige afbeelding",
+      "next": "Volgende afbeelding",
+      "position": "{number} van {total}",
+      "confirmDeleteTitle": "Deze afbeelding verwijderen?",
+      "confirmDeleteDescription": "De afbeelding wordt uit de map van deze persoon verwijderd. Dit kan niet ongedaan worden gemaakt.",
+      "cancel": "Annuleren",
+      "deleting": "Verwijderen...",
+      "loadFailed": "Afbeeldingen konden niet worden geladen",
+      "uploadFailed": "{count, plural, one {# afbeelding kon niet worden geüpload} other {# afbeeldingen konden niet worden geüpload}}",
+      "uploadSuccess": "{count, plural, one {Afbeelding toegevoegd} other {# afbeeldingen toegevoegd}}",
+      "deleteSuccess": "Afbeelding verwijderd",
+      "deleteFailed": "Afbeelding kon niet worden verwijderd"
+    }
   },
   "groups": {
     "title": "Groepen",

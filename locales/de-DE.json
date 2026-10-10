@@ -1609,7 +1609,30 @@
       "dropzoneActive": "Bild hier ablegen",
       "close": "Schließen"
     },
-    "viewPhoto": "Foto ansehen"
+    "viewPhoto": "Foto ansehen",
+    "images": {
+      "title": "Bilder",
+      "add": "Bilder hinzufügen",
+      "uploading": "Hochladen {done}/{total}",
+      "loading": "Bilder werden geladen...",
+      "empty": "Noch keine Bilder. Füge Fotos hinzu, um sie bei dieser Person aufzubewahren.",
+      "view": "Bild {number}",
+      "openOriginal": "Original öffnen",
+      "delete": "Löschen",
+      "close": "Schließen",
+      "previous": "Vorheriges Bild",
+      "next": "Nächstes Bild",
+      "position": "{number} von {total}",
+      "confirmDeleteTitle": "Dieses Bild löschen?",
+      "confirmDeleteDescription": "Das Bild wird aus dem Ordner dieser Person entfernt. Dies kann nicht rückgängig gemacht werden.",
+      "cancel": "Abbrechen",
+      "deleting": "Wird gelöscht...",
+      "loadFailed": "Bilder konnten nicht geladen werden",
+      "uploadFailed": "{count, plural, one {# Bild konnte nicht hochgeladen werden} other {# Bilder konnten nicht hochgeladen werden}}",
+      "uploadSuccess": "{count, plural, one {Bild hinzugefügt} other {# Bilder hinzugefügt}}",
+      "deleteSuccess": "Bild gelöscht",
+      "deleteFailed": "Bild konnte nicht gelöscht werden"
+    }
   },
   "groups": {
     "title": "Gruppen",

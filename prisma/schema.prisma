@@ -127,6 +127,7 @@ model Person {
   dismissalsAsA      DuplicateDismissal[]   @relation("DismissalPersonA")
   dismissalsAsB      DuplicateDismissal[]   @relation("DismissalPersonB")
   journalEntries     JournalEntryPerson[]
+  images             PersonImage[]
 
   @@index([userId])
   @@index([relationshipToUserId])
@@ -688,6 +689,24 @@ model PersonUrl {
 
   @@index([personId])
   @@map("person_urls")
+}
+
+// PersonImage - Images in a person's image folder (files live on disk)
+model PersonImage {
+  id        String   @id @default(cuid())
+  personId  String
+  filename  String   // Full-size file, e.g. "{id}.jpg"
+  thumbnail String   // Thumbnail file, e.g. "{id}_thumb.jpg"
+  width     Int
+  height    Int
+  size      Int      // Bytes of the stored full-size file
+  createdAt DateTime @default(now())
+
+  // Relations
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, createdAt])
+  @@map("person_images")
 }
 
 // PersonIM - Instant messaging handles

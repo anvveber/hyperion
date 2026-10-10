@@ -680,5 +680,103 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         },
       },
     },
+
+    // Image folder (person-specific)
+    '/api/people/{id}/images': {
+      get: {
+        tags: ['Photos'],
+        summary: "List a person's images",
+        description: "Returns the images in a person's image folder, newest first.",
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        responses: {
+          '200': jsonResponse('Image list', {
+            type: 'object',
+            properties: {
+              images: { type: 'array', items: { $ref: '#/components/schemas/PersonImage' } },
+            },
+            required: ['images'],
+          }),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+      post: {
+        tags: ['Photos'],
+        summary: "Add an image to a person's folder",
+        description:
+          'Upload one image (JPEG, PNG, GIF or WebP, up to 50MB). The image is auto-rotated, EXIF data is stripped, ' +
+          'it is scaled down to at most 2560px on the long side, and a 400x400 thumbnail is generated. ' +
+          'HEIC/HEIF files should be converted first with `POST /api/photos/convert`. A person can hold up to 500 images.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  image: { type: 'string', format: 'binary', description: 'Image file' },
+                },
+                required: ['image'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': jsonResponse('Image added', {
+            type: 'object',
+            properties: { image: { $ref: '#/components/schemas/PersonImage' } },
+            required: ['image'],
+          }),
+          '400': resp('Validation error, invalid image or folder full'),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
+    '/api/people/{id}/images/{imageId}': {
+      get: {
+        tags: ['Photos'],
+        summary: 'Get an image file',
+        description: 'Serves the stored image. Pass `size=thumb` for the thumbnail.',
+        security: sessionOrToken(),
+        parameters: [
+          pathParam('id', 'Person ID'),
+          pathParam('imageId', 'Image ID'),
+          {
+            name: 'size',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['thumb'] },
+            description: 'Return the thumbnail instead of the full image',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Image file',
+            content: {
+              'image/jpeg': { schema: { type: 'string', format: 'binary' } },
+              'image/png': { schema: { type: 'string', format: 'binary' } },
+            },
+          },
+          '401': ref401(),
+          '404': resp('Image not found'),
+        },
+      },
+      delete: {
+        tags: ['Photos'],
+        summary: "Delete an image from a person's folder",
+        description: 'Removes the image record and its files from disk.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID'), pathParam('imageId', 'Image ID')],
+        responses: {
+          '200': refSuccess(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
   };
 }

@@ -1609,7 +1609,30 @@
       "dropzoneActive": "Slipp bildet her",
       "close": "Lukk"
     },
-    "viewPhoto": "Vis bilde"
+    "viewPhoto": "Vis bilde",
+    "images": {
+      "title": "Bilder",
+      "add": "Legg til bilder",
+      "uploading": "Laster opp {done}/{total}",
+      "loading": "Laster inn bilder...",
+      "empty": "Ingen bilder ennå. Legg til bilder for å ta vare på dem sammen med denne personen.",
+      "view": "Bilde {number}",
+      "openOriginal": "Åpne original",
+      "delete": "Slett",
+      "close": "Lukk",
+      "previous": "Forrige bilde",
+      "next": "Neste bilde",
+      "position": "{number} av {total}",
+      "confirmDeleteTitle": "Slette dette bildet?",
+      "confirmDeleteDescription": "Bildet fjernes fra mappen til denne personen. Dette kan ikke angres.",
+      "cancel": "Avbryt",
+      "deleting": "Sletter...",
+      "loadFailed": "Kunne ikke laste inn bilder",
+      "uploadFailed": "{count, plural, one {# bilde kunne ikke lastes opp} other {# bilder kunne ikke lastes opp}}",
+      "uploadSuccess": "{count, plural, one {Bilde lagt til} other {# bilder lagt til}}",
+      "deleteSuccess": "Bilde slettet",
+      "deleteFailed": "Kunne ikke slette bildet"
+    }
   },
   "groups": {
     "title": "Grupper",

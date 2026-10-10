@@ -1609,7 +1609,30 @@
       "dropzoneActive": "在此处放置图像",
       "close": "关闭"
     },
-    "viewPhoto": "查看照片"
+    "viewPhoto": "查看照片",
+    "images": {
+      "title": "图片",
+      "add": "添加图片",
+      "uploading": "正在上传 {done}/{total}",
+      "loading": "正在加载图片...",
+      "empty": "还没有图片。添加照片，与此人一起保存。",
+      "view": "图片 {number}",
+      "openOriginal": "打开原图",
+      "delete": "删除",
+      "close": "关闭",
+      "previous": "上一张",
+      "next": "下一张",
+      "position": "第 {number} 张，共 {total} 张",
+      "confirmDeleteTitle": "删除这张图片？",
+      "confirmDeleteDescription": "图片将从此人的文件夹中移除。此操作无法撤销。",
+      "cancel": "取消",
+      "deleting": "正在删除...",
+      "loadFailed": "无法加载图片",
+      "uploadFailed": "{count, plural, other {# 张图片上传失败}}",
+      "uploadSuccess": "{count, plural, other {已添加 # 张图片}}",
+      "deleteSuccess": "图片已删除",
+      "deleteFailed": "无法删除图片"
+    }
   },
   "groups": {
     "title": "分组",

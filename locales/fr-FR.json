@@ -1609,7 +1609,30 @@
       "dropzoneActive": "Déposez l'image ici",
       "close": "Fermer"
     },
-    "viewPhoto": "Voir la photo"
+    "viewPhoto": "Voir la photo",
+    "images": {
+      "title": "Images",
+      "add": "Ajouter des images",
+      "uploading": "Envoi {done}/{total}",
+      "loading": "Chargement des images...",
+      "empty": "Aucune image pour l'instant. Ajoutez des photos pour les garder avec cette personne.",
+      "view": "Image {number}",
+      "openOriginal": "Ouvrir l'original",
+      "delete": "Supprimer",
+      "close": "Fermer",
+      "previous": "Image précédente",
+      "next": "Image suivante",
+      "position": "{number} sur {total}",
+      "confirmDeleteTitle": "Supprimer cette image ?",
+      "confirmDeleteDescription": "L'image sera retirée du dossier de cette personne. Cette action est irréversible.",
+      "cancel": "Annuler",
+      "deleting": "Suppression...",
+      "loadFailed": "Impossible de charger les images",
+      "uploadFailed": "{count, plural, one {# image n'a pas pu être envoyée} other {# images n'ont pas pu être envoyées}}",
+      "uploadSuccess": "{count, plural, one {Image ajoutée} other {# images ajoutées}}",
+      "deleteSuccess": "Image supprimée",
+      "deleteFailed": "Impossible de supprimer l'image"
+    }
   },
   "groups": {
     "title": "Groupes",
