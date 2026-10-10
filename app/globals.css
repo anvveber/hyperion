@@ -5,78 +5,78 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * PALETTE: Operator
+ * PALETTE: Monochrome console
  *
- * Cool slate surfaces, hairline borders and a single signal blue, in the
- * spirit of analyst consoles. Dark is the primary theme; light mirrors it
- * with the same hues so switching keeps the same structure.
+ * Black, white and neutral grays only, in the spirit of analyst consoles.
+ * Color is reserved for meaning: destructive actions, warnings, and the
+ * colors people give their own groups and relationship types. Dark is the
+ * primary theme; light is its inverse.
  */
 :root {
-  --a-primary: #215DB0;
-  --a-secondary: #8ABBFF;
-  --a-text: #111418;
-  --a-bg: #EEF1F4;
+  --a-primary: #000000;
+  --a-secondary: #525252;
+  --a-text: #0A0A0A;
+  --a-bg: #F4F4F4;
   --a-surface: #FFFFFF;
 
-  --background: #EEF1F4;
-  --foreground: #111418;
+  --background: #F4F4F4;
+  --foreground: #0A0A0A;
   --surface: #FFFFFF;
-  --surface-elevated: #F3F5F7;
-  --border: rgba(17, 20, 24, 0.14);
-  --primary: #215DB0;
-  --primary-dark: #184A90;
+  --surface-elevated: #F7F7F7;
+  --border: rgba(0, 0, 0, 0.16);
+  --primary: #000000;
+  --primary-dark: #333333;
   /*
    * Text and icons sitting ON a --primary surface.
    *
    * A token rather than a hardcoded text-white, because the correct answer
-   * flips with the theme: the light theme's primary is a mid blue that needs
-   * white on it, the dark theme's is a light blue that needs dark text.
+   * flips with the theme: black buttons with white text in light, white
+   * buttons with black text in dark.
    *
    * Measured contrast, all four states above AA:
-   *   light base  #FFFFFF on #215DB0  6.45:1
-   *   light hover #FFFFFF on #184A90  8.67:1
-   *   dark  base  #090C10 on #4C90F0  6.12:1
-   *   dark  hover #090C10 on #74A9F5  8.15:1
+   *   light base  #FFFFFF on #000000  21.00:1
+   *   light hover #FFFFFF on #333333  12.63:1
+   *   dark  base  #000000 on #FFFFFF  21.00:1
+   *   dark  hover #000000 on #D4D4D4  14.31:1
    */
   --on-primary: #FFFFFF;
-  --secondary: #8ABBFF;
-  --tertiary: #8ABBFF;
-  --accent: #B5600A;
-  --muted: rgba(17, 20, 24, 0.66);
+  --secondary: #525252;
+  --tertiary: #525252;
+  --accent: #000000;
+  --muted: rgba(0, 0, 0, 0.62);
   --warning: #C23030;
-  --badge-bg: #E1E6EB;
-  --badge-text: #383E47;
+  --badge-bg: #E5E5E5;
+  --badge-text: #262626;
 
   /* Faint console grid behind every page. */
-  --grid-line: rgba(17, 20, 24, 0.045);
+  --grid-line: rgba(0, 0, 0, 0.05);
 }
 
 .dark {
-  --a-primary: #4C90F0;
-  --a-secondary: #1F4B87;
-  --a-text: #D9DFE7;
-  --a-bg: #090C10;
-  --a-surface: #10151C;
+  --a-primary: #FFFFFF;
+  --a-secondary: #A3A3A3;
+  --a-text: #EDEDED;
+  --a-bg: #000000;
+  --a-surface: #0A0A0A;
 
-  --background: #090C10;
-  --foreground: #D9DFE7;
-  --surface: #10151C;
-  --surface-elevated: #171E27;
-  --border: rgba(140, 160, 185, 0.18);
-  --primary: #4C90F0;
-  /* Hover goes lighter in the dark theme so dark text stays readable. */
-  --primary-dark: #74A9F5;
-  /* Dark text on the dark theme's light blue. See the light theme block. */
-  --on-primary: #090C10;
-  --secondary: #1F4B87;
-  --tertiary: #1F4B87;
-  --accent: #F0B726;
-  --muted: rgba(217, 223, 231, 0.62);
+  --background: #000000;
+  --foreground: #EDEDED;
+  --surface: #0A0A0A;
+  --surface-elevated: #141414;
+  --border: rgba(255, 255, 255, 0.16);
+  --primary: #FFFFFF;
+  --primary-dark: #D4D4D4;
+  /* Black text on the dark theme's white. See the light theme block. */
+  --on-primary: #000000;
+  --secondary: #A3A3A3;
+  --tertiary: #A3A3A3;
+  --accent: #FFFFFF;
+  --muted: rgba(237, 237, 237, 0.6);
   --warning: #FA7A7E;
-  --badge-bg: #1C2632;
-  --badge-text: #B8C2CE;
+  --badge-bg: #1F1F1F;
+  --badge-text: #D4D4D4;
 
-  --grid-line: rgba(140, 160, 185, 0.07);
+  --grid-line: rgba(255, 255, 255, 0.055);
 }
 
 @theme inline {
@@ -115,13 +115,13 @@
  * avatars and status dots stay circular.
  */
 @theme {
-  --radius-xs: 1px;
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 3px;
-  --radius-xl: 3px;
-  --radius-2xl: 4px;
-  --radius-3xl: 4px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
 
   --shadow-2xs: none;
   --shadow-xs: none;
@@ -139,6 +139,18 @@
   h3 {
     font-family: var(--font-mono);
     letter-spacing: -0.01em;
+  }
+
+  h1,
+  h2 {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Table data in mono with aligned digits, like a readout. */
+  td {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 
   /* Table headers as small-caps telemetry tags. */
@@ -176,6 +188,20 @@ label.block:not(.sr-only) {
   line-height: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+/*
+ * Primary actions are command buttons: mono, uppercase, tracked. Covers the
+ * Button component and the many hand-built bg-primary buttons and links.
+ */
+:is(a, button)[class*="bg-primary"] {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  /* Keeps the smaller text centred when a flex row stretches the button. */
+  align-content: center;
 }
 
 body {

@@ -36,8 +36,8 @@ const BUBBLE_RADIUS = { desktop: 14, mobile: 12 } as const;
 // Matches --font-mono in app/globals.css so graph labels read like the rest
 // of the console UI.
 const GRAPH_FONT = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Cascadia Mono", "Roboto Mono", "DejaVu Sans Mono", "Liberation Mono", monospace';
-// Signal blue from the dark palette (--primary).
-const CENTER_COLOR = '#4C90F0';
+// The center node takes the theme's --primary: white on dark, black on light.
+const centerColor = (isDark: boolean): string => (isDark ? '#FFFFFF' : '#000000');
 
 function nodeRadius(node: SimulationNode, isMobile: boolean): number {
   if (node.kind === 'bubble') {
@@ -55,7 +55,7 @@ function nodeFontSize(node: SimulationNode, isMobile: boolean): number {
 
 function getNodeFill(node: SimulationNode, isDark: boolean): string {
   if (node.kind === 'bubble') return node.color ?? (isDark ? '#4b5563' : '#d1d5db');
-  if (node.isCenter) return CENTER_COLOR;
+  if (node.isCenter) return centerColor(isDark);
   if (node.colors.length > 0) return node.colors[0];
   return '#9CA3AF';
 }
@@ -63,7 +63,7 @@ function getNodeFill(node: SimulationNode, isDark: boolean): string {
 function getNodeStroke(node: SimulationNode, isDark: boolean): string {
   if (node.kind === 'bubble') return node.color ?? (isDark ? '#9ca3af' : '#6b7280');
   if (node.colors.length > 0) return node.colors[0];
-  if (node.isCenter) return CENTER_COLOR;
+  if (node.isCenter) return centerColor(isDark);
   return isDark ? '#ffffff' : '#1f2937';
 }
 
