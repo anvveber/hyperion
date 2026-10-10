@@ -13,6 +13,7 @@ import { customFieldsPaths } from './customFields';
 import { apiTokenPaths } from './apiTokens';
 import { mapPaths } from './map';
 import { notificationsPaths } from './notifications';
+import { adminPaths } from './admin';
 import { jsonResponse, ref400, ref401, ref404, refSuccess, pathParam, jsonBody, resp, sessionOrToken } from './helpers';
 
 // OpenAPI 3.1.0 specification generator for the Nametag API.
@@ -60,6 +61,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
       { name: 'Journal', description: 'Journal entries with optional people tags' },
       { name: 'Dashboard', description: 'Dashboard statistics, upcoming events, and network graph' },
       { name: 'User Settings', description: 'Profile, preferences, data export/import, and account management' },
+      { name: 'Admin', description: 'Instance account management (admins only)' },
       { name: 'API Tokens', description: 'Create and revoke personal API tokens for programmatic access' },
       { name: 'Billing', description: 'Subscription management, checkout, and payment history (SaaS mode only)' },
       { name: 'Deleted Items', description: 'View and restore soft-deleted items' },
@@ -112,6 +114,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
       ...apiTokenPaths(),
       ...mapPaths(),
       ...notificationsPaths(),
+      ...adminPaths(),
 
       // Photos (non-person-specific)
       '/api/photos/{personId}': {

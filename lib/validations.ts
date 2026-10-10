@@ -411,6 +411,30 @@ export const updatePasswordSchema = z.object({
   newPassword: passwordSchema,
 });
 
+// ============================================
+// Admin user management schemas
+// ============================================
+
+export const userRoleSchema = z.enum(['ADMIN', 'USER']);
+
+export const adminCreateUserSchema = z.object({
+  email: emailSchema,
+  name: z.string().min(1, 'Name is required').max(100),
+  surname: z.string().max(100).nullable().optional(),
+  // Optional only when SSO is configured; the route enforces that
+  password: passwordSchema.nullable().optional(),
+  role: userRoleSchema.default('USER'),
+});
+
+export const adminUpdateUserSchema = z
+  .object({
+    role: userRoleSchema.optional(),
+    password: passwordSchema.optional(),
+  })
+  .refine((data) => data.role !== undefined || data.password !== undefined, {
+    message: 'Provide a role or a password',
+  });
+
 export const updateThemeSchema = z.object({
   theme: z.enum(['LIGHT', 'DARK']),
 });

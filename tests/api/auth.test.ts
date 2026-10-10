@@ -15,16 +15,21 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock Prisma
-vi.mock('../../lib/prisma', () => ({
-  prisma: {
-    user: {
-      findUnique: mocks.userFindUnique,
-      create: mocks.userCreate,
-      update: mocks.userUpdate,
-      count: mocks.userCount,
+vi.mock('../../lib/prisma', () => {
+  const user = {
+    findUnique: mocks.userFindUnique,
+    create: mocks.userCreate,
+    update: mocks.userUpdate,
+    count: mocks.userCount,
+  };
+  return {
+    prisma: {
+      user,
+      // Interactive transactions run against the same mocks
+      $transaction: vi.fn(async (fn: (tx: { user: typeof user }) => unknown) => fn({ user })),
     },
-  },
-}));
+  };
+});
 
 // Mock email
 vi.mock('../../lib/email', () => ({
@@ -119,6 +124,8 @@ describe('Auth API', () => {
     mocks.bcryptHash.mockResolvedValue('hashed-password');
     // Default to SaaS mode (email verification enabled) for backwards compatibility
     mocks.isFeatureEnabled.mockReturnValue(true);
+    // Default to an instance that already has users
+    mocks.userCount.mockResolvedValue(1);
     // Reset environment variable
     delete process.env.DISABLE_REGISTRATION;
   });
@@ -374,6 +381,55 @@ describe('Auth API', () => {
           if (feature === 'passwordLogin') return true;
           return false;
         });
+        // Self-hosted signup is only open for the first account
+        mocks.userCount.mockResolvedValue(0);
+      });
+
+      it('should make the first account an admin', async () => {
+        mocks.userFindUnique.mockResolvedValue(null);
+        mocks.userCreate.mockResolvedValue({ id: 'user-1', email: 'admin@example.com', name: 'Admin', role: 'ADMIN' });
+
+        const response = await register(new Request('http://localhost/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'admin@example.com', password: 'ValidPassword123!', name: 'Admin' }),
+          headers: { 'content-type': 'application/json' },
+        }));
+
+        expect(response.status).toBe(201);
+        expect(mocks.userCreate).toHaveBeenCalledWith(
+          expect.objectContaining({ data: expect.objectContaining({ role: 'ADMIN' }) })
+        );
+      });
+
+      it('should block public signup once an account exists, even without DISABLE_REGISTRATION', async () => {
+        mocks.userCount.mockResolvedValue(1);
+
+        const response = await register(new Request('http://localhost/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'second@example.com', password: 'ValidPassword123!', name: 'Second' }),
+          headers: { 'content-type': 'application/json' },
+        }));
+        const body = await response.json();
+
+        expect(response.status).toBe(403);
+        expect(body.error).toBe('Registration is currently disabled');
+        expect(mocks.bcryptHash).not.toHaveBeenCalled();
+        expect(mocks.userCreate).not.toHaveBeenCalled();
+      });
+
+      it('should re-check inside the transaction so a racing second signup is refused', async () => {
+        // First count (early exit) sees an empty instance, the transaction's
+        // count sees the account created in between
+        mocks.userCount.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+
+        const response = await register(new Request('http://localhost/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ email: 'racer@example.com', password: 'ValidPassword123!', name: 'Racer' }),
+          headers: { 'content-type': 'application/json' },
+        }));
+
+        expect(response.status).toBe(403);
+        expect(mocks.userCreate).not.toHaveBeenCalled();
       });
 
       it('should auto-verify users in self-hosted mode', async () => {
@@ -559,7 +615,7 @@ describe('Auth API', () => {
       });
     });
 
-    describe('DISABLE_REGISTRATION Feature', () => {
+    describe('DISABLE_REGISTRATION Feature (SaaS mode)', () => {
       it('should allow registration when DISABLE_REGISTRATION is not set', async () => {
         mocks.userFindUnique.mockResolvedValue(null);
         mocks.userCreate.mockResolvedValue({
@@ -581,7 +637,10 @@ describe('Auth API', () => {
         const response = await register(request);
 
         expect(response.status).toBe(201);
-        expect(mocks.userCount).not.toHaveBeenCalled();
+        // SaaS signups after the first are regular users
+        expect(mocks.userCreate).toHaveBeenCalledWith(
+          expect.objectContaining({ data: expect.objectContaining({ role: 'USER' }) })
+        );
       });
 
       it('should allow registration when DISABLE_REGISTRATION is false', async () => {
@@ -606,7 +665,10 @@ describe('Auth API', () => {
         const response = await register(request);
 
         expect(response.status).toBe(201);
-        expect(mocks.userCount).not.toHaveBeenCalled();
+        // SaaS signups after the first are regular users
+        expect(mocks.userCreate).toHaveBeenCalledWith(
+          expect.objectContaining({ data: expect.objectContaining({ role: 'USER' }) })
+        );
       });
 
       it('should allow first user when DISABLE_REGISTRATION is true and no users exist', async () => {

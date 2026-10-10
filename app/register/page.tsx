@@ -31,6 +31,8 @@ export default function RegisterPage() {
   const [showCredentials, setShowCredentials] = useState(true);
   const [oidcProvider, setOidcProvider] = useState<{ enabled: boolean; name: string } | null>(null);
   const [registrationEnabled, setRegistrationEnabled] = useState(true);
+  // True on an empty instance: this signup creates the admin account
+  const [setupRequired, setSetupRequired] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
 
   // Check if registration is enabled
@@ -40,6 +42,7 @@ export default function RegisterPage() {
         const response = await fetch('/api/auth/registration-status');
         const data = await response.json();
         setRegistrationEnabled(data.enabled);
+        setSetupRequired(data.setupRequired === true);
       } catch {
         // If check fails, default to enabled to avoid blocking legitimate users
         setRegistrationEnabled(true);
@@ -157,12 +160,14 @@ export default function RegisterPage() {
               priority
             />
             <h2 className="mt-6 text-center text-3xl font-bold text-foreground">
-              {t('createAccountTitle')}
+              {setupRequired ? t('setupTitle') : t('createAccountTitle')}
             </h2>
           </div>
           {oidcProvider?.enabled && (
             <div className="space-y-4">
-              <p className="text-sm text-muted">{t('passwordLoginDisabled')}</p>
+              <p className="text-sm text-muted">
+                {setupRequired ? t('setupSsoHint') : t('passwordLoginDisabled')}
+              </p>
               <OidcSignInButton name={oidcProvider.name} mode="signup" />
             </div>
           )}
@@ -246,10 +251,10 @@ export default function RegisterPage() {
             priority
           />
           <h2 className="mt-6 text-center text-3xl font-bold text-foreground">
-            {t('createAccountTitle')}
+            {setupRequired ? t('setupTitle') : t('createAccountTitle')}
           </h2>
           <p className="mt-2 text-center text-sm text-muted">
-            {t('createAccountSubtitle')}
+            {setupRequired ? t('setupSubtitle') : t('createAccountSubtitle')}
           </p>
         </div>
 

@@ -184,16 +184,37 @@ async function handleOAuthSignIn(
     const givenName = profileData.given_name as string | undefined;
     const familyName = profileData.family_name as string | undefined;
 
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        name: givenName || user.name || 'User',
-        surname: familyName || null,
-        provider: account.provider,
-        providerAccountId: account.providerAccountId,
-        emailVerified: true,
-      },
-    });
+    const { Prisma } = await import('@prisma/client');
+    const { isPublicSignupOpen, roleForSignup } = await import('@/lib/registration');
+
+    // Same rule as password signup: only the first account (the admin) can
+    // be created by signing in. Later accounts are created by an admin, and
+    // the person then signs in with SSO using that email to link it.
+    const newUser = await prisma.$transaction(async (tx) => {
+      const userCount = await tx.user.count();
+      if (!isPublicSignupOpen(userCount)) {
+        return null;
+      }
+      return tx.user.create({
+        data: {
+          email,
+          name: givenName || user.name || 'User',
+          surname: familyName || null,
+          role: roleForSignup(userCount),
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          emailVerified: true,
+        },
+      });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+
+    if (!newUser) {
+      log.warn(
+        { event: 'auth.login.failed', reason: 'registration_closed', email, provider: account.provider },
+        'OAuth login rejected: no account for this email and registration is closed',
+      );
+      throw new Error('REGISTRATION_CLOSED');
+    }
 
     await createFreeSubscription(newUser.id);
     await createPreloadedRelationshipTypes(prisma, newUser.id);

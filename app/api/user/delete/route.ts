@@ -35,6 +35,18 @@ export const DELETE = withAuth(async (request, session) => {
       }
     }
 
+    // The last admin can't leave while other accounts depend on them to
+    // manage the instance. Promote someone else first.
+    if (user.role === 'ADMIN') {
+      const [adminCount, userCount] = await Promise.all([
+        prisma.user.count({ where: { role: 'ADMIN' } }),
+        prisma.user.count(),
+      ]);
+      if (adminCount <= 1 && userCount > 1) {
+        return apiResponse.error('You are the only admin. Make another user an admin before deleting your account.');
+      }
+    }
+
     // Delete user (cascade will delete all related data)
     await prisma.user.delete({
       where: { id: session.user.id },

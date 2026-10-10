@@ -10,7 +10,7 @@ export function authPaths(): Record<string, Record<string, unknown>> {
       post: {
         tags: ['Auth'],
         summary: 'Register a new account',
-        description: 'Creates a new user account. May send a verification email if email verification is enabled.',
+        description: 'Creates a new user account. On an empty instance this creates the admin account. Afterwards self-hosted instances reject public signup with 403 (an admin creates accounts instead); SaaS mode allows it unless DISABLE_REGISTRATION is set. May send a verification email if email verification is enabled.',
         requestBody: zodBody(registerSchema),
         responses: {
           '201': {
@@ -31,6 +31,7 @@ export function authPaths(): Record<string, Record<string, unknown>> {
             },
           },
           '400': ref400(),
+          '403': resp('Registration is closed'),
           '429': resp('Rate limited'),
         },
       },
@@ -112,7 +113,10 @@ export function authPaths(): Record<string, Record<string, unknown>> {
       get: {
         tags: ['Auth'],
         summary: 'Check if registration is enabled',
-        description: 'Returns whether new user registration is currently allowed on this instance.',
+        description:
+          'Returns whether public signup is currently allowed. On self-hosted instances only the first account ' +
+          '(which becomes the admin) can sign up; later accounts are created by an admin. `setupRequired` is true ' +
+          'while the instance has no accounts.',
         responses: {
           '200': {
             description: 'Registration status',
@@ -122,6 +126,7 @@ export function authPaths(): Record<string, Record<string, unknown>> {
                   type: 'object',
                   properties: {
                     enabled: { type: 'boolean' },
+                    setupRequired: { type: 'boolean', description: 'True when no accounts exist yet' },
                     message: { type: 'string' },
                   },
                 },
