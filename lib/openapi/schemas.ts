@@ -384,6 +384,17 @@ export function sharedSchemas(): Record<string, unknown> {
       },
       required: ['id', 'personId', 'type', 'url'],
     },
+    PersonImage: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        width: { type: 'integer', description: 'Stored width in pixels' },
+        height: { type: 'integer', description: 'Stored height in pixels' },
+        size: { type: 'integer', description: 'Stored file size in bytes' },
+        createdAt: { type: 'string', format: 'date-time' },
+      },
+      required: ['id', 'width', 'height', 'size', 'createdAt'],
+    },
     PersonIM: {
       type: 'object',
       properties: {

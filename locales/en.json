@@ -1609,7 +1609,30 @@
       "dropzoneActive": "Drop image here",
       "close": "Close"
     },
-    "viewPhoto": "View photo"
+    "viewPhoto": "View photo",
+    "images": {
+      "title": "Images",
+      "add": "Add images",
+      "uploading": "Uploading {done}/{total}",
+      "loading": "Loading images...",
+      "empty": "No images yet. Add photos to keep them with this person.",
+      "view": "Image {number}",
+      "openOriginal": "Open original",
+      "delete": "Delete",
+      "close": "Close",
+      "previous": "Previous image",
+      "next": "Next image",
+      "position": "{number} of {total}",
+      "confirmDeleteTitle": "Delete this image?",
+      "confirmDeleteDescription": "The image will be removed from this person's folder. This cannot be undone.",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "loadFailed": "Could not load images",
+      "uploadFailed": "{count, plural, one {# image could not be uploaded} other {# images could not be uploaded}}",
+      "uploadSuccess": "{count, plural, one {Image added} other {# images added}}",
+      "deleteSuccess": "Image deleted",
+      "deleteFailed": "Could not delete the image"
+    }
   },
   "groups": {
     "title": "Groups",

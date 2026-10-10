@@ -617,6 +617,66 @@ curl -X DELETE https://your-instance.example.com/api/people/clx1/photo \
 { "message": "Photo deleted" }
 ```
 
+## Image folder
+
+Each person has a folder of images separate from their profile photo.
+
+### List a person's images
+
+```
+GET /api/people/{id}/images
+```
+
+Returns the images newest first.
+
+```bash
+curl https://your-instance.example.com/api/people/clx1/images \
+  -H "Authorization: Bearer ntag_xxx"
+```
+
+```json
+{
+  "images": [
+    { "id": "6f1c0a9e2b7d4c3a1e5f8b20", "width": 2560, "height": 1707, "size": 734120, "createdAt": "2026-10-10T19:00:00.000Z" }
+  ]
+}
+```
+
+### Add an image
+
+```
+POST /api/people/{id}/images
+```
+
+`multipart/form-data` with an `image` field holding one JPEG, PNG, GIF or WebP file (up to 50 MB). The image is auto-rotated, stripped of EXIF data and scaled down to at most 2560px on the long side, and a 400x400 thumbnail is made. Convert HEIC/HEIF files with `POST /api/photos/convert` first. A person can hold up to 500 images. Returns `201` with the new image.
+
+```bash
+curl -X POST https://your-instance.example.com/api/people/clx1/images \
+  -H "Authorization: Bearer ntag_xxx" \
+  -F "image=@trip.jpg"
+```
+
+### Get an image file
+
+```
+GET /api/people/{id}/images/{imageId}
+GET /api/people/{id}/images/{imageId}?size=thumb
+```
+
+Returns the image bytes (`image/jpeg` or `image/png`). Add `size=thumb` for the thumbnail.
+
+### Delete an image
+
+```
+DELETE /api/people/{id}/images/{imageId}
+```
+
+Removes the image and its files from disk.
+
+```json
+{ "success": true }
+```
+
 ### Get a person photo
 
 ```

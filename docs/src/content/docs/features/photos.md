@@ -34,6 +34,18 @@ Beyond the person's own detail and edit pages, photos appear in a few other plac
 - **Network graph**: each person's photo (or initials, if none is set) is used as their node avatar
 - **Global search**: photos appear next to matching people in search results, making it easier to spot the right person at a glance
 
+## Image folder
+
+Besides the profile photo, every person has an image folder for any other pictures you want to keep with them: trips, events, screenshots of a note they wrote you.
+
+On a person's detail page, the **Images** section shows the folder as a grid of thumbnails, newest first.
+
+- **Add images**: click **Add images** and pick one or more files. They upload one after another, and HEIC files are converted to JPEG first.
+- **View**: click a thumbnail to open it full-size. Use the arrow buttons or the left and right arrow keys to move through the folder, and Escape to close. The open-original button shows the stored file in a new tab.
+- **Delete**: open an image and click the trash button. You are asked to confirm, and the file is removed from disk.
+
+Images are not cropped. They keep their aspect ratio and are only scaled down when the long side is larger than 2560px. When a person is permanently deleted (emptied from the trash), their image folder is deleted too.
+
 ## Where photos are stored
 
 Photos are stored on disk, not in the database, at the path configured by the `PHOTO_STORAGE_PATH` environment variable. If you're running Nametag with Docker, this needs to point at a persistent volume (the `photo_data` volume defined in `docker-compose.yml`), otherwise uploaded photos will be lost the next time the container restarts. See [Configuration](/self-hosting/configuration/) for details on setting this up.
@@ -52,3 +64,16 @@ Photos are stored on disk, not in the database, at the path configured by the `P
 | Storage filename | `{personId}.jpg` or `{personId}.png`, in a per-user directory |
 | Max decoded pixel count | 100 megapixels |
 | Download timeout for URL-based photos | 15 seconds |
+
+### Image folder
+
+| Spec | Value |
+| --- | --- |
+| Max upload size | 50 MB per image |
+| Max images per person | 500 |
+| Accepted input formats | JPEG, PNG, GIF, WebP; HEIC/HEIF converted to JPEG in the browser flow |
+| Output format | JPEG (quality 85) for opaque images, PNG for images with transparency |
+| Output dimensions | Aspect ratio kept, long side at most 2560px, never upscaled |
+| Thumbnail | 400x400px square crop |
+| EXIF data | Auto-rotated, then stripped |
+| Storage location | `{PHOTO_STORAGE_PATH}/{userId}/gallery/{personId}/`, files named `{imageId}.jpg` and `{imageId}_thumb.jpg` |

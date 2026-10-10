@@ -6,6 +6,7 @@ import { resolveTrustedClientIp } from '@/lib/net/client-ip';
 import { hasValidBearerSecret } from '@/lib/shared-secret';
 import { logger, securityLogger } from '@/lib/logger';
 import { deletePersonPhotos } from '@/lib/photo-storage';
+import { deletePersonImageDir } from '@/lib/person-image-storage';
 
 const RETENTION_DAYS = 30;
 
@@ -62,9 +63,10 @@ export const GET = withLogging(async function GET(request: Request) {
     });
     const personIds = personsToDelete.map((p: { id: string }) => p.id);
 
-    // Delete photo files for persons being purged
+    // Delete photo files and image folders for persons being purged
     for (const person of personsToDelete as { id: string; userId: string }[]) {
       await deletePersonPhotos(person.userId, person.id);
+      await deletePersonImageDir(person.userId, person.id);
     }
 
     // 3. Delete PersonGroups for persons being purged

@@ -20,6 +20,7 @@ import PhotoLightbox from '@/components/PhotoLightbox';
 import { getTranslations } from 'next-intl/server';
 import { getDateDisplayTitle } from '@/lib/important-date-types';
 import JournalSection from '@/components/JournalSection';
+import PersonImageFolder from '@/components/PersonImageFolder';
 import MessagingLinks from '@/components/MessagingLinks';
 import { customFieldValuesInclude } from '@/lib/prisma-queries';
 
@@ -787,6 +788,9 @@ export default async function PersonDetailsPage({
                   <MarkdownRenderer content={person.notes} />
                 </div>
               )}
+
+              {/* Image folder */}
+              <PersonImageFolder personId={person.id} />
 
               {/* Journal Section */}
               <JournalSection
