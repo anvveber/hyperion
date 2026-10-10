@@ -131,6 +131,29 @@ curl https://your-instance.example.com/api/people/clx1 \
 { "person": { "id": "clx1", "name": "Ada", "surname": "Lovelace" } }
 ```
 
+## Export a person as JSON
+
+```
+GET /api/people/{id}/export
+```
+
+Returns one person's full profile as a JSON document: every field, contact details, important dates, custom fields, groups, relationships (with their notes), and the journal entries that mention the person. The `person` object has the same shape as an entry in `GET /api/user/export`, plus `createdAt` and `updatedAt`. Photo files are not included, only the stored photo reference.
+
+```bash
+curl https://your-instance.example.com/api/people/clx1/export \
+  -H "Authorization: Bearer ntag_xxx" \
+  -o ada.json
+```
+
+```json
+{
+  "version": "1.0",
+  "exportDate": "2026-10-10T12:00:00.000Z",
+  "person": { "id": "clx1", "name": "Ada", "surname": "Lovelace", "groups": ["Family"], "relationships": [] },
+  "journalEntries": []
+}
+```
+
 ## Update a person
 
 ```

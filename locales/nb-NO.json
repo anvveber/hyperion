@@ -1520,6 +1520,7 @@
     "qrCodeError": "Kunne ikke generere QR-kode",
     "close": "Lukk",
     "downloadVcardFile": "Last ned vCard-fil",
+    "downloadJsonFile": "Last ned profil som JSON",
     "duplicates": {
       "title": "Dupliserte kontakter",
       "findDuplicates": "Finn duplikater",

@@ -1520,6 +1520,7 @@
     "qrCodeError": "Failed to generate QR code",
     "close": "Close",
     "downloadVcardFile": "Download vCard file",
+    "downloadJsonFile": "Download profile as JSON",
     "duplicates": {
       "title": "Duplicate Contacts",
       "findDuplicates": "Find Duplicates",

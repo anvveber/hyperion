@@ -1520,6 +1520,7 @@
     "qrCodeError": "Не удалось сгенерировать QR-код",
     "close": "Закрыть",
     "downloadVcardFile": "Скачать файл vCard",
+    "downloadJsonFile": "Скачать профиль в JSON",
     "duplicates": {
       "title": "Дубликаты контактов",
       "findDuplicates": "Найти дубликаты",

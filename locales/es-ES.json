@@ -1520,6 +1520,7 @@
     "qrCodeError": "Error al generar código QR",
     "close": "Cerrar",
     "downloadVcardFile": "Descargar archivo vCard",
+    "downloadJsonFile": "Descargar perfil como JSON",
     "duplicates": {
       "title": "Contactos duplicados",
       "findDuplicates": "Buscar duplicados",

@@ -1520,6 +1520,7 @@
     "qrCodeError": "Generazione codice QR fallita",
     "close": "Chiudi",
     "downloadVcardFile": "Scarica file vCard",
+    "downloadJsonFile": "Scarica profilo come JSON",
     "duplicates": {
       "title": "Contatti duplicati",
       "findDuplicates": "Trova duplicati",
