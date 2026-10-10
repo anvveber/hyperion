@@ -116,7 +116,7 @@ On first run, the app container waits for the database, applies all migrations a
 
 ### 5. Open Nametag
 
-Visit `http://localhost:3000` (or your domain, once a reverse proxy is in front of it) and register your first account. If `DISABLE_REGISTRATION` isn't set, this first account can register normally, and you can lock the instance down afterward. See [Authentication](/self-hosting/authentication/) for details.
+Visit `http://localhost:3000` (or your domain, once a reverse proxy is in front of it). A fresh instance opens a setup screen where you create the admin account. Public signup closes after that, and you add everyone else from Settings > Users. See [Authentication](/self-hosting/authentication/) for details.
 
 ## What's next
 

@@ -87,7 +87,7 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `OIDC_CLIENT_SECRET` | OIDC client secret | Not set |
 | `OIDC_DISPLAY_NAME` | Label shown on the SSO login button | `SSO` |
 | `DISABLE_PASSWORD_LOGIN` | Hide the password form, requires OIDC to be fully configured | `false` |
-| `DISABLE_REGISTRATION` | Disable registration after the first user | `false` |
+| `DISABLE_REGISTRATION` | SaaS mode only: disable registration after the first user. Self-hosted instances always close signup after the first (admin) account | `false` |
 | `GEOCODER_URL` | Nominatim-compatible geocoder used to place addresses on the map | `https://nominatim.openstreetmap.org` |
 | `DISABLE_GEOCODING` | Disable all address geocoding instance-wide | `false` |
 | `REDIS_URL` | Redis connection URL | Not set (in-memory fallback) |

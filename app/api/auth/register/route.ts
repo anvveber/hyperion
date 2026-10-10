@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import * as bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { generateToken, hashToken } from '@/lib/token-hash';
 import { sendEmail, emailTemplates } from '@/lib/email';
@@ -12,6 +13,7 @@ import { createPreloadedRelationshipTypes } from '@/lib/relationship-types';
 import { isFeatureEnabled } from '@/lib/features';
 import { getAppUrl } from '@/lib/env';
 import { validateOrigin } from '@/lib/csrf';
+import { isPublicSignupOpen, roleForSignup } from '@/lib/registration';
 
 const TOKEN_EXPIRY_HOURS = 24;
 
@@ -63,30 +65,17 @@ export const POST = withLogging(async function POST(request: Request) {
       return rateLimitResponse;
     }
 
-    // Check if registration is disabled
-    if (process.env.DISABLE_REGISTRATION === 'true') {
-      const userCount = await prisma.user.count();
-      if (userCount > 0) {
-        return NextResponse.json(
-          { error: 'Registration is currently disabled' },
-          { status: 403 }
-        );
-      }
-    }
-
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
+    // Cheap early exit so closed instances don't pay for a bcrypt hash. The
+    // transaction below re-checks before creating anything.
+    if (!isPublicSignupOpen(await prisma.user.count())) {
       return NextResponse.json(
-        { error: 'User already exists' },
-        { status: 400 }
+        { error: 'Registration is currently disabled' },
+        { status: 403 }
       );
     }
 
-    // Hash password
+    // Hash password before opening the transaction so the slow bcrypt step
+    // doesn't hold it open
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Check if email verification is enabled (SaaS mode only)
@@ -99,20 +88,53 @@ export const POST = withLogging(async function POST(request: Request) {
       ? new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000)
       : null;
 
-    // Create user - auto-verify in self-hosted mode
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-        surname: surname || null,
-        nickname: nickname || null,
-        emailVerified: !requireEmailVerification, // Auto-verify in self-hosted mode
-        emailVerifyToken: hashedToken,
-        emailVerifyExpires: verifyExpires,
-        emailVerifySentAt: requireEmailVerification ? new Date() : null,
-      },
-    });
+    // Count, check and create in one serializable transaction so two people
+    // racing to set up an empty instance can't both become admin.
+    const outcome = await prisma.$transaction(async (tx) => {
+      const userCount = await tx.user.count();
+      if (!isPublicSignupOpen(userCount)) {
+        return { kind: 'closed' as const };
+      }
+
+      const existingUser = await tx.user.findUnique({
+        where: { email },
+      });
+      if (existingUser) {
+        return { kind: 'exists' as const };
+      }
+
+      const created = await tx.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          surname: surname || null,
+          nickname: nickname || null,
+          role: roleForSignup(userCount),
+          emailVerified: !requireEmailVerification, // Auto-verify in self-hosted mode
+          emailVerifyToken: hashedToken,
+          emailVerifyExpires: verifyExpires,
+          emailVerifySentAt: requireEmailVerification ? new Date() : null,
+        },
+      });
+      return { kind: 'created' as const, user: created };
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+
+    if (outcome.kind === 'closed') {
+      return NextResponse.json(
+        { error: 'Registration is currently disabled' },
+        { status: 403 }
+      );
+    }
+
+    if (outcome.kind === 'exists') {
+      return NextResponse.json(
+        { error: 'User already exists' },
+        { status: 400 }
+      );
+    }
+
+    const { user } = outcome;
 
     // Create free subscription for new user
     await createFreeSubscription(user.id);
@@ -137,6 +159,7 @@ export const POST = withLogging(async function POST(request: Request) {
     logger.info({
       email,
       userId: user.id,
+      role: user.role,
       emailVerificationRequired: requireEmailVerification,
     }, 'User registered successfully');
 

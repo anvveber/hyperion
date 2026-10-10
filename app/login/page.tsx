@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
   const [showCredentials, setShowCredentials] = useState(true);
   const [oidcProvider, setOidcProvider] = useState<{ enabled: boolean; name: string } | null>(null);
+  const [registrationEnabled, setRegistrationEnabled] = useState(false);
 
   useEffect(() => {
     fetchAvailableProviders().then((providers) => {
@@ -36,6 +37,23 @@ export default function LoginPage() {
       setOidcProvider(providers.oidc);
     });
   }, []);
+
+  // An empty instance has nobody to log in as: send the visitor to set up
+  // the admin account. Otherwise only offer signup where it is open.
+  useEffect(() => {
+    fetch('/api/auth/registration-status')
+      .then((res) => res.json())
+      .then((data: { enabled?: boolean; setupRequired?: boolean }) => {
+        if (data.setupRequired && data.enabled) {
+          router.replace('/register');
+          return;
+        }
+        setRegistrationEnabled(data.enabled === true);
+      })
+      .catch(() => {
+        // Leave the signup link hidden; the register page explains itself
+      });
+  }, [router]);
 
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -239,15 +257,17 @@ export default function LoginPage() {
                   {t('forgotPassword')}
                 </Link>
               </p>
-              <p className="text-sm text-muted">
-                {t('dontHaveAccount')}{' '}
-                <Link
-                  href="/register"
-                  className="font-medium text-primary hover:text-primary-dark transition-colors"
-                >
-                  {t('register')}
-                </Link>
-              </p>
+              {registrationEnabled && (
+                <p className="text-sm text-muted">
+                  {t('dontHaveAccount')}{' '}
+                  <Link
+                    href="/register"
+                    className="font-medium text-primary hover:text-primary-dark transition-colors"
+                  >
+                    {t('register')}
+                  </Link>
+                </p>
+              )}
             </div>
           </form>
         )}

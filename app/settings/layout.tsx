@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { isSaasMode as getIsSaasMode } from '@/lib/features';
 import { redirect } from 'next/navigation';
+import { isAdmin } from '@/lib/admin';
 import Navigation from '@/components/Navigation';
 import SettingsNav from '@/components/SettingsNav';
 import { getTranslations } from 'next-intl/server';
@@ -17,6 +18,7 @@ export default async function SettingsLayout({
   }
 
   const isSaasMode = getIsSaasMode();
+  const showAdmin = await isAdmin(session.user.id);
   const t = await getTranslations('settings');
 
   return (
@@ -38,7 +40,7 @@ export default async function SettingsLayout({
           <div className="flex flex-col md:flex-row gap-6">
             {/* Settings Navigation - responsive (dropdown on mobile, sidebar on desktop) */}
             <aside className="w-full md:w-64 flex-shrink-0">
-              <SettingsNav isSaasMode={isSaasMode} />
+              <SettingsNav isSaasMode={isSaasMode} isAdmin={showAdmin} />
             </aside>
 
             {/* Main Content */}

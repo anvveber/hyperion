@@ -60,29 +60,32 @@ Once OIDC is working reliably, you can hide the password form entirely and requi
 DISABLE_PASSWORD_LOGIN=true
 ```
 
-This removes the credentials form, the "forgot password" link, and the registration page. New users sign up simply by logging in through the OIDC provider for the first time.
+This removes the credentials form, the "forgot password" link, and the registration page. The first SSO login on an empty instance creates the admin account; everyone else needs an account added by an admin first (see below).
 
 The app refuses to start if `DISABLE_PASSWORD_LOGIN=true` is set without a fully configured OIDC provider, since that combination would lock everyone out. Fix the OIDC variables first, confirm SSO login works, and only then set this flag.
 
-## Restricting registration
+## Accounts and the admin
 
-For an instance you don't want strangers signing up to, set:
+A self-hosted instance has one public signup: the first account. Whoever opens a fresh instance is sent to a setup screen, and the account they create becomes the **admin**. After that, the signup page is closed and the login page no longer links to it.
 
-```bash
-DISABLE_REGISTRATION=true
-```
+The admin creates every other account from **Settings > Users**. From there an admin can:
 
-This allows the first user to register normally (when the instance has zero users), then blocks all subsequent registration attempts. It's meant for personal instances: you register first, registration closes automatically, and you add anyone else (family, for instance) manually rather than through public sign-up.
+- Add an account with a name, email, role and password, then share the password with the person. They can change it in Settings > Security.
+- Reset someone's password. This also clears a login lockout.
+- Make another account an admin, or remove admin rights. The instance always keeps at least one admin.
+- Delete an account and all of its data. Admins delete their own account from Settings > Account; the last admin can't do that while other accounts exist, so promote someone else first.
 
-To allow more users to register later, set `DISABLE_REGISTRATION=false` and restart the app. Registration reopens; set it back to `true` once the new accounts exist if you want it closed again.
+With OIDC configured, the password is optional. Leave it empty and the person signs in through your provider with that email, which links the SSO identity to the account. With `DISABLE_PASSWORD_LOGIN=true` the first SSO login on an empty instance creates the admin account, and later SSO logins only work for emails an admin has already added.
 
-If you've enabled OIDC and disabled password login, `DISABLE_REGISTRATION` still applies to OIDC-based account creation the same way: only the first login creates an account when the instance is empty, and later logins from new identities are blocked once registration is closed.
+Upgrading an existing instance: the migration that adds roles makes the oldest account the admin. Nothing else changes for existing accounts.
 
-### Open registration and outgoing webhooks
+`DISABLE_REGISTRATION` has no effect on self-hosted instances any more, since public signup is always closed once the first account exists. It still controls signup in SaaS mode.
+
+### Accounts and outgoing webhooks
 
 Self-hosted instances deliberately allow a webhook destination to point at a private address, any port, and plain http, since reaching a box on your own network is exactly the point of self-hosting the feature. That is a reasonable default for a single-user or trusted-family instance, but it means every account on the instance can make Nametag send a signed `POST` to any host, port, and path reachable from the server, not just an origin, since a webhook preserves the full path and query string (unlike an ntfy destination, which can only ever reach an origin's root).
 
-On a multi-user instance with `DISABLE_REGISTRATION` left at its default of `false`, that capability is available to anyone who signs up, not only to people you invited. If the instance sits on a network with anything sensitive reachable from it, either set `DISABLE_REGISTRATION=true` once your intended users have accounts, or run Nametag on a network segment isolated from anything a stranger's webhook shouldn't be able to reach.
+Because only an admin can create accounts, that capability is limited to people the admin added. If you add people you don't fully trust and the instance sits on a network with anything sensitive reachable from it, run Nametag on a network segment isolated from anything their webhooks shouldn't be able to reach.
 
 ## Password and session specs
 

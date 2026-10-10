@@ -60,11 +60,15 @@ A per-user toggle for geocoding, which controls whether Nametag looks up coordin
 
 Create and manage tokens for accessing the Nametag API programmatically. See the API Tokens page for setup details.
 
+## Users
+
+Only admins see this section. It lists every account on the instance and lets an admin add accounts, reset passwords, change who is an admin, and delete accounts. On a self-hosted instance this is the only way to add people after the first account. See [Authentication](/self-hosting/authentication/#accounts-and-the-admin).
+
 ## Account
 
 - **Export data**: download your data as JSON or vCard. See [Import & Export](/features/import-export/).
 - **Import data**: upload a JSON or vCard file. See [Import & Export](/features/import-export/).
-- **Delete account**: permanently removes your account and data. This requires typing "DELETE" to confirm and entering your password, a deliberate double check before something irreversible happens.
+- **Delete account**: permanently removes your account and data. This requires typing "DELETE" to confirm and entering your password, a deliberate double check before something irreversible happens. The only admin can't delete their account while other accounts exist; make someone else an admin first.
 
 ## Billing
 
