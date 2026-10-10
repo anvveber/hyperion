@@ -1520,6 +1520,7 @@
     "qrCodeError": "Échec de la génération du QR code",
     "close": "Fermer",
     "downloadVcardFile": "Télécharger le fichier vCard",
+    "downloadJsonFile": "Télécharger le profil en JSON",
     "duplicates": {
       "title": "Contacts en doublon",
       "findDuplicates": "Rechercher les doublons",

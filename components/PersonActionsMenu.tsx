@@ -208,6 +208,37 @@ export default function PersonActionsMenu({
     }
   };
 
+  const handleExportJson = async () => {
+    setMenuOpen(false);
+    setIsExporting(true);
+
+    try {
+      const response = await fetch(`/api/people/${personId}/export`);
+      if (!response.ok) {
+        throw new Error(`Export failed with status ${response.status}`);
+      }
+      const data: unknown = await response.json();
+
+      const fullName = [person.name, person.surname].filter(Boolean).join(' ') || 'contact';
+      const filename = generateVcfFilename(fullName).replace(/\.vcf$/, '.json');
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success(t('vcfExportSuccess', { filename }));
+    } catch (error) {
+      console.error('Failed to export JSON:', error);
+      toast.error(t('vcfExportError'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleShowQr = async () => {
     setMenuOpen(false);
     setIsExporting(true);
@@ -319,6 +350,17 @@ export default function PersonActionsMenu({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 {t('downloadVcardFile')}
+              </button>
+
+              {/* Export JSON */}
+              <button
+                onClick={handleExportJson}
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-3"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                {t('downloadJsonFile')}
               </button>
 
               {/* Show QR */}

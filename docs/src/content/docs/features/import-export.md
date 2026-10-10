@@ -37,6 +37,10 @@ This is the easiest way to bring contacts in from another app that can export vC
 
 You can export contacts as standard vCard 4.0 files from a person's detail page, or in bulk for many contacts at once. Photos are included by URL reference. The resulting file works with any app that reads vCards, not just Nametag.
 
+## Single person JSON export
+
+On a person's detail page, open the actions menu (the three dots) and pick **Download profile as JSON**. The file holds everything about that one person: all fields, contact details, important dates, groups, relationships with their notes, and journal entries that mention them. Photo files are not included.
+
 ## Data portability
 
 Export everything as JSON to back up or move to another Nametag instance. Export as vCard to take your contacts anywhere that speaks the format. Either way, your data never gets stuck.

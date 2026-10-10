@@ -1520,6 +1520,7 @@
     "qrCodeError": "QR-Code konnte nicht generiert werden",
     "close": "Schließen",
     "downloadVcardFile": "vCard-Datei herunterladen",
+    "downloadJsonFile": "Profil als JSON herunterladen",
     "duplicates": {
       "title": "Doppelte Kontakte",
       "findDuplicates": "Duplikate suchen",

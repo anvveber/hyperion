@@ -1520,6 +1520,7 @@
     "qrCodeError": "生成二维码失败",
     "close": "关闭",
     "downloadVcardFile": "下载 vCard 文件",
+    "downloadJsonFile": "以 JSON 格式下载资料",
     "duplicates": {
       "title": "重复联系人",
       "findDuplicates": "查找重复项",

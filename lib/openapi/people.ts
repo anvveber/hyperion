@@ -263,6 +263,43 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         },
       },
     },
+    '/api/people/{id}/export': {
+      get: {
+        tags: ['People'],
+        summary: 'Export a person as JSON',
+        description:
+          'Returns one person\'s full profile: all fields, contact details, important dates, groups, relationships (with notes) ' +
+          'and the journal entries that mention them. Photo files are not included, only the stored photo reference.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        responses: {
+          '200': jsonResponse('Person export', {
+            type: 'object',
+            properties: {
+              version: { type: 'string' },
+              exportDate: { type: 'string', format: 'date-time' },
+              person: { type: 'object', description: 'Same person shape as in GET /api/user/export, plus createdAt and updatedAt' },
+              journalEntries: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    title: { type: 'string' },
+                    date: { type: 'string', format: 'date-time' },
+                    body: { type: 'string' },
+                    people: { type: 'array', items: { type: 'string' } },
+                    peopleIds: { type: 'array', items: { type: 'string' } },
+                  },
+                },
+              },
+            },
+          }),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
     '/api/people/bulk': {
       post: {
         tags: ['People'],

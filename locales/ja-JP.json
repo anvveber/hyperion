@@ -1520,6 +1520,7 @@
     "qrCodeError": "QRコードの生成に失敗しました",
     "close": "閉じる",
     "downloadVcardFile": "vCardファイルをダウンロード",
+    "downloadJsonFile": "プロフィールをJSONでダウンロード",
     "duplicates": {
       "title": "重複する連絡先",
       "findDuplicates": "重複を検索",
