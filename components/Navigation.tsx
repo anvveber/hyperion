@@ -264,7 +264,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
               <Link
                 href={item.href}
                 aria-current={isActive(item.href) ? 'page' : undefined}
-                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-xs font-medium uppercase tracking-wider transition-colors ${
                   isActive(item.href)
                     ? 'text-primary'
                     : 'text-muted hover:text-foreground'
@@ -275,7 +275,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
               </Link>
               {/* Active indicator bar */}
               {isActive(item.href) && (
-                <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full" />
+                <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary" />
               )}
             </div>
           ))}

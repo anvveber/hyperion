@@ -13,7 +13,7 @@ Your name, surname, nickname, email address, and profile photo. Photo uploads su
 
 ## Appearance
 
-- **Theme**: Light or Dark. Dark is the default.
+- **Theme**: Light or Dark. Dark is the default. Both themes use the same black-and-white console look: square corners, hairline borders and monospace headings, labels, buttons, table data and graph names. Color appears only where it carries meaning, such as delete actions and the colors you give groups and relationship types.
 - **Language**: choose from all of Nametag's supported languages, including English, Spanish, Japanese, Norwegian, German, Chinese, Italian, Russian, Dutch, and French.
 - **Date format**: MDY, DMY, or YMD.
 - **Name order**: Western (first name, then last name) or Eastern (last name, then first name).

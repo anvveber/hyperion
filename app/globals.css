@@ -4,69 +4,79 @@
 /* Enable class-based dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* PALETTE — Warm Personal */
+/*
+ * PALETTE: Monochrome console
+ *
+ * Black, white and neutral grays only, in the spirit of analyst consoles.
+ * Color is reserved for meaning: destructive actions, warnings, and the
+ * colors people give their own groups and relationship types. Dark is the
+ * primary theme; light is its inverse.
+ */
 :root {
-  --a-primary: #2563EB;
-  --a-secondary: #93C5FD;
-  --a-text: #1C1917;
-  --a-bg: #F7F6F3;
+  --a-primary: #000000;
+  --a-secondary: #525252;
+  --a-text: #0A0A0A;
+  --a-bg: #F4F4F4;
   --a-surface: #FFFFFF;
 
-  --background: #F7F6F3;
-  --foreground: #1C1917;
+  --background: #F4F4F4;
+  --foreground: #0A0A0A;
   --surface: #FFFFFF;
-  --surface-elevated: #F3F2EF;
-  --border: rgba(28, 25, 23, 0.1);
-  --primary: #2563EB;
-  --primary-dark: #1D4ED8;
+  --surface-elevated: #F7F7F7;
+  --border: rgba(0, 0, 0, 0.16);
+  --primary: #000000;
+  --primary-dark: #333333;
   /*
    * Text and icons sitting ON a --primary surface.
    *
    * A token rather than a hardcoded text-white, because the correct answer
-   * flips with the theme: the light theme's primary is a mid blue that needs
-   * white on it, the dark theme's is a light blue that needs dark text. Using
-   * text-white in both measured about 2.54:1 in the dark theme, well under the
-   * 4.5:1 WCAG AA threshold, on every primary button in the app.
+   * flips with the theme: black buttons with white text in light, white
+   * buttons with black text in dark.
    *
    * Measured contrast, all four states above AA:
-   *   light base  #2563EB on #FFFFFF  5.17:1
-   *   light hover #1D4ED8 on #FFFFFF  6.70:1
-   *   dark  base  #60A5FA on #0B1220  7.36:1
-   *   dark  hover #3B82F6 on #0B1220  5.09:1
+   *   light base  #FFFFFF on #000000  21.00:1
+   *   light hover #FFFFFF on #333333  12.63:1
+   *   dark  base  #000000 on #FFFFFF  21.00:1
+   *   dark  hover #000000 on #D4D4D4  14.31:1
    */
   --on-primary: #FFFFFF;
-  --secondary: #93C5FD;
-  --tertiary: #93C5FD;
-  --accent: #D97706;
-  --muted: rgba(28, 25, 23, 0.63);
-  --warning: #C4552A;
-  --badge-bg: #E8E5E0;
-  --badge-text: #44403C;
+  --secondary: #525252;
+  --tertiary: #525252;
+  --accent: #000000;
+  --muted: rgba(0, 0, 0, 0.62);
+  --warning: #C23030;
+  --badge-bg: #E5E5E5;
+  --badge-text: #262626;
+
+  /* Faint console grid behind every page. */
+  --grid-line: rgba(0, 0, 0, 0.05);
 }
 
 .dark {
-  --a-primary: #60A5FA;
-  --a-secondary: #1D4ED8;
-  --a-text: #EDE9E1;
-  --a-bg: #121110;
-  --a-surface: #1C1A17;
+  --a-primary: #FFFFFF;
+  --a-secondary: #A3A3A3;
+  --a-text: #EDEDED;
+  --a-bg: #000000;
+  --a-surface: #0A0A0A;
 
-  --background: #121110;
-  --foreground: #EDE9E1;
-  --surface: #1C1A17;
-  --surface-elevated: #252320;
-  --border: rgba(237, 233, 225, 0.1);
-  --primary: #60A5FA;
-  --primary-dark: #3B82F6;
-  /* Dark text on the dark theme's light blue. See the light theme block. */
-  --on-primary: #0B1220;
-  --secondary: #1D4ED8;
-  --tertiary: #1D4ED8;
-  --accent: #F59E0B;
-  --muted: rgba(237, 233, 225, 0.6);
-  --warning: #E5603E;
-  --badge-bg: #44403C;
-  --badge-text: #D6D3CD;
+  --background: #000000;
+  --foreground: #EDEDED;
+  --surface: #0A0A0A;
+  --surface-elevated: #141414;
+  --border: rgba(255, 255, 255, 0.16);
+  --primary: #FFFFFF;
+  --primary-dark: #D4D4D4;
+  /* Black text on the dark theme's white. See the light theme block. */
+  --on-primary: #000000;
+  --secondary: #A3A3A3;
+  --tertiary: #A3A3A3;
+  --accent: #FFFFFF;
+  --muted: rgba(237, 237, 237, 0.6);
+  --warning: #FA7A7E;
+  --badge-bg: #1F1F1F;
+  --badge-text: #D4D4D4;
+
+  --grid-line: rgba(255, 255, 255, 0.055);
 }
 
 @theme inline {
@@ -96,11 +106,110 @@
 
   /* Use system font stack for better performance */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Cascadia Mono", "Roboto Mono", "DejaVu Sans Mono", "Liberation Mono", monospace;
+}
+
+/*
+ * Console geometry: near-square corners and flat, border-defined panels
+ * instead of soft cards with drop shadows. rounded-full is untouched, so
+ * avatars and status dots stay circular.
+ */
+@theme {
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+
+  --shadow-2xs: none;
+  --shadow-xs: none;
+  --shadow-sm: 0 0 0 1px var(--border);
+  --shadow-md: 0 0 0 1px var(--border);
+  --shadow-lg: 0 0 0 1px var(--border), 0 8px 24px rgb(0 0 0 / 0.25);
+  --shadow-xl: 0 0 0 1px var(--border), 0 12px 32px rgb(0 0 0 / 0.35);
+  --shadow-2xl: 0 0 0 1px var(--border), 0 16px 48px rgb(0 0 0 / 0.4);
+}
+
+@layer base {
+  /* Headings read as console titles. Utilities still decide size. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-mono);
+    letter-spacing: -0.01em;
+  }
+
+  h1,
+  h2 {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Table data in mono with aligned digits, like a readout. */
+  td {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Table headers as small-caps telemetry tags. */
+  th,
+  legend {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  input,
+  select,
+  textarea {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+}
+
+/*
+ * Stacked form-field labels (the `block` ones above an input) become small
+ * mono tags. Deliberately outside @layer so it wins over the text-sm those
+ * labels carry. Inline labels beside checkboxes are left as sentences.
+ */
+label.block:not(.sr-only) {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/*
+ * Primary actions are command buttons: mono, uppercase, tracked. Covers the
+ * Button component and the many hand-built bg-primary buttons and links.
+ */
+:is(a, button)[class*="bg-primary"] {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  /* Keeps the smaller text centred when a flex row stretches the button. */
+  align-content: center;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;

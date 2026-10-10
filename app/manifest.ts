@@ -39,8 +39,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     display: 'standalone',
     // Baked in at install time, so it cannot follow the per-user theme. Uses
     // the dark value because dark is the app default.
-    background_color: '#121110',
-    theme_color: '#121110',
+    background_color: '#000000',
+    theme_color: '#000000',
     lang: locale,
     dir: 'ltr',
     categories: ['productivity', 'lifestyle'],
