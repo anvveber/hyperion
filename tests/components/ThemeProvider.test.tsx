@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import ThemeProvider, { useTheme, THEME_COLORS } from '@/components/ThemeProvider';
 
-const LIGHT = '#F7F6F3';
-const DARK = '#121110';
+const LIGHT = '#EEF1F4';
+const DARK = '#090C10';
 
 /**
  * Reads --background out of one selector block in app/globals.css. Throws

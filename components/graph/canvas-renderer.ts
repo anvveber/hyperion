@@ -33,6 +33,12 @@ const FONT_SIZE = {
 
 const BUBBLE_RADIUS = { desktop: 14, mobile: 12 } as const;
 
+// Matches --font-mono in app/globals.css so graph labels read like the rest
+// of the console UI.
+const GRAPH_FONT = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Cascadia Mono", "Roboto Mono", "DejaVu Sans Mono", "Liberation Mono", monospace';
+// Signal blue from the dark palette (--primary).
+const CENTER_COLOR = '#4C90F0';
+
 function nodeRadius(node: SimulationNode, isMobile: boolean): number {
   if (node.kind === 'bubble') {
     return isMobile ? BUBBLE_RADIUS.mobile : BUBBLE_RADIUS.desktop;
@@ -49,7 +55,7 @@ function nodeFontSize(node: SimulationNode, isMobile: boolean): number {
 
 function getNodeFill(node: SimulationNode, isDark: boolean): string {
   if (node.kind === 'bubble') return node.color ?? (isDark ? '#4b5563' : '#d1d5db');
-  if (node.isCenter) return '#3B82F6';
+  if (node.isCenter) return CENTER_COLOR;
   if (node.colors.length > 0) return node.colors[0];
   return '#9CA3AF';
 }
@@ -57,7 +63,7 @@ function getNodeFill(node: SimulationNode, isDark: boolean): string {
 function getNodeStroke(node: SimulationNode, isDark: boolean): string {
   if (node.kind === 'bubble') return node.color ?? (isDark ? '#9ca3af' : '#6b7280');
   if (node.colors.length > 0) return node.colors[0];
-  if (node.isCenter) return '#3B82F6';
+  if (node.isCenter) return CENTER_COLOR;
   return isDark ? '#ffffff' : '#1f2937';
 }
 
@@ -151,7 +157,7 @@ function drawLabel(rc: RenderContext, node: SimulationNode, color: string): void
   if (node.kind !== 'person') return;  // bubble labels are drawn inside drawBubble
   if (node.x === undefined || node.y === undefined) return;
   const fontSize = nodeFontSize(node, rc.isMobile);
-  rc.ctx.font = `${node.isCenter ? '600 ' : ''}${fontSize}px system-ui, -apple-system, sans-serif`;
+  rc.ctx.font = `${node.isCenter ? '600 ' : ''}${fontSize}px ${GRAPH_FONT}`;
   rc.ctx.fillStyle = color;
   rc.ctx.textAlign = 'center';
   rc.ctx.textBaseline = 'top';
@@ -184,7 +190,7 @@ function drawBubble(rc: RenderContext, node: SimulationNode): void {
 
   if (rc.lod !== 'dots') {
     // Count inscribed in the ring
-    const countFont = `600 ${rc.isMobile ? 9 : 10}px system-ui, -apple-system, sans-serif`;
+    const countFont = `600 ${rc.isMobile ? 9 : 10}px ${GRAPH_FONT}`;
     rc.ctx.font = countFont;
     rc.ctx.fillStyle = rc.isDark ? '#f3f4f6' : '#111827';
     rc.ctx.globalAlpha = node.isExpanded ? 0.5 : 1;
@@ -194,7 +200,7 @@ function drawBubble(rc: RenderContext, node: SimulationNode): void {
     rc.ctx.globalAlpha = 1;
 
     // Group name label below, like a person's name
-    const labelFont = `${rc.isMobile ? 11 : 12}px system-ui, -apple-system, sans-serif`;
+    const labelFont = `${rc.isMobile ? 11 : 12}px ${GRAPH_FONT}`;
     rc.ctx.font = labelFont;
     rc.ctx.fillStyle = rc.isDark ? '#f3f4f6' : '#111827';
     rc.ctx.globalAlpha = node.isExpanded ? 0.5 : 1;
@@ -242,7 +248,7 @@ export function paintFrame(
   // Edge labels for highlighted edges
   if (rc.hoveredNodeId && rc.formatEdgeLabel && rc.lod !== 'dots') {
     const fontSize = rc.isMobile ? 10 : 11;
-    const fontFamily = 'system-ui, -apple-system, sans-serif';
+    const fontFamily = GRAPH_FONT;
     const normalFont = `${fontSize}px ${fontFamily}`;
     const boldFont = `700 ${fontSize}px ${fontFamily}`;
     rc.ctx.textAlign = 'left';

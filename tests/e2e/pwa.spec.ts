@@ -115,7 +115,7 @@ test.describe('PWA manifest and icons', () => {
       'content',
       'yes'
     );
-    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#121110');
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#090C10');
   });
 
   test('serves the worker uncached so updates can land', async ({ request }) => {
