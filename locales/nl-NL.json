@@ -73,7 +73,7 @@
     "fields": {
       "name": {
         "label": "Naam",
-        "placeholder": "Voornaam, achternaam of bijnaam"
+        "placeholder": "Voornaam, achternaam, bijnaam of andere naam"
       },
       "location": {
         "label": "Locatie",
@@ -87,6 +87,10 @@
         "label": "Telefoon",
         "placeholder": "Elk deel van het nummer"
       },
+      "handle": {
+        "label": "Gebruikersnaam",
+        "placeholder": "Gebruikersnaam of platform-ID"
+      },
       "keywords": {
         "label": "Trefwoorden in notities",
         "placeholder": "Woorden die in hun notities staan"
@@ -96,7 +100,9 @@
     "clear": "Wissen",
     "resultCount": "{count, plural, =1 {1 persoon gevonden} other {# personen gevonden}}",
     "resultsTruncated": "De eerste {shown} van {total} resultaten worden getoond. Voeg filters toe om te verfijnen.",
-    "noResults": "Geen mensen voldoen aan deze filters."
+    "noResults": "Geen mensen voldoen aan deze filters.",
+    "includePrevious": "Ook in eerdere waarden zoeken (oude nummers, adressen, namen, gebruikersnamen)",
+    "matchedPrevious": "Komt overeen met een eerdere waarde"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1479,48 @@
           "github": "GitHub profiel",
           "custom": "Aangepast veld"
         }
+      },
+      "sectionOtherNames": "Andere namen",
+      "sectionImHandles": "Berichtenaccounts",
+      "aliases": {
+        "label": "Andere namen",
+        "add": "Toevoegen",
+        "save": "Opslaan",
+        "cancel": "Annuleren",
+        "edit": "Bewerken",
+        "remove": "Verwijderen",
+        "typePlaceholder": "Type",
+        "namePlaceholder": "Naam",
+        "scriptPlaceholder": "Taal of schrift (optioneel)",
+        "noAliases": "Nog geen andere namen",
+        "types": {
+          "nickname": "Bijnaam",
+          "formerName": "Vorige naam",
+          "otherScript": "Ander schrift",
+          "other": "Overig"
+        }
+      },
+      "imHandles": {
+        "label": "Accounts",
+        "add": "Toevoegen",
+        "save": "Opslaan",
+        "cancel": "Annuleren",
+        "edit": "Bewerken",
+        "remove": "Verwijderen",
+        "typePlaceholder": "Platform",
+        "handlePlaceholder": "Gebruikersnaam",
+        "platformIdPlaceholder": "Gebruikers-ID (optioneel)",
+        "platformIdShort": "ID",
+        "platformIdHelp": "Gebruikersnamen kunnen veranderen, gebruikers-ID's niet. Zet in Discord de ontwikkelaarsmodus aan, klik met rechts op de persoon en kies Gebruikers-ID kopiëren.",
+        "noImHandles": "Nog geen accounts",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "Overig"
+        }
       }
     },
     "exportVcf": "VCF exporteren",
@@ -1632,6 +1680,56 @@
       "uploadSuccess": "{count, plural, one {Afbeelding toegevoegd} other {# afbeeldingen toegevoegd}}",
       "deleteSuccess": "Afbeelding verwijderd",
       "deleteFailed": "Afbeelding kon niet worden verwijderd"
+    },
+    "otherNames": "Andere namen",
+    "openProfile": "Profiel openen",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "Eerdere waarden",
+      "description": "Als een naam, nummer, adres, website of gebruikersnaam verandert, blijft de oude waarde hier bewaard met de datums. Je kunt er ook zelf een toevoegen.",
+      "view": {
+        "name": "Eerdere namen bekijken",
+        "nickname": "Eerdere bijnamen bekijken",
+        "organization": "Eerdere organisaties bekijken",
+        "jobTitle": "Eerdere functies bekijken",
+        "phone": "Eerdere telefoonnummers bekijken",
+        "email": "Eerdere e-mailadressen bekijken",
+        "address": "Eerdere adressen bekijken",
+        "url": "Eerdere websites bekijken",
+        "im": "Eerdere gebruikersnamen bekijken"
+      },
+      "hide": "Eerdere waarden verbergen",
+      "from": "Van",
+      "to": "Tot",
+      "period": "{from} tot {to}",
+      "unknownDate": "onbekend",
+      "edit": "Bewerken",
+      "delete": "Verwijderen",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "add": "Toevoegen",
+      "addPrevious": "Een eerdere waarde toevoegen",
+      "confirmDelete": "Deze eerdere waarde verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "deleted": "Eerdere waarde verwijderd",
+      "saved": "Eerdere waarde bijgewerkt",
+      "added": "Eerdere waarde toegevoegd",
+      "error": "Er ging iets mis. Probeer het opnieuw.",
+      "invalidRange": "De begindatum moet op of voor de einddatum liggen.",
+      "valuePlaceholder": "Eerdere waarde",
+      "typePlaceholder": "Label (optioneel)",
+      "fieldLabel": "Veld",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "Naam",
+        "nickname": "Bijnaam",
+        "organization": "Organisatie",
+        "jobTitle": "Functie",
+        "phone": "Telefoonnummer",
+        "email": "E-mailadres",
+        "address": "Adres",
+        "url": "Website",
+        "im": "Gebruikersnaam"
+      }
     }
   },
   "groups": {

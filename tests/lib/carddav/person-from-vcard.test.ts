@@ -14,6 +14,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   personCreate: vi.fn(),
   personUpdate: vi.fn(),
+  personFindUnique: vi.fn(),
+  personFieldHistoryFindMany: vi.fn(),
   personPhoneDeleteMany: vi.fn(),
   personEmailDeleteMany: vi.fn(),
   personAddressDeleteMany: vi.fn(),
@@ -94,7 +96,8 @@ describe('person-from-vcard', () => {
     mocks.$transaction.mockImplementation(
       async (fn: (tx: Record<string, unknown>) => Promise<unknown>) => {
         const tx = {
-          person: { update: mocks.personUpdate },
+          person: { update: mocks.personUpdate, findUnique: mocks.personFindUnique },
+          personFieldHistory: { findMany: mocks.personFieldHistoryFindMany },
           personPhone: { deleteMany: mocks.personPhoneDeleteMany },
           personEmail: { deleteMany: mocks.personEmailDeleteMany },
           personAddress: { deleteMany: mocks.personAddressDeleteMany },
@@ -109,6 +112,8 @@ describe('person-from-vcard', () => {
     );
 
     mocks.personUpdate.mockResolvedValue({});
+    mocks.personFindUnique.mockResolvedValue(null);
+    mocks.personFieldHistoryFindMany.mockResolvedValue([]);
     mocks.personCreate.mockResolvedValue({ id: PERSON_ID });
     mocks.savePhoto.mockResolvedValue(null);
   });
@@ -126,6 +131,37 @@ describe('person-from-vcard', () => {
       'gender',
       'notes',
     ] as const;
+
+    it('keeps values the server changed as field history and keeps platform IDs', async () => {
+      const since = new Date('2024-01-01T00:00:00Z');
+      mocks.personFindUnique.mockResolvedValue({
+        name: 'Alice',
+        middleName: null,
+        surname: null,
+        secondLastName: null,
+        nickname: null,
+        organization: null,
+        jobTitle: null,
+        phoneNumbers: [{ type: 'Mobile', number: '+1 555 0100', createdAt: since }],
+        emails: [],
+        addresses: [],
+        urls: [],
+        imHandles: [{ protocol: 'discord', handle: 'alice', platformId: '42', createdAt: since }],
+      });
+
+      await updatePersonFromVCard(PERSON_ID, makeMinimalParsedData({
+        phoneNumbers: [{ type: 'Mobile', number: '+1 555 0199' }],
+        imHandles: [{ protocol: 'discord', handle: 'alice' }],
+      }), USER_ID);
+
+      const data = mocks.personUpdate.mock.calls[0][0].data;
+      expect(data.fieldHistory.create).toEqual([
+        expect.objectContaining({ field: 'phone', value: '+1 555 0100', validFrom: since }),
+      ]);
+      expect(data.imHandles.create).toEqual([
+        { protocol: 'discord', handle: 'alice', platformId: '42', createdAt: since },
+      ]);
+    });
 
     it('passes null (not undefined) for missing optional scalar fields', async () => {
       // parsedData has no optional scalars set → they are all undefined

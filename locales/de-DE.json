@@ -73,7 +73,7 @@
     "fields": {
       "name": {
         "label": "Name",
-        "placeholder": "Vorname, Nachname oder Spitzname"
+        "placeholder": "Vorname, Nachname, Spitzname oder anderer Name"
       },
       "location": {
         "label": "Ort",
@@ -87,6 +87,10 @@
         "label": "Telefon",
         "placeholder": "Beliebiger Teil der Nummer"
       },
+      "handle": {
+        "label": "Benutzername",
+        "placeholder": "Benutzername oder Plattform-ID"
+      },
       "keywords": {
         "label": "Stichwörter in Notizen",
         "placeholder": "Wörter, die in ihren Notizen vorkommen"
@@ -96,7 +100,9 @@
     "clear": "Zurücksetzen",
     "resultCount": "{count, plural, =1 {1 Person gefunden} other {# Personen gefunden}}",
     "resultsTruncated": "Die ersten {shown} von {total} Treffern werden angezeigt. Füge weitere Filter hinzu, um die Suche einzugrenzen.",
-    "noResults": "Keine Personen entsprechen diesen Filtern."
+    "noResults": "Keine Personen entsprechen diesen Filtern.",
+    "includePrevious": "Auch frühere Werte durchsuchen (alte Nummern, Adressen, Namen, Benutzernamen)",
+    "matchedPrevious": "Treffer in einem früheren Wert"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1479,48 @@
           "github": "GitHub-Profil",
           "custom": "Benutzerdefiniertes Feld"
         }
+      },
+      "sectionOtherNames": "Weitere Namen",
+      "sectionImHandles": "Messenger-Konten",
+      "aliases": {
+        "label": "Weitere Namen",
+        "add": "Hinzufügen",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "edit": "Bearbeiten",
+        "remove": "Entfernen",
+        "typePlaceholder": "Typ",
+        "namePlaceholder": "Name",
+        "scriptPlaceholder": "Sprache oder Schrift (optional)",
+        "noAliases": "Noch keine weiteren Namen",
+        "types": {
+          "nickname": "Spitzname",
+          "formerName": "Früherer Name",
+          "otherScript": "Andere Schrift",
+          "other": "Sonstiges"
+        }
+      },
+      "imHandles": {
+        "label": "Konten",
+        "add": "Hinzufügen",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "edit": "Bearbeiten",
+        "remove": "Entfernen",
+        "typePlaceholder": "Plattform",
+        "handlePlaceholder": "Benutzername",
+        "platformIdPlaceholder": "Benutzer-ID (optional)",
+        "platformIdShort": "ID",
+        "platformIdHelp": "Benutzernamen können sich ändern, Benutzer-IDs nicht. In Discord den Entwicklermodus einschalten, dann mit der rechten Maustaste auf die Person klicken und Benutzer-ID kopieren wählen.",
+        "noImHandles": "Noch keine Konten",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "Sonstiges"
+        }
       }
     },
     "exportVcf": "VCF exportieren",
@@ -1632,6 +1680,56 @@
       "uploadSuccess": "{count, plural, one {Bild hinzugefügt} other {# Bilder hinzugefügt}}",
       "deleteSuccess": "Bild gelöscht",
       "deleteFailed": "Bild konnte nicht gelöscht werden"
+    },
+    "otherNames": "Weitere Namen",
+    "openProfile": "Profil öffnen",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "Frühere Werte",
+      "description": "Wenn sich ein Name, eine Nummer, Adresse, Website oder ein Benutzername ändert, wird der alte Wert hier mit Datum aufbewahrt. Du kannst auch selbst einen hinzufügen.",
+      "view": {
+        "name": "Frühere Namen anzeigen",
+        "nickname": "Frühere Spitznamen anzeigen",
+        "organization": "Frühere Organisationen anzeigen",
+        "jobTitle": "Frühere Berufsbezeichnungen anzeigen",
+        "phone": "Frühere Telefonnummern anzeigen",
+        "email": "Frühere E-Mail-Adressen anzeigen",
+        "address": "Frühere Adressen anzeigen",
+        "url": "Frühere Websites anzeigen",
+        "im": "Frühere Benutzernamen anzeigen"
+      },
+      "hide": "Frühere Werte ausblenden",
+      "from": "Von",
+      "to": "Bis",
+      "period": "{from} bis {to}",
+      "unknownDate": "unbekannt",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "add": "Hinzufügen",
+      "addPrevious": "Früheren Wert hinzufügen",
+      "confirmDelete": "Diesen früheren Wert löschen? Das kann nicht rückgängig gemacht werden.",
+      "deleted": "Früherer Wert gelöscht",
+      "saved": "Früherer Wert aktualisiert",
+      "added": "Früherer Wert hinzugefügt",
+      "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+      "invalidRange": "Das Startdatum muss vor oder auf dem Enddatum liegen.",
+      "valuePlaceholder": "Früherer Wert",
+      "typePlaceholder": "Bezeichnung (optional)",
+      "fieldLabel": "Feld",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "Name",
+        "nickname": "Spitzname",
+        "organization": "Organisation",
+        "jobTitle": "Berufsbezeichnung",
+        "phone": "Telefonnummer",
+        "email": "E-Mail-Adresse",
+        "address": "Adresse",
+        "url": "Website",
+        "im": "Benutzername"
+      }
     }
   },
   "groups": {

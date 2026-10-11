@@ -73,7 +73,7 @@
     "fields": {
       "name": {
         "label": "名前",
-        "placeholder": "名、姓、またはニックネーム"
+        "placeholder": "名、姓、ニックネーム、または別名"
       },
       "location": {
         "label": "所在地",
@@ -87,6 +87,10 @@
         "label": "電話",
         "placeholder": "番号の一部"
       },
+      "handle": {
+        "label": "ユーザー名",
+        "placeholder": "ユーザー名またはプラットフォームID"
+      },
       "keywords": {
         "label": "メモ内のキーワード",
         "placeholder": "メモに含まれる単語"
@@ -96,7 +100,9 @@
     "clear": "クリア",
     "resultCount": "{count, plural, =1 {1人見つかりました} other {#人見つかりました}}",
     "resultsTruncated": "{total}件中、最初の{shown}件を表示しています。フィルターを追加して絞り込んでください。",
-    "noResults": "条件に一致する人はいません。"
+    "noResults": "条件に一致する人はいません。",
+    "includePrevious": "以前の値も検索する（古い番号、住所、名前、ユーザー名）",
+    "matchedPrevious": "以前の値に一致"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1479,48 @@
           "github": "GitHubプロフィール",
           "custom": "カスタムフィールド"
         }
+      },
+      "sectionOtherNames": "別名",
+      "sectionImHandles": "メッセージアカウント",
+      "aliases": {
+        "label": "別名",
+        "add": "追加",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "edit": "編集",
+        "remove": "削除",
+        "typePlaceholder": "種類",
+        "namePlaceholder": "名前",
+        "scriptPlaceholder": "言語または文字（任意）",
+        "noAliases": "別名はまだありません",
+        "types": {
+          "nickname": "ニックネーム",
+          "formerName": "旧名",
+          "otherScript": "別の文字表記",
+          "other": "その他"
+        }
+      },
+      "imHandles": {
+        "label": "アカウント",
+        "add": "追加",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "edit": "編集",
+        "remove": "削除",
+        "typePlaceholder": "プラットフォーム",
+        "handlePlaceholder": "ユーザー名",
+        "platformIdPlaceholder": "ユーザーID（任意）",
+        "platformIdShort": "ID",
+        "platformIdHelp": "ユーザー名は変わることがありますが、ユーザーIDは変わりません。Discordでは開発者モードをオンにして、相手を右クリックし「ユーザーIDをコピー」を選びます。",
+        "noImHandles": "アカウントはまだありません",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "その他"
+        }
       }
     },
     "exportVcf": "VCFエクスポート",
@@ -1632,6 +1680,56 @@
       "uploadSuccess": "{count, plural, other {#件の画像を追加しました}}",
       "deleteSuccess": "画像を削除しました",
       "deleteFailed": "画像を削除できませんでした"
+    },
+    "otherNames": "別名",
+    "openProfile": "プロフィールを開く",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "以前の値",
+      "description": "名前、番号、住所、ウェブサイト、ユーザー名が変わると、古い値が日付とともにここに残ります。手動で追加することもできます。",
+      "view": {
+        "name": "以前の名前を表示",
+        "nickname": "以前のニックネームを表示",
+        "organization": "以前の所属を表示",
+        "jobTitle": "以前の役職を表示",
+        "phone": "以前の電話番号を表示",
+        "email": "以前のメールアドレスを表示",
+        "address": "以前の住所を表示",
+        "url": "以前のウェブサイトを表示",
+        "im": "以前のユーザー名を表示"
+      },
+      "hide": "以前の値を隠す",
+      "from": "開始",
+      "to": "終了",
+      "period": "{from} から {to}",
+      "unknownDate": "不明",
+      "edit": "編集",
+      "delete": "削除",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "add": "追加",
+      "addPrevious": "以前の値を追加",
+      "confirmDelete": "この以前の値を削除しますか？元に戻せません。",
+      "deleted": "以前の値を削除しました",
+      "saved": "以前の値を更新しました",
+      "added": "以前の値を追加しました",
+      "error": "問題が発生しました。もう一度お試しください。",
+      "invalidRange": "開始日は終了日と同じか、それより前にしてください。",
+      "valuePlaceholder": "以前の値",
+      "typePlaceholder": "ラベル（任意）",
+      "fieldLabel": "項目",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "名前",
+        "nickname": "ニックネーム",
+        "organization": "所属",
+        "jobTitle": "役職",
+        "phone": "電話番号",
+        "email": "メールアドレス",
+        "address": "住所",
+        "url": "ウェブサイト",
+        "im": "ユーザー名"
+      }
     }
   },
   "groups": {

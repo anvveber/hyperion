@@ -128,6 +128,8 @@ model Person {
   dismissalsAsB      DuplicateDismissal[]   @relation("DismissalPersonB")
   journalEntries     JournalEntryPerson[]
   images             PersonImage[]
+  aliases            PersonAlias[]
+  fieldHistory       PersonFieldHistory[]
 
   @@index([userId])
   @@index([relationshipToUserId])
@@ -713,15 +715,53 @@ model PersonImage {
 model PersonIM {
   id        String   @id @default(cuid())
   personId  String
-  protocol  String   // "skype", "whatsapp", "telegram", "signal", "other"
-  handle    String
-  createdAt DateTime @default(now())
+  protocol   String   // "discord", "telegram", "signal", "whatsapp", "skype", "other" or any custom value
+  handle     String   // Username or handle as shown on the platform
+  platformId String?  // Stable account ID on the platform (e.g. Discord numeric user ID)
+  createdAt  DateTime @default(now()) // Also serves as "valid from" for field history
 
   // Relations
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId])
   @@map("person_im_handles")
+}
+
+// PersonAlias - Other names a person goes by: extra nicknames, former names,
+// and spellings in other alphabets
+model PersonAlias {
+  id        String   @id @default(cuid())
+  personId  String
+  type      String   // "nickname" | "formerName" | "otherScript" | "other" or any custom value
+  name      String
+  script    String?  // Language or alphabet, e.g. "Cyrillic" or "Japanese (kana)"
+  createdAt DateTime @default(now())
+
+  // Relations
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId])
+  @@map("person_aliases")
+}
+
+// PersonFieldHistory - Previous values of a field, kept when a value is
+// changed or removed instead of being overwritten
+model PersonFieldHistory {
+  id        String    @id @default(cuid())
+  personId  String
+  field     String    // "name" | "nickname" | "organization" | "jobTitle" | "phone" | "email" | "address" | "url" | "im"
+  type      String?   // Label of the old value (e.g. "Mobile") or IM platform
+  value     String    @db.Text // Display value
+  data      Json?     // Structured copy of the old value (address parts, IM platform ID)
+  validFrom DateTime?
+  validTo   DateTime?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, field])
+  @@map("person_field_history")
 }
 
 // PersonLocation - Geographic locations (GEO property)

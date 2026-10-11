@@ -73,7 +73,7 @@
     "fields": {
       "name": {
         "label": "Navn",
-        "placeholder": "Fornavn, etternavn eller kallenavn"
+        "placeholder": "Fornavn, etternavn, kallenavn eller annet navn"
       },
       "location": {
         "label": "Sted",
@@ -87,6 +87,10 @@
         "label": "Telefon",
         "placeholder": "Hvilken som helst del av nummeret"
       },
+      "handle": {
+        "label": "Brukernavn",
+        "placeholder": "Brukernavn eller plattform-ID"
+      },
       "keywords": {
         "label": "Nøkkelord i notater",
         "placeholder": "Ord som står i notatene deres"
@@ -96,7 +100,9 @@
     "clear": "Tøm",
     "resultCount": "{count, plural, =1 {1 person funnet} other {# personer funnet}}",
     "resultsTruncated": "Viser de første {shown} av {total} treff. Legg til flere filtre for å snevre inn.",
-    "noResults": "Ingen personer samsvarer med disse filtrene."
+    "noResults": "Ingen personer samsvarer med disse filtrene.",
+    "includePrevious": "Søk også i tidligere verdier (gamle numre, adresser, navn, brukernavn)",
+    "matchedPrevious": "Treff i en tidligere verdi"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1479,48 @@
           "github": "GitHub-profil",
           "custom": "Egendefinert felt"
         }
+      },
+      "sectionOtherNames": "Andre navn",
+      "sectionImHandles": "Meldingskontoer",
+      "aliases": {
+        "label": "Andre navn",
+        "add": "Legg til",
+        "save": "Lagre",
+        "cancel": "Avbryt",
+        "edit": "Rediger",
+        "remove": "Fjern",
+        "typePlaceholder": "Type",
+        "namePlaceholder": "Navn",
+        "scriptPlaceholder": "Språk eller alfabet (valgfritt)",
+        "noAliases": "Ingen andre navn ennå",
+        "types": {
+          "nickname": "Kallenavn",
+          "formerName": "Tidligere navn",
+          "otherScript": "Annet alfabet",
+          "other": "Annet"
+        }
+      },
+      "imHandles": {
+        "label": "Kontoer",
+        "add": "Legg til",
+        "save": "Lagre",
+        "cancel": "Avbryt",
+        "edit": "Rediger",
+        "remove": "Fjern",
+        "typePlaceholder": "Plattform",
+        "handlePlaceholder": "Brukernavn",
+        "platformIdPlaceholder": "Bruker-ID (valgfritt)",
+        "platformIdShort": "ID",
+        "platformIdHelp": "Brukernavn kan endres, bruker-ID-er gjør ikke det. I Discord slår du på utviklermodus, høyreklikker på personen og velger Kopier bruker-ID.",
+        "noImHandles": "Ingen kontoer ennå",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "Annet"
+        }
       }
     },
     "exportVcf": "Eksporter VCF",
@@ -1632,6 +1680,56 @@
       "uploadSuccess": "{count, plural, one {Bilde lagt til} other {# bilder lagt til}}",
       "deleteSuccess": "Bilde slettet",
       "deleteFailed": "Kunne ikke slette bildet"
+    },
+    "otherNames": "Andre navn",
+    "openProfile": "Åpne profil",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "Tidligere verdier",
+      "description": "Når et navn, nummer, en adresse, nettside eller et brukernavn endres, blir den gamle verdien lagret her med datoer. Du kan også legge til en selv.",
+      "view": {
+        "name": "Vis tidligere navn",
+        "nickname": "Vis tidligere kallenavn",
+        "organization": "Vis tidligere organisasjoner",
+        "jobTitle": "Vis tidligere stillinger",
+        "phone": "Vis tidligere telefonnumre",
+        "email": "Vis tidligere e-postadresser",
+        "address": "Vis tidligere adresser",
+        "url": "Vis tidligere nettsider",
+        "im": "Vis tidligere brukernavn"
+      },
+      "hide": "Skjul tidligere verdier",
+      "from": "Fra",
+      "to": "Til",
+      "period": "{from} til {to}",
+      "unknownDate": "ukjent",
+      "edit": "Rediger",
+      "delete": "Slett",
+      "save": "Lagre",
+      "cancel": "Avbryt",
+      "add": "Legg til",
+      "addPrevious": "Legg til en tidligere verdi",
+      "confirmDelete": "Slette denne tidligere verdien? Dette kan ikke angres.",
+      "deleted": "Tidligere verdi slettet",
+      "saved": "Tidligere verdi oppdatert",
+      "added": "Tidligere verdi lagt til",
+      "error": "Noe gikk galt. Prøv igjen.",
+      "invalidRange": "Startdatoen må være samme dag som eller før sluttdatoen.",
+      "valuePlaceholder": "Tidligere verdi",
+      "typePlaceholder": "Etikett (valgfritt)",
+      "fieldLabel": "Felt",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "Navn",
+        "nickname": "Kallenavn",
+        "organization": "Organisasjon",
+        "jobTitle": "Stilling",
+        "phone": "Telefonnummer",
+        "email": "E-postadresse",
+        "address": "Adresse",
+        "url": "Nettside",
+        "im": "Brukernavn"
+      }
     }
   },
   "groups": {

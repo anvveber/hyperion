@@ -5,12 +5,31 @@ import { canCreateResource, getUserUsage } from '@/lib/billing';
 import { isSaasMode } from '@/lib/features';
 import { formatCanonicalName } from '@/lib/nameUtils';
 import { validateRawValue } from '@/lib/customFields/values';
+import { isHistoryField } from '@/lib/field-history-fields';
 import type { CustomFieldType, ReminderIntervalUnit } from '@prisma/client';
 
 import { z } from 'zod';
 
 type ImportData = z.infer<typeof importDataSchema>;
 type ImportRequestBody = ImportData & { groupIds?: string[] };
+
+function parseImportDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** Keep only flat string values (address parts, platform ID) from exported history data. */
+function historyDataForImport(
+  data: Record<string, unknown> | null | undefined
+): Record<string, string | null> | undefined {
+  if (!data) return undefined;
+  const result: Record<string, string | null> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === 'string' || value === null) result[key] = value;
+  }
+  return Object.keys(result).length > 0 ? result : undefined;
+}
 
 export const POST = withAuth(async (request, session) => {
   try {
@@ -428,7 +447,37 @@ export const POST = withAuth(async (request, session) => {
               personId,
               protocol: im.protocol,
               handle: im.handle,
+              platformId: im.platformId || null,
             })),
+          });
+        }
+
+        if (person.aliases?.length) {
+          await prisma.personAlias.createMany({
+            data: person.aliases
+              .filter((a) => a.name.trim().length > 0)
+              .map((a) => ({
+                personId,
+                type: a.type || 'other',
+                name: a.name,
+                script: a.script || null,
+              })),
+          });
+        }
+
+        if (person.fieldHistory?.length) {
+          await prisma.personFieldHistory.createMany({
+            data: person.fieldHistory
+              .filter((h) => isHistoryField(h.field) && h.value.trim().length > 0)
+              .map((h) => ({
+                personId,
+                field: h.field,
+                type: h.type || null,
+                value: h.value,
+                data: historyDataForImport(h.data),
+                validFrom: parseImportDate(h.validFrom),
+                validTo: parseImportDate(h.validTo),
+              })),
           });
         }
 
