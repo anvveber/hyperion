@@ -6,26 +6,112 @@ import { toast } from 'sonner';
 import { Button } from './ui/Button';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { convertHeicToJpeg, isHeicFile } from '@/lib/photo-client';
+import { documentKind, fileTypeLabel } from '@/lib/document-types';
 
-interface PersonImage {
+interface PersonDocument {
   id: string;
-  width: number;
-  height: number;
+  originalName: string;
+  mimeType: string;
   size: number;
+  width: number | null;
+  height: number | null;
+  hasThumbnail: boolean;
   createdAt: string;
 }
 
-interface PersonImageFolderProps {
+interface PersonDocumentFolderProps {
   personId: string;
 }
 
-function imageUrl(personId: string, imageId: string, thumb = false): string {
-  return `/api/people/${personId}/images/${imageId}${thumb ? '?size=thumb' : ''}`;
+// Keep in sync with MAX_PERSON_DOCUMENT_UPLOAD_SIZE in lib/person-document-storage.ts
+const MAX_UPLOAD_MB = 200;
+
+function documentUrl(personId: string, documentId: string, variant?: 'thumb' | 'download'): string {
+  const base = `/api/people/${personId}/documents/${documentId}`;
+  if (variant === 'thumb') return `${base}?size=thumb`;
+  if (variant === 'download') return `${base}?download=1`;
+  return base;
 }
 
-export default function PersonImageFolder({ personId }: PersonImageFolderProps) {
-  const t = useTranslations('people.images');
-  const [images, setImages] = useState<PersonImage[]>([]);
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const iconClass = 'p-2 text-white/70 hover:text-white transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white';
+
+function FileIcon({ className }: { className: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5zM14 3v5h5" />
+    </svg>
+  );
+}
+
+function Preview({ personId, doc }: { personId: string; doc: PersonDocument }) {
+  const t = useTranslations('people.documents');
+  const [failed, setFailed] = useState(false);
+  const url = documentUrl(personId, doc.id);
+  const kind = failed ? 'other' : documentKind(doc.mimeType);
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+  switch (kind) {
+    case 'image':
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt={doc.originalName}
+          onClick={stop}
+          onError={() => setFailed(true)}
+          className="max-w-[85vw] max-h-[80vh] rounded-lg object-contain shadow-2xl"
+        />
+      );
+    case 'pdf':
+    case 'text':
+      return (
+        <iframe
+          src={url}
+          title={doc.originalName}
+          onClick={stop}
+          className="w-[90vw] max-w-5xl h-[80vh] rounded-lg bg-white shadow-2xl"
+        />
+      );
+    case 'video':
+      return (
+        <video
+          src={url}
+          controls
+          preload="metadata"
+          onClick={stop}
+          onError={() => setFailed(true)}
+          className="max-w-[90vw] max-h-[80vh] rounded-lg bg-black shadow-2xl"
+        />
+      );
+    case 'audio':
+      return (
+        <audio src={url} controls preload="metadata" onClick={stop} onError={() => setFailed(true)} className="w-[min(90vw,32rem)]" />
+      );
+    default:
+      return (
+        <div onClick={stop} className="flex flex-col items-center gap-4 rounded-lg bg-surface p-8 text-center shadow-2xl max-w-[90vw]">
+          <FileIcon className="w-16 h-16 text-muted" />
+          <p className="text-sm text-muted">{t('noPreview')}</p>
+          <a
+            href={documentUrl(personId, doc.id, 'download')}
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-on-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {t('download')}
+          </a>
+        </div>
+      );
+  }
+}
+
+export default function PersonDocumentFolder({ personId }: PersonDocumentFolderProps) {
+  const t = useTranslations('people.documents');
+  const [documents, setDocuments] = useState<PersonDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<{ done: number; total: number } | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -36,10 +122,10 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/people/${personId}/images`)
+    fetch(`/api/people/${personId}/documents`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
-      .then((data: { images: PersonImage[] }) => {
-        if (!cancelled) setImages(data.images);
+      .then((data: { documents: PersonDocument[] }) => {
+        if (!cancelled) setDocuments(data.documents);
       })
       .catch(() => {
         if (!cancelled) toast.error(t('loadFailed'));
@@ -55,49 +141,63 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     const files = Array.from(fileList);
+    let added = 0;
+    let duplicates = 0;
     let failed = 0;
     setUploading({ done: 0, total: files.length });
 
     // Upload one at a time so each request stays under the body size limit
     for (const [i, original] of files.entries()) {
       try {
+        if (original.size > MAX_UPLOAD_MB * 1024 * 1024) {
+          toast.error(t('tooLarge', { name: original.name, max: MAX_UPLOAD_MB }));
+          failed += 1;
+          continue;
+        }
         let file: Blob = original;
+        let name = original.name;
+        // Browsers cannot show HEIC, so photos from iPhones are stored as JPEG
         if (isHeicFile(original)) {
           file = await convertHeicToJpeg(original);
+          name = name.replace(/\.(heic|heif)$/i, '') + '.jpg';
         }
         const formData = new FormData();
-        formData.append('image', file);
-        const res = await fetch(`/api/people/${personId}/images`, {
+        formData.append('file', file, name);
+        const res = await fetch(`/api/people/${personId}/documents`, {
           method: 'POST',
           body: formData,
         });
         if (!res.ok) throw new Error(String(res.status));
-        const data = (await res.json()) as { image: PersonImage };
-        setImages((prev) => [data.image, ...prev]);
+        const data = (await res.json()) as { document: PersonDocument; duplicate: boolean };
+        if (data.duplicate) {
+          duplicates += 1;
+        } else {
+          added += 1;
+          setDocuments((prev) => [data.document, ...prev]);
+        }
       } catch {
         failed += 1;
+      } finally {
+        setUploading({ done: i + 1, total: files.length });
       }
-      setUploading({ done: i + 1, total: files.length });
     }
 
     setUploading(null);
     if (inputRef.current) inputRef.current.value = '';
-    if (failed > 0) {
-      toast.error(t('uploadFailed', { count: failed }));
-    } else {
-      toast.success(t('uploadSuccess', { count: files.length }));
-    }
+    if (added > 0) toast.success(t('uploadSuccess', { count: added }));
+    if (duplicates > 0) toast.info(t('duplicate', { count: duplicates }));
+    if (failed > 0) toast.error(t('uploadFailed', { count: failed }));
   };
 
   const close = useCallback(() => setOpenIndex(null), []);
   const step = useCallback(
     (delta: number) => {
       setOpenIndex((idx) => {
-        if (idx === null || images.length === 0) return idx;
-        return (idx + delta + images.length) % images.length;
+        if (idx === null || documents.length === 0) return idx;
+        return (idx + delta + documents.length) % documents.length;
       });
     },
-    [images.length]
+    [documents.length]
   );
 
   useEffect(() => {
@@ -121,10 +221,10 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
     setIsDeleting(true);
     setDeleteError(null);
     try {
-      const res = await fetch(`/api/people/${personId}/images/${pendingDelete}`, { method: 'DELETE' });
+      const res = await fetch(`/api/people/${personId}/documents/${pendingDelete}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(String(res.status));
-      const remaining = images.filter((img) => img.id !== pendingDelete);
-      setImages(remaining);
+      const remaining = documents.filter((doc) => doc.id !== pendingDelete);
+      setDocuments(remaining);
       setOpenIndex((idx) => {
         if (idx === null || remaining.length === 0) return null;
         return Math.min(idx, remaining.length - 1);
@@ -138,15 +238,15 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
     }
   };
 
-  const current = openIndex !== null ? images[openIndex] : null;
+  const current = openIndex !== null ? documents[openIndex] : null;
 
   return (
     <div className="border border-border rounded-lg p-4">
       <div className="flex items-center justify-between mb-4 gap-2">
         <h3 className="text-lg font-semibold text-foreground">
           {t('title')}
-          {images.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-muted">{images.length}</span>
+          {documents.length > 0 && (
+            <span className="ml-2 text-sm font-normal text-muted">{documents.length}</span>
           )}
         </h3>
         <Button
@@ -162,7 +262,6 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,.heic,.heif"
           multiple
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
@@ -172,25 +271,38 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
 
       {loading ? (
         <p className="text-sm text-muted">{t('loading')}</p>
-      ) : images.length === 0 ? (
+      ) : documents.length === 0 ? (
         <p className="text-sm text-muted">{t('empty')}</p>
       ) : (
         <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-          {images.map((img, idx) => (
-            <li key={img.id}>
+          {documents.map((doc, idx) => (
+            <li key={doc.id}>
               <button
                 type="button"
                 onClick={() => setOpenIndex(idx)}
                 className="block w-full aspect-square overflow-hidden rounded-md bg-surface-elevated focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                aria-label={t('view', { number: idx + 1 })}
+                aria-label={t('view', { name: doc.originalName })}
+                title={doc.originalName}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageUrl(personId, img.id, true)}
-                  alt=""
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                />
+                {doc.hasThumbnail ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={documentUrl(personId, doc.id, 'thumb')}
+                    alt=""
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-muted">
+                    <span className="relative">
+                      <FileIcon className="w-10 h-10" />
+                      <span className="absolute inset-x-0 bottom-1.5 text-center text-[9px] font-semibold tracking-wide">
+                        {fileTypeLabel(doc.originalName, doc.mimeType)}
+                      </span>
+                    </span>
+                    <span className="w-full truncate text-center text-xs text-foreground">{doc.originalName}</span>
+                  </span>
+                )}
               </button>
             </li>
           ))}
@@ -203,22 +315,32 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
           onClick={close}
           role="dialog"
           aria-modal="true"
-          aria-label={t('view', { number: openIndex + 1 })}
+          aria-label={t('view', { name: current.originalName })}
         >
           <div
             className="absolute top-4 right-4 flex items-center gap-1"
             onClick={(e) => e.stopPropagation()}
           >
             <a
-              href={imageUrl(personId, current.id)}
+              href={documentUrl(personId, current.id)}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-white/70 hover:text-white transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className={iconClass}
               aria-label={t('openOriginal')}
               title={t('openOriginal')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7v7M10 14L21 3M21 14v7H3V3h7" />
+              </svg>
+            </a>
+            <a
+              href={documentUrl(personId, current.id, 'download')}
+              className={iconClass}
+              aria-label={t('download')}
+              title={t('download')}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-5-5m5 5l5-5M4 20h16" />
               </svg>
             </a>
             <button
@@ -235,7 +357,7 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
             <button
               type="button"
               onClick={close}
-              className="p-2 text-white/70 hover:text-white transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className={iconClass}
               aria-label={t('close')}
               title={t('close')}
             >
@@ -245,7 +367,7 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
             </button>
           </div>
 
-          {images.length > 1 && (
+          {documents.length > 1 && (
             <>
               <button
                 type="button"
@@ -270,17 +392,10 @@ export default function PersonImageFolder({ personId }: PersonImageFolderProps) 
             </>
           )}
 
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={current.id}
-            src={imageUrl(personId, current.id)}
-            alt={t('view', { number: openIndex + 1 })}
-            onClick={(e) => e.stopPropagation()}
-            className="max-w-[85vw] max-h-[85vh] rounded-lg object-contain shadow-2xl"
-          />
+          <Preview key={current.id} personId={personId} doc={current} />
 
-          <p className="absolute bottom-4 text-sm text-white/70">
-            {t('position', { number: openIndex + 1, total: images.length })}
+          <p className="absolute bottom-4 inset-x-4 truncate text-center text-sm text-white/70">
+            {current.originalName} · {formatSize(current.size)} · {t('position', { number: openIndex + 1, total: documents.length })}
           </p>
         </div>
       )}

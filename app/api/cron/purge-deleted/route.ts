@@ -71,7 +71,7 @@ export const GET = withLogging(async function GET(request: Request) {
     });
     const personIds = personsToDelete.map((p: { id: string }) => p.id);
 
-    // Delete photos, image folders and audio folders for persons being purged
+    // Delete photos, documents and audio folders for persons being purged
     for (const person of personsToDelete as { id: string; userId: string }[]) {
       await deletePersonFiles(person.userId, person.id);
     }

@@ -77,6 +77,7 @@ const basePerson = {
   imHandles: [],
   aliases: [],
   fieldHistory: [],
+  documents: [],
   visits: [{ date: new Date('2025-03-12T00:00:00.000Z'), location: 'Lisbon', motivation: 'Wedding' }],
   locations: [],
   customFields: [],

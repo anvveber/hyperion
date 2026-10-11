@@ -79,7 +79,7 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `SMTP_PASS` | SMTP password or app-specific password | Not set |
 | `SMTP_REQUIRE_TLS` | Require STARTTLS | `true` |
 | `SMTP_FROM` | Override the "from" address if your server rejects custom ones | Not set |
-| `PHOTO_STORAGE_PATH` | Custom path for photo storage (also holds image folders and audio recordings) | `/app/data/photos` |
+| `PHOTO_STORAGE_PATH` | Custom path for photo storage (also holds document folders and audio recordings) | `/app/data/photos` |
 | `PHOTO_SIZE` | Max photo dimensions in pixels (square, 64 to 4096). Smaller images keep their original size. | `256` |
 | `PHOTO_QUALITY` | JPEG quality for opaque photos, 1 to 100 | `80` |
 | `TRASH_RETENTION_DAYS` | How many days deleted items stay in the trash before the `purge-deleted` job removes them for good, or `never` to keep them until a user deletes them by hand | `never` |
@@ -183,12 +183,12 @@ These limits aren't set through environment variables, they're fixed in the appl
 | Limit | Value |
 | --- | --- |
 | Default API request body size | 1 MB |
-| Next.js proxy body size (raised for photo uploads) | 50 MB |
+| Next.js proxy body size (raised for uploads: 200 MB documents and audio, plus the multipart wrapper) | 201 MB |
 | Database query timeout, default | 10 seconds |
 | Database query timeout, long-running queries | 30 seconds |
 | External API timeout (e.g. geocoder requests) | 10 seconds |
 
-If you're running Nametag behind your own reverse proxy (nginx, Caddy, Traefik), make sure its own body size limit is at least 50 MB too, otherwise photo uploads will be rejected before they even reach Nametag.
+If you're running Nametag behind your own reverse proxy (nginx, Caddy, Traefik), make sure its own body size limit is at least 50 MB too, otherwise photo uploads will be rejected before they even reach Nametag. To upload large videos or recordings to a document or audio folder, raise it to 200 MB.
 
 Detailed setup for each of these areas lives on its own page:
 

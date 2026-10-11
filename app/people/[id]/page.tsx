@@ -21,7 +21,7 @@ import PhotoLightbox from '@/components/PhotoLightbox';
 import { getTranslations } from 'next-intl/server';
 import { getDateDisplayTitle } from '@/lib/important-date-types';
 import JournalSection from '@/components/JournalSection';
-import PersonImageFolder from '@/components/PersonImageFolder';
+import PersonDocumentFolder from '@/components/PersonDocumentFolder';
 import PersonAudioFolder from '@/components/PersonAudioFolder';
 import PersonVisits from '@/components/PersonVisits';
 import MessagingLinks from '@/components/MessagingLinks';
@@ -928,8 +928,8 @@ export default async function PersonDetailsPage({
                 </div>
               )}
 
-              {/* Image folder */}
-              <PersonImageFolder personId={person.id} />
+              {/* Document folder */}
+              <PersonDocumentFolder personId={person.id} />
 
               {/* Audio folder */}
               <PersonAudioFolder personId={person.id} dateFormat={dateFormat as DateFormat} />

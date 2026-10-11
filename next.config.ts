@@ -20,9 +20,10 @@ const nextConfig: NextConfig = {
   // Next 16's default proxyClientMaxBodySize is 10MB. Bodies larger than the
   // limit are silently truncated, which breaks multipart parsing for photo
   // and audio uploads. Raise to match the largest upload cap (200MB for audio
-  // recordings; each route still enforces its own limit).
+  // recordings and documents, plus room for the multipart wrapper; each route
+  // still enforces its own limit).
   experimental: {
-    proxyClientMaxBodySize: '200mb',
+    proxyClientMaxBodySize: '201mb',
   },
 
   // Logging configuration
@@ -87,6 +88,26 @@ const nextConfig: NextConfig = {
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
+            ].join('; '),
+          },
+        ],
+      },
+      {
+        // Files from a person's document folder are shown in an iframe or a
+        // new tab on the person page (PDF, plain text). Allow same-origin
+        // framing but nothing that could run: no scripts, no requests.
+        source: '/api/people/:id/documents/:documentId',
+        headers: [
+          ...securityHeaders,
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'none'",
+              "img-src 'self'",
+              "media-src 'self'",
+              "style-src 'unsafe-inline'",
+              "frame-ancestors 'self'",
             ].join('; '),
           },
         ],

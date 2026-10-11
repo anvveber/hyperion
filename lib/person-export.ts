@@ -95,6 +95,10 @@ export const personExportInclude = {
     where: { template: { deletedAt: null } },
     select: { value: true, template: { select: { slug: true } } },
   },
+  documents: {
+    select: { originalName: true, mimeType: true, size: true, sha256: true, createdAt: true },
+    orderBy: { createdAt: 'asc' },
+  },
 } satisfies Prisma.PersonInclude;
 
 export type PersonForExport = Prisma.PersonGetPayload<{ include: typeof personExportInclude }>;
@@ -182,6 +186,14 @@ export function serializePersonForExport(person: PersonForExport) {
     customFieldValues: person.customFieldValues.map((cfv) => ({
       slug: cfv.template.slug,
       value: cfv.value,
+    })),
+    // File list only: the files themselves are not embedded in the JSON
+    documents: person.documents.map((d) => ({
+      name: d.originalName,
+      mimeType: d.mimeType,
+      size: d.size,
+      sha256: d.sha256,
+      addedAt: d.createdAt,
     })),
     relationshipToUser: person.relationshipToUser
       ? {

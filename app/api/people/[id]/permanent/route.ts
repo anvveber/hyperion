@@ -17,7 +17,7 @@ export const DELETE = withAuth(async (_request, session, context) => {
     );
     if (!guard.ok) return guard.response;
 
-    // Delete photo files and the person's image and audio folders (rows cascade)
+    // Delete photo files, the person's documents and audio folder
     await deletePersonFiles(session.user.id, id);
 
     // Delete child records in FK order

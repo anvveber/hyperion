@@ -127,7 +127,7 @@ model Person {
   dismissalsAsA      DuplicateDismissal[]   @relation("DismissalPersonA")
   dismissalsAsB      DuplicateDismissal[]   @relation("DismissalPersonB")
   journalEntries     JournalEntryPerson[]
-  images             PersonImage[]
+  documents          PersonDocument[]
   audio              PersonAudio[]
   aliases            PersonAlias[]
   fieldHistory       PersonFieldHistory[]
@@ -695,22 +695,28 @@ model PersonUrl {
   @@map("person_urls")
 }
 
-// PersonImage - Images in a person's image folder (files live on disk)
-model PersonImage {
-  id        String   @id @default(cuid())
-  personId  String
-  filename  String   // Full-size file, e.g. "{id}.jpg"
-  thumbnail String   // Thumbnail file, e.g. "{id}_thumb.jpg"
-  width     Int
-  height    Int
-  size      Int      // Bytes of the stored full-size file
-  createdAt DateTime @default(now())
+// PersonDocument - Files in a person's document folder (any type: images,
+// PDFs, video...). The bytes live on disk content-addressed by SHA-256 under
+// the owner's folder, so a file uploaded twice is stored once.
+model PersonDocument {
+  id             String   @id @default(cuid())
+  personId       String
+  sha256         String?  // Null only for gallery images not yet moved into the hashed store
+  legacyFilename String?  // Old gallery file name ("{id}.jpg") until it has been moved
+  originalName   String
+  mimeType       String
+  size           Int      // Bytes
+  width          Int?     // Images only
+  height         Int?
+  hasThumbnail   Boolean  @default(false)
+  createdAt      DateTime @default(now())
 
   // Relations
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId, createdAt])
-  @@map("person_images")
+  @@index([sha256])
+  @@map("person_documents")
 }
 
 // PersonAudio - Audio recordings in a person's audio folder (files live on disk)
