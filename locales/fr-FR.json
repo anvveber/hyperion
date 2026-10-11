@@ -1805,6 +1805,13 @@
       "id": "Fiche",
       "created": "Créée",
       "updated": "Modifiée"
+    },
+    "pdf": {
+      "download": "Télécharger le profil en PDF",
+      "generated": "Généré le {date}",
+      "page": "Page {page} sur {total}",
+      "images": "Images",
+      "moreImages": "{count, plural, one {# autre image non affichée} other {# autres images non affichées}}"
     }
   },
   "groups": {

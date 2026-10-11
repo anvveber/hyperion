@@ -1805,6 +1805,13 @@
       "id": "Record",
       "created": "Created",
       "updated": "Updated"
+    },
+    "pdf": {
+      "download": "Download profile as PDF",
+      "generated": "Generated {date}",
+      "page": "Page {page} of {total}",
+      "images": "Images",
+      "moreImages": "{count, plural, one {# more image not shown} other {# more images not shown}}"
     }
   },
   "groups": {

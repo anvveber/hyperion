@@ -1805,6 +1805,13 @@
       "id": "Registro",
       "created": "Creado",
       "updated": "Actualizado"
+    },
+    "pdf": {
+      "download": "Descargar perfil como PDF",
+      "generated": "Generado el {date}",
+      "page": "Página {page} de {total}",
+      "images": "Imágenes",
+      "moreImages": "{count, plural, one {# imagen más no mostrada} other {# imágenes más no mostradas}}"
     }
   },
   "groups": {

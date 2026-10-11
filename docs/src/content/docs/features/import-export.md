@@ -42,6 +42,25 @@ You can export contacts as standard vCard 4.0 files from a person's detail page,
 
 On a person's detail page, open the actions menu (the three dots) and pick **Download profile as JSON**. The file holds everything about that one person: all fields, contact details, important dates, location history, groups, relationships with their notes, and journal entries that mention them. The person's document list is included, but photo and document files themselves are not.
 
+## Single person PDF
+
+On a person's detail page, open the actions menu (the three dots) and pick **Download profile as PDF**. You get an A4 file laid out like a record card, in your language and date format:
+
+- name, photo, groups, and a line with the record ID and the dates the record was created and last updated
+- personal details, other names, work info, contact information and online presence, each with their previous values struck through and dated
+- important dates, custom fields, location history and notes
+- relationships, and every journal entry that mentions the person
+- the names of attached documents and recordings, and up to 24 attached images
+
+Every page carries the person's name and a page number at the bottom.
+
+### Technical details
+
+- Fonts are IBM Plex Sans and Mono, bundled with the app. They cover Latin, Cyrillic and Greek.
+- Chinese, Japanese and Korean text uses Noto Sans CJK, which the Docker image installs. Outside Docker, install Noto Sans CJK or point `PDF_CJK_FONT` at another CJK font (see [Configuration](/self-hosting/configuration/)). Without one, those characters show as empty boxes.
+- Notes and journal entries are Markdown in the app; the PDF shows them as plain paragraphs, with list items as bullets and links followed by their address.
+- Images come from their thumbnails, so a large gallery stays a reasonable file size. Images past the first 24 are counted but not shown.
+
 ## Data portability
 
 Export everything as JSON to back up or move to another Nametag instance. Export as vCard to take your contacts anywhere that speaks the format. Either way, your data never gets stuck.
@@ -54,3 +73,4 @@ Export everything as JSON to back up or move to another Nametag instance. Export
 | vCard import (text paste) | 2 MB max |
 | vCard import (file upload) | 2 MB max |
 | JSON export | no size limit, generates a full dump |
+| PDF export | one person, up to 24 images |

@@ -1805,6 +1805,13 @@
       "id": "Scheda",
       "created": "Creata",
       "updated": "Aggiornata"
+    },
+    "pdf": {
+      "download": "Scarica il profilo in PDF",
+      "generated": "Generato il {date}",
+      "page": "Pagina {page} di {total}",
+      "images": "Immagini",
+      "moreImages": "{count, plural, one {# altra immagine non mostrata} other {altre # immagini non mostrate}}"
     }
   },
   "groups": {

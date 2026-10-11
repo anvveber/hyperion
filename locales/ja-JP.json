@@ -1805,6 +1805,13 @@
       "id": "記録",
       "created": "作成",
       "updated": "更新"
+    },
+    "pdf": {
+      "download": "プロフィールをPDFでダウンロード",
+      "generated": "作成日時 {date}",
+      "page": "{page} / {total} ページ",
+      "images": "画像",
+      "moreImages": "表示されていない画像が他に {count} 件あります"
     }
   },
   "groups": {

@@ -1805,6 +1805,13 @@
       "id": "Akte",
       "created": "Angelegt",
       "updated": "Geändert"
+    },
+    "pdf": {
+      "download": "Profil als PDF herunterladen",
+      "generated": "Erstellt am {date}",
+      "page": "Seite {page} von {total}",
+      "images": "Bilder",
+      "moreImages": "{count, plural, one {# weiteres Bild nicht gezeigt} other {# weitere Bilder nicht gezeigt}}"
     }
   },
   "groups": {

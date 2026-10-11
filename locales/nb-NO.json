@@ -1805,6 +1805,13 @@
       "id": "Oppføring",
       "created": "Opprettet",
       "updated": "Oppdatert"
+    },
+    "pdf": {
+      "download": "Last ned profilen som PDF",
+      "generated": "Generert {date}",
+      "page": "Side {page} av {total}",
+      "images": "Bilder",
+      "moreImages": "{count, plural, one {# bilde til vises ikke} other {# bilder til vises ikke}}"
     }
   },
   "groups": {

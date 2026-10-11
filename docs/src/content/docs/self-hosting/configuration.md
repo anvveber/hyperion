@@ -82,6 +82,7 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `PHOTO_STORAGE_PATH` | Custom path for photo storage (also holds document folders and audio recordings) | `/app/data/photos` |
 | `PHOTO_SIZE` | Max photo dimensions in pixels (square, 64 to 4096). Smaller images keep their original size. | `256` |
 | `PHOTO_QUALITY` | JPEG quality for opaque photos, 1 to 100 | `80` |
+| `PDF_CJK_FONT` | Path to a TTF, OTF or TTC font with Chinese, Japanese and Korean characters, used when profile PDFs contain them. The Docker image already includes Noto Sans CJK; set this only to use a different font or when running outside Docker | Noto Sans CJK if installed |
 | `TRASH_RETENTION_DAYS` | How many days deleted items stay in the trash before the `purge-deleted` job removes them for good, or `never` to keep them until a user deletes them by hand | `never` |
 | `OIDC_ISSUER_URL` | OIDC provider issuer URL, enables SSO login | Not set |
 | `OIDC_CLIENT_ID` | OIDC client ID registered with your provider | Not set |
