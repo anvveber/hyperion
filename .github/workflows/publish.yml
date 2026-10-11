@@ -11,8 +11,6 @@ permissions:
 
 jobs:
   check-skip:
-    # Android app releases (android.yml) carry only an APK, no Docker changes.
-    if: ${{ !startsWith(github.event.release.tag_name, 'android-') }}
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.check.outputs.skip }}
