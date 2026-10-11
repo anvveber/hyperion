@@ -711,7 +711,7 @@ export default function PeopleListClient({
 
       {/* Floating action bar */}
       <div
-        className={`fixed bottom-0 left-0 right-0 md:left-[var(--rail-w)] md:bottom-[var(--statusbar-h)] z-40 transition-transform duration-300 ${
+        className={`fixed bottom-0 left-0 right-0 md:bottom-[var(--statusbar-h)] z-40 transition-transform duration-300 ${
           someSelected ? 'translate-y-0' : 'translate-y-full invisible'
         }`}
       >

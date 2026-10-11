@@ -45,11 +45,13 @@
   --badge-text: #253244;
 
   /* Console chrome */
-  --rail: #F7F9FB;
   --signal: #7F4A00;
   --signal-bg: #F3E3C3;
   --ok: #1C7C4A;
-  --grid-line: rgba(31, 52, 82, 0.06);
+  /* Tactical grid: dots every 16px, dashed lines and crosshairs every 128px. */
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cg fill='rgba%2831%2C52%2C82%2C0.16%29'%3E%3Crect x='15.5' y='15.5' width='1' height='1'/%3E%3Crect x='15.5' y='31.5' width='1' height='1'/%3E%3Crect x='15.5' y='47.5' width='1' height='1'/%3E%3Crect x='15.5' y='63.5' width='1' height='1'/%3E%3Crect x='15.5' y='79.5' width='1' height='1'/%3E%3Crect x='15.5' y='95.5' width='1' height='1'/%3E%3Crect x='15.5' y='111.5' width='1' height='1'/%3E%3Crect x='31.5' y='15.5' width='1' height='1'/%3E%3Crect x='31.5' y='31.5' width='1' height='1'/%3E%3Crect x='31.5' y='47.5' width='1' height='1'/%3E%3Crect x='31.5' y='63.5' width='1' height='1'/%3E%3Crect x='31.5' y='79.5' width='1' height='1'/%3E%3Crect x='31.5' y='95.5' width='1' height='1'/%3E%3Crect x='31.5' y='111.5' width='1' height='1'/%3E%3Crect x='47.5' y='15.5' width='1' height='1'/%3E%3Crect x='47.5' y='31.5' width='1' height='1'/%3E%3Crect x='47.5' y='47.5' width='1' height='1'/%3E%3Crect x='47.5' y='63.5' width='1' height='1'/%3E%3Crect x='47.5' y='79.5' width='1' height='1'/%3E%3Crect x='47.5' y='95.5' width='1' height='1'/%3E%3Crect x='47.5' y='111.5' width='1' height='1'/%3E%3Crect x='63.5' y='15.5' width='1' height='1'/%3E%3Crect x='63.5' y='31.5' width='1' height='1'/%3E%3Crect x='63.5' y='47.5' width='1' height='1'/%3E%3Crect x='63.5' y='79.5' width='1' height='1'/%3E%3Crect x='63.5' y='95.5' width='1' height='1'/%3E%3Crect x='63.5' y='111.5' width='1' height='1'/%3E%3Crect x='79.5' y='15.5' width='1' height='1'/%3E%3Crect x='79.5' y='31.5' width='1' height='1'/%3E%3Crect x='79.5' y='47.5' width='1' height='1'/%3E%3Crect x='79.5' y='63.5' width='1' height='1'/%3E%3Crect x='79.5' y='79.5' width='1' height='1'/%3E%3Crect x='79.5' y='95.5' width='1' height='1'/%3E%3Crect x='79.5' y='111.5' width='1' height='1'/%3E%3Crect x='95.5' y='15.5' width='1' height='1'/%3E%3Crect x='95.5' y='31.5' width='1' height='1'/%3E%3Crect x='95.5' y='47.5' width='1' height='1'/%3E%3Crect x='95.5' y='63.5' width='1' height='1'/%3E%3Crect x='95.5' y='79.5' width='1' height='1'/%3E%3Crect x='95.5' y='95.5' width='1' height='1'/%3E%3Crect x='95.5' y='111.5' width='1' height='1'/%3E%3Crect x='111.5' y='15.5' width='1' height='1'/%3E%3Crect x='111.5' y='31.5' width='1' height='1'/%3E%3Crect x='111.5' y='47.5' width='1' height='1'/%3E%3Crect x='111.5' y='63.5' width='1' height='1'/%3E%3Crect x='111.5' y='79.5' width='1' height='1'/%3E%3Crect x='111.5' y='95.5' width='1' height='1'/%3E%3Crect x='111.5' y='111.5' width='1' height='1'/%3E%3C/g%3E%3Cpath d='M0 .5H128M.5 0V128' stroke='rgba%2831%2C52%2C82%2C0.10%29' stroke-dasharray='2 4'/%3E%3Cpath d='M0 .5h6M122 .5h6M.5 0v6M.5 122v6' stroke='rgba%2831%2C52%2C82%2C0.28%29'/%3E%3C/svg%3E");
+  --glow: rgba(31, 95, 191, 0.10);
+  --vignette: rgba(31, 52, 82, 0.10);
 }
 
 .dark {
@@ -76,11 +78,12 @@
   --badge-bg: #232D3B;
   --badge-text: #C5CFDB;
 
-  --rail: #121821;
   --signal: #E8A33D;
   --signal-bg: #2A2012;
   --ok: #3FB27F;
-  --grid-line: rgba(140, 170, 210, 0.045);
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cg fill='rgba%28150%2C180%2C220%2C0.16%29'%3E%3Crect x='15.5' y='15.5' width='1' height='1'/%3E%3Crect x='15.5' y='31.5' width='1' height='1'/%3E%3Crect x='15.5' y='47.5' width='1' height='1'/%3E%3Crect x='15.5' y='63.5' width='1' height='1'/%3E%3Crect x='15.5' y='79.5' width='1' height='1'/%3E%3Crect x='15.5' y='95.5' width='1' height='1'/%3E%3Crect x='15.5' y='111.5' width='1' height='1'/%3E%3Crect x='31.5' y='15.5' width='1' height='1'/%3E%3Crect x='31.5' y='31.5' width='1' height='1'/%3E%3Crect x='31.5' y='47.5' width='1' height='1'/%3E%3Crect x='31.5' y='63.5' width='1' height='1'/%3E%3Crect x='31.5' y='79.5' width='1' height='1'/%3E%3Crect x='31.5' y='95.5' width='1' height='1'/%3E%3Crect x='31.5' y='111.5' width='1' height='1'/%3E%3Crect x='47.5' y='15.5' width='1' height='1'/%3E%3Crect x='47.5' y='31.5' width='1' height='1'/%3E%3Crect x='47.5' y='47.5' width='1' height='1'/%3E%3Crect x='47.5' y='63.5' width='1' height='1'/%3E%3Crect x='47.5' y='79.5' width='1' height='1'/%3E%3Crect x='47.5' y='95.5' width='1' height='1'/%3E%3Crect x='47.5' y='111.5' width='1' height='1'/%3E%3Crect x='63.5' y='15.5' width='1' height='1'/%3E%3Crect x='63.5' y='31.5' width='1' height='1'/%3E%3Crect x='63.5' y='47.5' width='1' height='1'/%3E%3Crect x='63.5' y='79.5' width='1' height='1'/%3E%3Crect x='63.5' y='95.5' width='1' height='1'/%3E%3Crect x='63.5' y='111.5' width='1' height='1'/%3E%3Crect x='79.5' y='15.5' width='1' height='1'/%3E%3Crect x='79.5' y='31.5' width='1' height='1'/%3E%3Crect x='79.5' y='47.5' width='1' height='1'/%3E%3Crect x='79.5' y='63.5' width='1' height='1'/%3E%3Crect x='79.5' y='79.5' width='1' height='1'/%3E%3Crect x='79.5' y='95.5' width='1' height='1'/%3E%3Crect x='79.5' y='111.5' width='1' height='1'/%3E%3Crect x='95.5' y='15.5' width='1' height='1'/%3E%3Crect x='95.5' y='31.5' width='1' height='1'/%3E%3Crect x='95.5' y='47.5' width='1' height='1'/%3E%3Crect x='95.5' y='63.5' width='1' height='1'/%3E%3Crect x='95.5' y='79.5' width='1' height='1'/%3E%3Crect x='95.5' y='95.5' width='1' height='1'/%3E%3Crect x='95.5' y='111.5' width='1' height='1'/%3E%3Crect x='111.5' y='15.5' width='1' height='1'/%3E%3Crect x='111.5' y='31.5' width='1' height='1'/%3E%3Crect x='111.5' y='47.5' width='1' height='1'/%3E%3Crect x='111.5' y='63.5' width='1' height='1'/%3E%3Crect x='111.5' y='79.5' width='1' height='1'/%3E%3Crect x='111.5' y='95.5' width='1' height='1'/%3E%3Crect x='111.5' y='111.5' width='1' height='1'/%3E%3C/g%3E%3Cpath d='M0 .5H128M.5 0V128' stroke='rgba%28150%2C180%2C220%2C0.10%29' stroke-dasharray='2 4'/%3E%3Cpath d='M0 .5h6M122 .5h6M.5 0v6M.5 122v6' stroke='rgba%28150%2C180%2C220%2C0.30%29'/%3E%3C/svg%3E");
+  --glow: rgba(76, 144, 240, 0.12);
+  --vignette: rgba(0, 0, 0, 0.45);
 }
 
 @theme inline {
@@ -107,7 +110,6 @@
   --color-warning: var(--warning);
   --color-badge-bg: var(--badge-bg);
   --color-badge-text: var(--badge-text);
-  --color-rail: var(--rail);
   --color-signal: var(--signal);
   --color-signal-bg: var(--signal-bg);
   --color-ok: var(--ok);
@@ -249,14 +251,13 @@ h4.text-sm.text-muted {
 }
 
 /*
- * Console shell. Navigation renders a fixed status banner, a left command
- * rail and a bottom status bar on wide screens. The body makes room for them
- * only on pages that actually render the shell, so login and other bare
- * pages are untouched.
+ * Console shell. Navigation renders a fixed status banner, a sticky
+ * translucent navbar and, on wide screens, a bottom status bar. The body makes
+ * room for the fixed parts only on pages that render the shell, so login and
+ * other bare pages are untouched.
  */
 :root {
   --banner-h: 1.25rem;
-  --rail-w: 13.5rem;
   --statusbar-h: 1.625rem;
 }
 
@@ -266,9 +267,23 @@ body:has(.hy-shell) {
 
 @media (min-width: 768px) {
   body:has(.hy-shell) {
-    padding-left: var(--rail-w);
     padding-bottom: var(--statusbar-h);
   }
+}
+
+/*
+ * Signed-in pages wrap their content in a full-height bg-background box,
+ * which would hide the body pattern. Let it show through.
+ */
+body:has(.hy-shell) .min-h-screen.bg-background {
+  background-color: transparent;
+}
+
+/* Frosted bar: the page pattern stays faintly visible through it. */
+.hy-navbar {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
 }
 
 .hy-banner {
@@ -300,19 +315,29 @@ body:has(.hy-shell) {
 
 body {
   background-color: var(--background);
+  /*
+   * A soft blue glow from the top of the screen and a darker fall-off at the
+   * edges sit over the tactical grid. Fixed, so the grid reads as the screen
+   * and the content scrolls across it.
+   */
   background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 32px 32px;
+    radial-gradient(ellipse 80% 55% at 50% -10%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, var(--vignette) 100%),
+    var(--pattern);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
   font-feature-settings: "ss02", "zero";
-  overflow-x: hidden;
+  /*
+   * clip, not hidden: hidden would make body a scroll container that never
+   * scrolls, and the sticky navbar would have nothing to stick to.
+   */
+  overflow-x: clip;
 }
 
 /* Mobile safety net: catch stray horizontal overflow at the page level.
-   `clip` on html avoids creating a containing block for fixed/sticky.
-   `hidden` on body covers older mobile browsers that ignore clip on html. */
+   `clip` avoids creating a scroll container, which keeps the sticky
+   navbar working. Body uses clip too, see above. */
 html {
   overflow-x: clip;
 }
