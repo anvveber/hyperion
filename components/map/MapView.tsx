@@ -350,6 +350,10 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
       registeredColorRef.current.clear();
       const primary =
         getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#2563EB';
+      // Text on a --primary circle. The console theme flips --primary to
+      // white in dark mode, so a hardcoded white count would vanish.
+      const onPrimary =
+        getComputedStyle(document.documentElement).getPropertyValue('--on-primary').trim() || '#ffffff';
 
       ensureIcons();
 
@@ -382,7 +386,7 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
           'text-field': ['get', 'point_count_abbreviated'],
           'text-size': 12,
         },
-        paint: { 'text-color': '#ffffff' },
+        paint: { 'text-color': onPrimary },
       });
 
       // Plain colored dot: markers without a photo, or whose photo icon
@@ -438,7 +442,7 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
           'text-field': ['to-string', ['get', 'colocatedCount']],
           'text-size': 12,
         },
-        paint: { 'text-color': '#ffffff' },
+        paint: { 'text-color': onPrimary },
       });
     };
 
