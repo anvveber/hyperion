@@ -13,7 +13,7 @@ On the People page, checkboxes appear next to each contact. Check the ones you w
 
 ## Bulk delete
 
-Delete every selected contact at once. Like a single-person delete, they go to trash rather than being removed immediately, so you have 30 days to restore them if needed. A confirmation modal shows how many contacts are about to be deleted before anything happens.
+Delete every selected contact at once. Like a single-person delete, they go to trash rather than being removed immediately, so you can restore them from the trash if needed. A confirmation modal shows how many contacts are about to be deleted before anything happens.
 
 ## Bulk group assignment
 

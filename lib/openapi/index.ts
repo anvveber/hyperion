@@ -200,13 +200,14 @@ export function generateOpenAPISpec(): OpenAPISpec {
         get: {
           tags: ['Cron'],
           summary: 'Purge old deleted records',
-          description: 'Permanently deletes soft-deleted records older than the 30-day retention period. Deletes in foreign-key order and removes photo files from disk.',
+          description: 'Permanently deletes soft-deleted records older than the retention period set by TRASH_RETENTION_DAYS. Deletes in foreign-key order and removes photos, image and audio files from disk. When TRASH_RETENTION_DAYS is "never" (the default) nothing is deleted and the response has skipped: true.',
           security: [{ cronBearer: [] }],
           responses: {
             '200': jsonResponse('Purge results', {
               type: 'object',
               properties: {
                 success: { type: 'boolean' },
+                skipped: { type: 'boolean', description: 'True when retention is "never" and nothing was purged' },
                 purged: {
                   type: 'object',
                   properties: {
@@ -218,7 +219,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
                     people: { type: 'integer' },
                   },
                 },
-                retentionDays: { type: 'integer' },
+                retentionDays: { type: 'integer', nullable: true, description: 'Null when retention is "never"' },
                 cutoffDate: { type: 'string', format: 'date-time' },
               },
             }),

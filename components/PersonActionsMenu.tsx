@@ -33,6 +33,8 @@ interface PersonActionsMenuProps {
   allPeople?: PersonForSearch[];
   nameOrder?: 'WESTERN' | 'EASTERN';
   nameDisplayFormat?: NameDisplayFormat;
+  /** Days before trash is purged, or null when it never is */
+  trashRetentionDays?: number | null;
 }
 
 interface Orphan {
@@ -48,6 +50,7 @@ export default function PersonActionsMenu({
   allPeople = [],
   nameOrder,
   nameDisplayFormat,
+  trashRetentionDays = null,
 }: PersonActionsMenuProps) {
   const t = useTranslations('people');
   const tDup = useTranslations('people.duplicates');
@@ -478,7 +481,9 @@ export default function PersonActionsMenu({
           {t('deletePersonConfirm', { name: personName })}
         </p>
         <p className="text-muted mb-4">
-          {t('canRestoreWithin30Days')}
+          {trashRetentionDays === null
+            ? t('canRestoreFromTrash')
+            : t('canRestoreWithinDays', { days: trashRetentionDays })}
         </p>
 
         {isLoadingOrphans && (

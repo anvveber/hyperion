@@ -82,6 +82,7 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `PHOTO_STORAGE_PATH` | Custom path for photo storage (also holds image folders and audio recordings) | `/app/data/photos` |
 | `PHOTO_SIZE` | Max photo dimensions in pixels (square, 64 to 4096). Smaller images keep their original size. | `256` |
 | `PHOTO_QUALITY` | JPEG quality for opaque photos, 1 to 100 | `80` |
+| `TRASH_RETENTION_DAYS` | How many days deleted items stay in the trash before the `purge-deleted` job removes them for good, or `never` to keep them until a user deletes them by hand | `never` |
 | `OIDC_ISSUER_URL` | OIDC provider issuer URL, enables SSO login | Not set |
 | `OIDC_CLIENT_ID` | OIDC client ID registered with your provider | Not set |
 | `OIDC_CLIENT_SECRET` | OIDC client secret | Not set |
@@ -169,6 +170,7 @@ Some variables are validated against a specific range or format at startup. If a
 | --- | --- | --- |
 | `PHOTO_SIZE` | Integer, 64 to 4096 (max output dimensions in pixels, square; images smaller than this are not upscaled) | `256` |
 | `PHOTO_QUALITY` | Integer, 1 to 100 (JPEG compression quality) | `80` |
+| `TRASH_RETENTION_DAYS` | `never` (any case), or a whole number of days, 1 or more. Any other value is an invalid configuration and the app won't run | `never` |
 | `DB_PORT` | Integer, 1 to 65535 | None, required |
 | `LOG_LEVEL` | One of `debug`, `info`, `warn`, `error` | `info` |
 | `NEXTAUTH_SECRET` | String, minimum 32 characters | None, required |

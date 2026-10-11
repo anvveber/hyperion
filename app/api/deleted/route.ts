@@ -1,7 +1,7 @@
+import type { Prisma } from '@prisma/client';
 import { prismaIncludingDeleted } from '@/lib/prisma';
 import { apiResponse, handleApiError, withAuth } from '@/lib/api-utils';
-
-const RETENTION_DAYS = 30;
+import { getTrashCutoffDate, getTrashRetentionDays } from '@/lib/trash-retention';
 
 // GET /api/deleted - List soft-deleted items by type
 export const GET = withAuth(async (request, session) => {
@@ -9,9 +9,10 @@ export const GET = withAuth(async (request, session) => {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
 
-    // Calculate cutoff date - only show items deleted within retention period
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - RETENTION_DAYS);
+    // Only show items deleted within the retention period (all of them when
+    // retention is "never")
+    const cutoffDate = getTrashCutoffDate();
+    const deletedAt: Prisma.DateTimeNullableFilter = cutoffDate ? { not: null, gte: cutoffDate } : { not: null };
 
     let deleted;
 
@@ -20,7 +21,7 @@ export const GET = withAuth(async (request, session) => {
         deleted = await prismaIncludingDeleted.person.findMany({
           where: {
             userId: session.user.id,
-            deletedAt: { not: null, gte: cutoffDate },
+            deletedAt,
           },
           select: {
             id: true,
@@ -38,7 +39,7 @@ export const GET = withAuth(async (request, session) => {
         deleted = await prismaIncludingDeleted.group.findMany({
           where: {
             userId: session.user.id,
-            deletedAt: { not: null, gte: cutoffDate },
+            deletedAt,
           },
           select: {
             id: true,
@@ -55,7 +56,7 @@ export const GET = withAuth(async (request, session) => {
         deleted = await prismaIncludingDeleted.relationship.findMany({
           where: {
             person: { userId: session.user.id },
-            deletedAt: { not: null, gte: cutoffDate },
+            deletedAt,
           },
           select: {
             id: true,
@@ -78,7 +79,7 @@ export const GET = withAuth(async (request, session) => {
         deleted = await prismaIncludingDeleted.relationshipType.findMany({
           where: {
             userId: session.user.id,
-            deletedAt: { not: null, gte: cutoffDate },
+            deletedAt,
           },
           select: {
             id: true,
@@ -95,7 +96,7 @@ export const GET = withAuth(async (request, session) => {
         deleted = await prismaIncludingDeleted.importantDate.findMany({
           where: {
             person: { userId: session.user.id },
-            deletedAt: { not: null, gte: cutoffDate },
+            deletedAt,
           },
           select: {
             id: true,
@@ -118,8 +119,8 @@ export const GET = withAuth(async (request, session) => {
 
     return apiResponse.ok({
       deleted,
-      retentionDays: RETENTION_DAYS,
-      cutoffDate: cutoffDate.toISOString(),
+      retentionDays: getTrashRetentionDays(),
+      cutoffDate: cutoffDate ? cutoffDate.toISOString() : null,
     });
   } catch (error) {
     return handleApiError(error, 'deleted-list');

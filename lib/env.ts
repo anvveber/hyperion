@@ -104,6 +104,21 @@ const envSchema = z.object({
   // Application URL for generating links in emails (optional, defaults to NEXTAUTH_URL)
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
 
+  // How long soft-deleted items stay in the trash before the purge-deleted
+  // cron removes them for good: a whole number of days, or "never" to keep
+  // them until the user deletes them by hand. Defaults to "never".
+  TRASH_RETENTION_DAYS: blankAsUndefined(
+    z.preprocess(
+      (value) => (typeof value === 'string' ? value.trim().toLowerCase() : value),
+      z
+        .union([
+          z.literal('never'),
+          z.coerce.number().int().min(1, 'TRASH_RETENTION_DAYS must be "never" or a whole number of days, at least 1'),
+        ])
+        .default('never')
+    )
+  ),
+
   // Photo processing
   PHOTO_SIZE: z.coerce.number().int().min(64).max(4096).default(256),
   PHOTO_QUALITY: z.coerce.number().int().min(1).max(100).default(80),

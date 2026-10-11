@@ -181,7 +181,7 @@ curl -X PUT https://your-instance.example.com/api/people/clx1 \
 DELETE /api/people/{id}
 ```
 
-Soft-deletes a person. Restorable within the 30-day retention period.
+Soft-deletes a person. Restorable from the trash until it is purged (never, by default; see `TRASH_RETENTION_DAYS`).
 
 **Request body** (all optional)
 

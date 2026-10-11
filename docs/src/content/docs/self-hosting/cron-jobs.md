@@ -53,9 +53,11 @@ If email isn't configured on your instance, this job effectively has nothing to 
 
 Endpoint: `GET /api/cron/purge-deleted`
 
-Nametag soft-deletes records (people, groups, relationships, relationship types, and important dates) so they can be recovered from [Trash](/features/trash/) within a 30-day window. This job permanently removes anything past that 30-day retention period, in an order that respects foreign key relationships: important dates first, then person-group links, relationships, groups, relationship types (clearing any dangling references along the way), and finally people. It also deletes the actual photo files on disk for any people being purged.
+Nametag soft-deletes records (people, groups, relationships, relationship types, and important dates) so they can be recovered from [Trash](/features/trash/). How long they stay there is set by `TRASH_RETENTION_DAYS` (see [Configuration](/self-hosting/configuration/)). The default is `never`: the job runs, logs that it skipped, and deletes nothing.
 
-This is the job responsible for eventually freeing disk space and database rows tied to old deletions. Skipping it doesn't break anything immediately, but trash accumulates indefinitely.
+When `TRASH_RETENTION_DAYS` is a number, this job permanently removes anything deleted longer ago than that, in an order that respects foreign key relationships: important dates first, then person-group links, relationships, groups, relationship types (clearing any dangling references along the way), and finally people. It also deletes the photos, image folder and audio folder on disk for any people being purged.
+
+This is the job responsible for eventually freeing disk space and database rows tied to old deletions. Skipping it doesn't break anything immediately, but trash accumulates indefinitely. If you keep the default of `never`, you can leave the job in place or remove its line from the cron container; either way nothing is purged.
 
 ### `carddav-sync`, three times daily (2:00am, 10:00am, 6:00pm)
 
@@ -78,7 +80,7 @@ If `DISABLE_GEOCODING=true` is set, this job returns immediately without touchin
 The cron expressions above are reasonable defaults, not requirements. Feel free to adjust them:
 
 - `send-reminders` only needs to run once a day; the time doesn't matter much beyond picking an hour when most of your users are likely to be awake to receive it.
-- `purge-deleted` running once a day is plenty, since the retention window is 30 days.
+- `purge-deleted` running once a day is plenty, since the retention window is counted in days.
 - `carddav-sync` running every few hours strikes a balance between freshness and load; running it more often doesn't help unless a user's own `autoSyncInterval` is also set that low.
 - `geocode` benefits from running frequently (every 1 to 5 minutes) since it only touches a small, capped batch per run and clears backlogs faster the more often it's invoked.
 
@@ -90,7 +92,7 @@ If you're not using Docker's `alpine` cron container, any scheduler capable of m
 | --- | --- | --- |
 | `geocode` | 50 addresses per run | 1 request per second to the geocoder |
 | `carddav-sync` | All due users | 200ms delay between users |
-| `purge-deleted` | All eligible items (deleted more than 30 days ago) | None |
+| `purge-deleted` | All eligible items (deleted more than `TRASH_RETENTION_DAYS` days ago; none when it is `never`) | None |
 | `send-reminders` | All eligible reminders; digest users in batches of 50 | 200ms delay between digest batches |
 
 `geocode` and `carddav-sync` are throttled because they call external services (your geocoder, and each user's CardDAV server) and shouldn't hammer them. `purge-deleted` only touches your own database and doesn't need batching or a rate limit; it processes everything eligible in a single run. `send-reminders` is mostly the same, except its weekly digest pass batches the users it needs to look up 50 at a time with a 200ms delay between batches, to avoid a large digest-enabled user base causing one long unbroken burst of queries.
