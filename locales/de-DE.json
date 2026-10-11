@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {# Datei konnte nicht hochgeladen werden (nur .mp3 wird akzeptiert)} other {# Dateien konnten nicht hochgeladen werden (nur .mp3 wird akzeptiert)}}",
       "uploadSuccess": "{count, plural, one {Aufnahme hinzugefügt} other {# Aufnahmen hinzugefügt}}",
       "deleteSuccess": "Aufnahme gelöscht",
-      "deleteFailed": "Die Aufnahme konnte nicht gelöscht werden"
+      "deleteFailed": "Die Aufnahme konnte nicht gelöscht werden",
+      "library": {
+        "open": "Aus Bibliothek",
+        "title": "Aus der Aufnahmebibliothek hinzufügen",
+        "searchPlaceholder": "Transkripte durchsuchen",
+        "search": "Suchen",
+        "searchHint": "AND, OR und NOT in Großbuchstaben, \"genaue Wortfolgen\" und Präfix* verwenden.",
+        "backToMonths": "Zurück zu den Monaten",
+        "months": "Monate",
+        "loading": "Wird geladen...",
+        "noResults": "Keine Aufnahme passt zu dieser Suche.",
+        "emptyMonth": "Keine Aufnahmen in diesem Monat.",
+        "alreadyAdded": "Bereits hinzugefügt",
+        "noTranscript": "Kein Transkript",
+        "preview": "Vorschau von {name} abspielen",
+        "stopPreview": "Vorschau von {name} stoppen",
+        "maxSelection": "Du kannst höchstens {max} Aufnahmen auf einmal hinzufügen",
+        "skipped": "{count, plural, one {# Aufnahme war schon in diesem Ordner} other {# Aufnahmen waren schon in diesem Ordner}}",
+        "someFailed": "{count, plural, one {# Aufnahme konnte nicht hinzugefügt werden} other {# Aufnahmen konnten nicht hinzugefügt werden}}",
+        "addFailed": "Die Aufnahmen konnten nicht hinzugefügt werden",
+        "loadFailed": "Die Aufnahmebibliothek konnte nicht geladen werden",
+        "searchFailed": "Die Suche konnte nicht verstanden werden. Prüfe Anführungszeichen und Operatoren (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {Nichts ausgewählt} one {# ausgewählt} other {# ausgewählt}}",
+        "adding": "Wird hinzugefügt...",
+        "addSelected": "{count, plural, =0 {Hinzufügen} one {# Aufnahme hinzufügen} other {# Aufnahmen hinzufügen}}"
+      },
+      "transcript": {
+        "show": "Transkript",
+        "loading": "Transkript wird geladen...",
+        "failed": "Das Transkript konnte nicht geladen werden.",
+        "retry": "Erneut versuchen",
+        "language": "Sprache: {language}",
+        "jumpTo": "Ab {time} abspielen",
+        "fromLibrary": "Aus der Bibliothek: {path}"
+      }
     },
     "otherNames": "Weitere Namen",
     "openProfile": "Profil öffnen",
@@ -1811,7 +1845,9 @@
       "generated": "Erstellt am {date}",
       "page": "Seite {page} von {total}",
       "images": "Bilder",
-      "moreImages": "{count, plural, one {# weiteres Bild nicht gezeigt} other {# weitere Bilder nicht gezeigt}}"
+      "moreImages": "{count, plural, one {# weiteres Bild nicht gezeigt} other {# weitere Bilder nicht gezeigt}}",
+      "downloadWithTranscripts": "Profil als PDF mit Transkripten herunterladen",
+      "transcripts": "Transkripte"
     }
   },
   "groups": {

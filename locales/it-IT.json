@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {Impossibile caricare # file (sono accettati solo .mp3)} other {Impossibile caricare # file (sono accettati solo .mp3)}}",
       "uploadSuccess": "{count, plural, one {Registrazione aggiunta} other {# registrazioni aggiunte}}",
       "deleteSuccess": "Registrazione eliminata",
-      "deleteFailed": "Impossibile eliminare la registrazione"
+      "deleteFailed": "Impossibile eliminare la registrazione",
+      "library": {
+        "open": "Dalla libreria",
+        "title": "Aggiungi dalla libreria delle registrazioni",
+        "searchPlaceholder": "Cerca nelle trascrizioni",
+        "search": "Cerca",
+        "searchHint": "Usa AND, OR e NOT in maiuscolo, \"frasi esatte\" e prefisso*.",
+        "backToMonths": "Torna ai mesi",
+        "months": "Mesi",
+        "loading": "Caricamento...",
+        "noResults": "Nessuna registrazione corrisponde a questa ricerca.",
+        "emptyMonth": "Nessuna registrazione in questo mese.",
+        "alreadyAdded": "Già aggiunta",
+        "noTranscript": "Nessuna trascrizione",
+        "preview": "Ascolta un’anteprima di {name}",
+        "stopPreview": "Ferma l’anteprima di {name}",
+        "maxSelection": "Puoi aggiungere al massimo {max} registrazioni alla volta",
+        "skipped": "{count, plural, one {# registrazione era già in questa cartella} other {# registrazioni erano già in questa cartella}}",
+        "someFailed": "{count, plural, one {Non è stato possibile aggiungere # registrazione} other {Non è stato possibile aggiungere # registrazioni}}",
+        "addFailed": "Impossibile aggiungere le registrazioni",
+        "loadFailed": "Impossibile caricare la libreria delle registrazioni",
+        "searchFailed": "La ricerca non è stata compresa. Controlla virgolette e operatori (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {Nessuna selezionata} one {# selezionata} other {# selezionate}}",
+        "adding": "Aggiunta in corso...",
+        "addSelected": "{count, plural, =0 {Aggiungi} one {Aggiungi # registrazione} other {Aggiungi # registrazioni}}"
+      },
+      "transcript": {
+        "show": "Trascrizione",
+        "loading": "Caricamento della trascrizione...",
+        "failed": "Impossibile caricare la trascrizione.",
+        "retry": "Riprova",
+        "language": "Lingua: {language}",
+        "jumpTo": "Riproduci da {time}",
+        "fromLibrary": "Dalla libreria: {path}"
+      }
     },
     "otherNames": "Altri nomi",
     "openProfile": "Apri profilo",
@@ -1811,7 +1845,9 @@
       "generated": "Generato il {date}",
       "page": "Pagina {page} di {total}",
       "images": "Immagini",
-      "moreImages": "{count, plural, one {# altra immagine non mostrata} other {altre # immagini non mostrate}}"
+      "moreImages": "{count, plural, one {# altra immagine non mostrata} other {altre # immagini non mostrate}}",
+      "downloadWithTranscripts": "Scarica il profilo in PDF con le trascrizioni",
+      "transcripts": "Trascrizioni"
     }
   },
   "groups": {

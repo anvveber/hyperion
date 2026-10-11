@@ -78,6 +78,7 @@ const basePerson = {
   aliases: [],
   fieldHistory: [],
   documents: [],
+  audio: [],
   visits: [{ date: new Date('2025-03-12T00:00:00.000Z'), location: 'Lisbon', motivation: 'Wedding' }],
   locations: [],
   customFields: [],
@@ -88,6 +89,42 @@ const basePerson = {
 describe('GET /api/people/[id]/export', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('includes recordings with the transcripts copied from the library', async () => {
+    mocks.personFindUnique.mockResolvedValue({
+      ...basePerson,
+      audio: [
+        {
+          originalName: '260914_1030.mp3',
+          recordedAt: new Date('2026-09-14T10:30:00.000Z'),
+          size: 1024,
+          createdAt: new Date('2026-10-11T00:00:00.000Z'),
+          sourcePath: '2026/09/260914_1030.mp3',
+          durationMs: 61000,
+          transcriptLanguage: 'it',
+          transcript: [{ s: 0, e: 4000, t: 'Il notaio ha firmato.' }],
+        },
+      ],
+    });
+
+    const response = await GET(new Request('http://localhost/api/people/person-1/export'), {
+      params: Promise.resolve({ id: 'person-1' }),
+    });
+    const body = await response.json();
+
+    expect(body.person.audio).toEqual([
+      {
+        name: '260914_1030.mp3',
+        recordedAt: '2026-09-14T10:30:00.000Z',
+        size: 1024,
+        addedAt: '2026-10-11T00:00:00.000Z',
+        sourcePath: '2026/09/260914_1030.mp3',
+        durationMs: 61000,
+        transcriptLanguage: 'it',
+        transcript: [{ s: 0, e: 4000, t: 'Il notaio ha firmato.' }],
+      },
+    ]);
   });
 
   it('returns 404 when the person does not exist or is not owned', async () => {

@@ -35,6 +35,8 @@ interface PersonActionsMenuProps {
   nameDisplayFormat?: NameDisplayFormat;
   /** Days before trash is purged, or null when it never is */
   trashRetentionDays?: number | null;
+  /** Whether any of the person's recordings has a transcript (offers the PDF with transcripts) */
+  hasTranscripts?: boolean;
 }
 
 interface Orphan {
@@ -51,6 +53,7 @@ export default function PersonActionsMenu({
   nameOrder,
   nameDisplayFormat,
   trashRetentionDays = null,
+  hasTranscripts = false,
 }: PersonActionsMenuProps) {
   const t = useTranslations('people');
   const tDup = useTranslations('people.duplicates');
@@ -242,12 +245,12 @@ export default function PersonActionsMenu({
     }
   };
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = async (withTranscripts = false) => {
     setMenuOpen(false);
     setIsExporting(true);
 
     try {
-      const response = await fetch(`/api/people/${personId}/pdf`);
+      const response = await fetch(`/api/people/${personId}/pdf${withTranscripts ? '?transcripts=1' : ''}`);
       if (!response.ok) {
         throw new Error(`PDF export failed with status ${response.status}`);
       }
@@ -402,7 +405,7 @@ export default function PersonActionsMenu({
 
               {/* Export PDF */}
               <button
-                onClick={handleExportPdf}
+                onClick={() => handleExportPdf()}
                 className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-3"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -410,6 +413,19 @@ export default function PersonActionsMenu({
                 </svg>
                 {t('pdf.download')}
               </button>
+
+              {/* Export PDF with transcripts, when any recording has one */}
+              {hasTranscripts && (
+                <button
+                  onClick={() => handleExportPdf(true)}
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-3"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-14 0m7 7v3m-4 0h8M12 15a3 3 0 003-3V5a3 3 0 10-6 0v7a3 3 0 003 3z" />
+                  </svg>
+                  {t('pdf.downloadWithTranscripts')}
+                </button>
+              )}
 
               {/* Show QR */}
               <button

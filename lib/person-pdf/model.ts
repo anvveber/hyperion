@@ -10,6 +10,8 @@ import { isIsoDate, parseMultiSelectValue } from '@/lib/customFields/values';
 import { readPhotoFile } from '@/lib/photo-storage';
 import { readDocumentThumbnail } from '@/lib/person-document-storage';
 import { getUserDisplayPreferences } from '@/lib/user-preferences';
+import { parseStoredTranscript } from '@/lib/person-audio';
+import { formatOffset } from '@/lib/transcript-format';
 
 /*
  * The PDF is built in two steps. This file turns a person's record into a
@@ -143,7 +145,19 @@ function reminderUnit(interval: number, unit: string, t: TranslationFn): string 
  * Load a person and build the PDF model in the user's language and date
  * format. Returns null when the person does not exist for this user.
  */
-export async function buildPersonPdfModel(userId: string, personId: string): Promise<PersonPdfModel | null> {
+export interface PersonPdfOptions {
+  /** Append the transcripts of recordings added from the recordings library. */
+  includeTranscripts?: boolean;
+}
+
+/** Transcript lines per paragraph in the PDF, so long transcripts can break across pages. */
+const TRANSCRIPT_LINES_PER_BLOCK = 12;
+
+export async function buildPersonPdfModel(
+  userId: string,
+  personId: string,
+  options: PersonPdfOptions = {}
+): Promise<PersonPdfModel | null> {
   const person = await prisma.person.findUnique({
     where: { id: personId, userId, deletedAt: null },
     include: {
@@ -429,6 +443,32 @@ export async function buildPersonPdfModel(userId: string, personId: string): Pro
         })),
       }],
     });
+
+    // Transcripts, on request: one entry per recording, a line per segment.
+    if (options.includeTranscripts) {
+      const withText = person.audio
+        .map((a) => ({ audio: a, segments: parseStoredTranscript(a.transcript) }))
+        .filter((x): x is { audio: typeof x.audio; segments: NonNullable<typeof x.segments> } => x.segments !== null);
+      if (withText.length > 0) {
+        sections.push({
+          kind: 'entries',
+          title: t('pdf.transcripts'),
+          entries: withText.map(({ audio, segments }) => {
+            const lines = segments.map((seg) => `[${formatOffset(seg.s)}] ${seg.t}`);
+            const paragraphs: string[] = [];
+            for (let i = 0; i < lines.length; i += TRANSCRIPT_LINES_PER_BLOCK) {
+              paragraphs.push(lines.slice(i, i + TRANSCRIPT_LINES_PER_BLOCK).join('\n'));
+            }
+            const when = audio.recordedAt ? formatDateTime(audio.recordedAt.toISOString().slice(0, 16), dateFormat) : null;
+            return {
+              heading: audio.originalName,
+              meta: [when, audio.transcriptLanguage].filter(Boolean).join('  '),
+              paragraphs,
+            };
+          }),
+        });
+      }
+    }
   }
 
   // Images, from their thumbnails

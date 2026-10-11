@@ -729,10 +729,17 @@ model PersonAudio {
   size         Int       // Bytes of the stored file
   createdAt    DateTime  @default(now())
 
+  // Set when the recording was added from the recordings library
+  sourcePath         String? // Path inside the library archive, e.g. "2026/09/260910_0847.mp3"
+  transcript         Json?   // Segments copied from the library: [{ "s": startMs, "e": endMs, "t": text }]
+  transcriptLanguage String? // Language code the transcript was made in, e.g. "it"
+  durationMs         Int?    // Length of the recording, when the library knows it
+
   // Relations
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId, recordedAt])
+  @@index([personId, sourcePath])
   @@map("person_audio")
 }
 

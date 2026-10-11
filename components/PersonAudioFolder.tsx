@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Button } from './ui/Button';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { formatDate, parseCalendarDate, type DateFormat } from '@/lib/date-format';
+import RecordingsLibraryPicker, { type LibraryMonth } from './RecordingsLibraryPicker';
+import { formatOffset } from '@/lib/transcript-format';
 
 interface PersonAudio {
   id: string;
@@ -13,7 +15,24 @@ interface PersonAudio {
   recordedAt: string | null;
   size: number;
   createdAt: string;
+  sourcePath?: string | null;
+  transcriptLanguage?: string | null;
+  durationMs?: number | null;
+  hasTranscript?: boolean;
 }
+
+interface Segment {
+  s: number;
+  e: number;
+  t: string;
+}
+
+interface LibraryInfo {
+  available: boolean;
+  searchable: boolean;
+  months: LibraryMonth[];
+}
+
 
 interface PersonAudioFolderProps {
   personId: string;
@@ -57,6 +76,63 @@ export default function PersonAudioFolder({ personId, dateFormat }: PersonAudioF
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const tTranscript = useTranslations('people.audio.transcript');
+  const tLibrary = useTranslations('people.audio.library');
+  const [library, setLibrary] = useState<LibraryInfo | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [transcriptOpen, setTranscriptOpen] = useState<string | null>(null);
+  const [transcripts, setTranscripts] = useState<Record<string, Segment[] | 'loading' | 'failed'>>({});
+  const [currentMs, setCurrentMs] = useState(0);
+  const playerRef = useRef<HTMLAudioElement | null>(null);
+  const pendingSeek = useRef<number | null>(null);
+
+  // The library button only shows for admins on instances with a library.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/recordings-library')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: LibraryInfo | null) => {
+        if (!cancelled && data?.available) setLibrary(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const loadTranscript = useCallback(async (audioId: string) => {
+    setTranscripts((prev) => ({ ...prev, [audioId]: 'loading' }));
+    try {
+      const res = await fetch(`/api/people/${personId}/audio/${audioId}/transcript`);
+      if (!res.ok) throw new Error(String(res.status));
+      const data = (await res.json()) as { segments: Segment[] };
+      setTranscripts((prev) => ({ ...prev, [audioId]: data.segments }));
+    } catch {
+      setTranscripts((prev) => ({ ...prev, [audioId]: 'failed' }));
+    }
+  }, [personId]);
+
+  const toggleTranscript = (audioId: string) => {
+    if (transcriptOpen === audioId) {
+      setTranscriptOpen(null);
+      return;
+    }
+    setTranscriptOpen(audioId);
+    const cached = transcripts[audioId];
+    if (!cached || cached === 'failed') void loadTranscript(audioId);
+  };
+
+  // Jump to a segment: open the player for that recording if needed, then seek.
+  const seekTo = (audioId: string, ms: number) => {
+    if (playingId === audioId && playerRef.current) {
+      playerRef.current.currentTime = ms / 1000;
+      void playerRef.current.play().catch(() => {});
+      return;
+    }
+    pendingSeek.current = ms;
+    setCurrentMs(ms);
+    setPlayingId(audioId);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -136,16 +212,23 @@ export default function PersonAudioFolder({ personId, dateFormat }: PersonAudioF
             <span className="ml-2 text-sm font-normal text-muted">{audio.length}</span>
           )}
         </h3>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading !== null}
-        >
-          {uploading
-            ? t('uploading', { done: uploading.done, total: uploading.total })
-            : t('add')}
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          {library && (
+            <Button variant="secondary" size="sm" onClick={() => setPickerOpen(true)}>
+              {tLibrary('open')}
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading !== null}
+          >
+            {uploading
+              ? t('uploading', { done: uploading.done, total: uploading.total })
+              : t('add')}
+          </Button>
+        </div>
         <input
           ref={inputRef}
           type="file"
@@ -191,10 +274,22 @@ export default function PersonAudioFolder({ personId, dateFormat }: PersonAudioF
                   </button>
                   <div className="min-w-0 flex-1">
                     <p className={`text-sm font-mono ${item.recordedAt ? 'text-foreground' : 'text-muted'}`}>{label}</p>
-                    <p className="text-xs text-muted truncate" title={item.originalName}>
+                    <p className="text-xs text-muted truncate" title={item.sourcePath ? tTranscript('fromLibrary', { path: item.sourcePath }) : item.originalName}>
                       {item.originalName} · {formatSize(item.size)}
                     </p>
                   </div>
+                  {item.hasTranscript && (
+                    <button
+                      type="button"
+                      onClick={() => toggleTranscript(item.id)}
+                      aria-expanded={transcriptOpen === item.id}
+                      className={`shrink-0 px-2 py-1 font-mono text-[0.6875rem] uppercase tracking-wider border rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        transcriptOpen === item.id ? 'border-primary text-primary' : 'border-border text-muted hover:text-foreground'
+                      }`}
+                    >
+                      {tTranscript('show')}
+                    </button>
+                  )}
                   <a
                     href={audioUrl(personId, item.id, true)}
                     className="shrink-0 p-2 text-muted hover:text-foreground transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -220,18 +315,48 @@ export default function PersonAudioFolder({ personId, dateFormat }: PersonAudioF
                 {isPlaying && (
                   <audio
                     key={item.id}
+                    ref={playerRef}
                     src={audioUrl(personId, item.id)}
                     controls
                     autoPlay
                     preload="metadata"
                     className="mt-2 w-full dark:[color-scheme:dark]"
                     aria-label={label}
+                    onLoadedMetadata={(e) => {
+                      if (pendingSeek.current !== null) {
+                        e.currentTarget.currentTime = pendingSeek.current / 1000;
+                        pendingSeek.current = null;
+                      }
+                    }}
+                    onTimeUpdate={(e) => setCurrentMs(e.currentTarget.currentTime * 1000)}
+                  />
+                )}
+                {transcriptOpen === item.id && (
+                  <TranscriptPanel
+                    state={transcripts[item.id]}
+                    language={item.transcriptLanguage ?? null}
+                    activeMs={isPlaying ? currentMs : null}
+                    onSeek={(ms) => seekTo(item.id, ms)}
+                    onRetry={() => void loadTranscript(item.id)}
                   />
                 )}
               </li>
             );
           })}
         </ul>
+      )}
+
+      {library && (
+        <RecordingsLibraryPicker
+          isOpen={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          personId={personId}
+          dateFormat={dateFormat}
+          months={library.months}
+          searchable={library.searchable}
+          existingPaths={new Set(audio.map((a) => a.sourcePath).filter((p): p is string => Boolean(p)))}
+          onAdded={(added) => setAudio((prev) => [...prev, ...added].sort(compareAudio))}
+        />
       )}
 
       <ConfirmationModal
@@ -248,6 +373,66 @@ export default function PersonAudioFolder({ personId, dateFormat }: PersonAudioF
       >
         <p className="text-muted">{t('confirmDeleteDescription')}</p>
       </ConfirmationModal>
+    </div>
+  );
+}
+
+interface TranscriptPanelProps {
+  state: Segment[] | 'loading' | 'failed' | undefined;
+  language: string | null;
+  activeMs: number | null;
+  onSeek: (ms: number) => void;
+  onRetry: () => void;
+}
+
+/**
+ * The transcript of one recording, a line per segment. Each timestamp plays
+ * from there; while the recording plays, the current line is marked.
+ */
+function TranscriptPanel({ state, language, activeMs, onSeek, onRetry }: TranscriptPanelProps) {
+  const t = useTranslations('people.audio.transcript');
+
+  if (state === undefined || state === 'loading') {
+    return <p className="mt-2 text-sm text-muted">{t('loading')}</p>;
+  }
+  if (state === 'failed') {
+    return (
+      <p className="mt-2 text-sm text-warning">
+        {t('failed')}{' '}
+        <button type="button" onClick={onRetry} className="underline">
+          {t('retry')}
+        </button>
+      </p>
+    );
+  }
+
+  return (
+    <div className="mt-2 border border-border rounded-lg bg-surface-elevated">
+      {language && (
+        <p className="px-3 pt-2 font-mono text-[0.6875rem] uppercase tracking-wider text-muted">
+          {t('language', { language })}
+        </p>
+      )}
+      <ol className="max-h-80 overflow-y-auto px-3 py-2 space-y-1">
+        {state.map((seg, i) => {
+          const active = activeMs !== null && activeMs >= seg.s && activeMs < seg.e;
+          return (
+            <li key={i} className={`flex gap-3 text-sm ${active ? 'text-foreground' : 'text-foreground/85'}`}>
+              <button
+                type="button"
+                onClick={() => onSeek(seg.s)}
+                className={`shrink-0 font-mono text-xs tabular-nums pt-0.5 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                  active ? 'text-primary' : 'text-muted'
+                }`}
+                aria-label={t('jumpTo', { time: formatOffset(seg.s) })}
+              >
+                {formatOffset(seg.s)}
+              </button>
+              <span className={active ? 'bg-primary/15' : ''}>{seg.t}</span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

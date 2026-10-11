@@ -99,6 +99,19 @@ export const personExportInclude = {
     select: { originalName: true, mimeType: true, size: true, sha256: true, createdAt: true },
     orderBy: { createdAt: 'asc' },
   },
+  audio: {
+    select: {
+      originalName: true,
+      recordedAt: true,
+      size: true,
+      createdAt: true,
+      sourcePath: true,
+      durationMs: true,
+      transcriptLanguage: true,
+      transcript: true,
+    },
+    orderBy: [{ recordedAt: { sort: 'asc', nulls: 'last' } }, { createdAt: 'asc' }],
+  },
 } satisfies Prisma.PersonInclude;
 
 export type PersonForExport = Prisma.PersonGetPayload<{ include: typeof personExportInclude }>;
@@ -194,6 +207,18 @@ export function serializePersonForExport(person: PersonForExport) {
       size: d.size,
       sha256: d.sha256,
       addedAt: d.createdAt,
+    })),
+    // Recording files are not included; transcripts copied from the
+    // recordings library are, as [{ s: startMs, e: endMs, t: text }].
+    audio: person.audio.map((a) => ({
+      name: a.originalName,
+      recordedAt: a.recordedAt,
+      size: a.size,
+      addedAt: a.createdAt,
+      sourcePath: a.sourcePath,
+      durationMs: a.durationMs,
+      transcriptLanguage: a.transcriptLanguage,
+      transcript: a.transcript,
     })),
     relationshipToUser: person.relationshipToUser
       ? {

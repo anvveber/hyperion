@@ -40,7 +40,7 @@ You can export contacts as standard vCard 4.0 files from a person's detail page,
 
 ## Single person JSON export
 
-On a person's detail page, open the actions menu (the three dots) and pick **Download profile as JSON**. The file holds everything about that one person: all fields, contact details, important dates, location history, groups, relationships with their notes, and journal entries that mention them. The person's document list is included, but photo and document files themselves are not.
+On a person's detail page, open the actions menu (the three dots) and pick **Download profile as JSON**. The file holds everything about that one person: all fields, contact details, important dates, location history, groups, relationships with their notes, and journal entries that mention them. The person's document and recording lists are included, with the transcripts of recordings added from the recordings library, but photo, document and audio files themselves are not.
 
 ## Single person PDF
 
@@ -53,6 +53,8 @@ On a person's detail page, open the actions menu (the three dots) and pick **Dow
 - the names of attached documents and recordings, and up to 24 attached images
 
 Every page carries the person's name and a page number at the bottom.
+
+When some of the person's recordings came from the recordings library with a transcript, the menu also offers **Download profile as PDF with transcripts**, which appends each transcript, one line per segment with its time.
 
 ### Technical details
 

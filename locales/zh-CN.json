@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, other {# 个文件上传失败（仅支持 .mp3）}}",
       "uploadSuccess": "{count, plural, one {已添加录音} other {已添加 # 条录音}}",
       "deleteSuccess": "录音已删除",
-      "deleteFailed": "无法删除录音"
+      "deleteFailed": "无法删除录音",
+      "library": {
+        "open": "从录音库添加",
+        "title": "从录音库添加",
+        "searchPlaceholder": "搜索转写文本",
+        "search": "搜索",
+        "searchHint": "可使用大写的 AND、OR、NOT，\"精确短语\" 和前缀*。",
+        "backToMonths": "返回月份列表",
+        "months": "月份",
+        "loading": "正在加载...",
+        "noResults": "没有符合此搜索的录音。",
+        "emptyMonth": "本月没有录音。",
+        "alreadyAdded": "已添加",
+        "noTranscript": "无转写文本",
+        "preview": "试听 {name}",
+        "stopPreview": "停止试听 {name}",
+        "maxSelection": "每次最多可添加 {max} 条录音",
+        "skipped": "{count} 条录音已在此文件夹中",
+        "someFailed": "{count} 条录音无法添加",
+        "addFailed": "无法添加录音",
+        "loadFailed": "无法加载录音库",
+        "searchFailed": "无法理解此搜索。请检查引号和运算符（AND、OR、NOT）。",
+        "selected": "{count, plural, =0 {未选择} other {已选择 {count} 条}}",
+        "adding": "正在添加...",
+        "addSelected": "{count, plural, =0 {添加} other {添加 {count} 条录音}}"
+      },
+      "transcript": {
+        "show": "转写文本",
+        "loading": "正在加载转写文本...",
+        "failed": "无法加载转写文本。",
+        "retry": "重试",
+        "language": "语言：{language}",
+        "jumpTo": "从 {time} 开始播放",
+        "fromLibrary": "来自录音库：{path}"
+      }
     },
     "otherNames": "其他名字",
     "openProfile": "打开个人资料",
@@ -1811,7 +1845,9 @@
       "generated": "生成于 {date}",
       "page": "第 {page} 页，共 {total} 页",
       "images": "图片",
-      "moreImages": "另有 {count} 张图片未显示"
+      "moreImages": "另有 {count} 张图片未显示",
+      "downloadWithTranscripts": "下载含转写文本的 PDF 资料",
+      "transcripts": "转写文本"
     }
   },
   "groups": {

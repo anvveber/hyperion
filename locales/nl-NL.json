@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {# bestand kon niet worden geüpload (alleen .mp3 wordt geaccepteerd)} other {# bestanden konden niet worden geüpload (alleen .mp3 wordt geaccepteerd)}}",
       "uploadSuccess": "{count, plural, one {Opname toegevoegd} other {# opnames toegevoegd}}",
       "deleteSuccess": "Opname verwijderd",
-      "deleteFailed": "De opname kon niet worden verwijderd"
+      "deleteFailed": "De opname kon niet worden verwijderd",
+      "library": {
+        "open": "Uit bibliotheek",
+        "title": "Toevoegen uit je opnamebibliotheek",
+        "searchPlaceholder": "Zoeken in transcripties",
+        "search": "Zoeken",
+        "searchHint": "Gebruik AND, OR en NOT in hoofdletters, \"exacte zinnen\" en voorvoegsel*.",
+        "backToMonths": "Terug naar de maanden",
+        "months": "Maanden",
+        "loading": "Laden...",
+        "noResults": "Geen opnamen komen overeen met deze zoekopdracht.",
+        "emptyMonth": "Geen opnamen deze maand.",
+        "alreadyAdded": "Al toegevoegd",
+        "noTranscript": "Geen transcriptie",
+        "preview": "Voorbeeld van {name} afspelen",
+        "stopPreview": "Voorbeeld van {name} stoppen",
+        "maxSelection": "Je kunt maximaal {max} opnamen tegelijk toevoegen",
+        "skipped": "{count, plural, one {# opname stond al in deze map} other {# opnamen stonden al in deze map}}",
+        "someFailed": "{count, plural, one {# opname kon niet worden toegevoegd} other {# opnamen konden niet worden toegevoegd}}",
+        "addFailed": "De opnamen konden niet worden toegevoegd",
+        "loadFailed": "De opnamebibliotheek kon niet worden geladen",
+        "searchFailed": "De zoekopdracht werd niet begrepen. Controleer aanhalingstekens en operatoren (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {Niets geselecteerd} one {# geselecteerd} other {# geselecteerd}}",
+        "adding": "Toevoegen...",
+        "addSelected": "{count, plural, =0 {Toevoegen} one {# opname toevoegen} other {# opnamen toevoegen}}"
+      },
+      "transcript": {
+        "show": "Transcriptie",
+        "loading": "Transcriptie laden...",
+        "failed": "De transcriptie kon niet worden geladen.",
+        "retry": "Opnieuw proberen",
+        "language": "Taal: {language}",
+        "jumpTo": "Afspelen vanaf {time}",
+        "fromLibrary": "Uit de bibliotheek: {path}"
+      }
     },
     "otherNames": "Andere namen",
     "openProfile": "Profiel openen",
@@ -1811,7 +1845,9 @@
       "generated": "Gemaakt op {date}",
       "page": "Pagina {page} van {total}",
       "images": "Afbeeldingen",
-      "moreImages": "{count, plural, one {Nog # afbeelding niet getoond} other {Nog # afbeeldingen niet getoond}}"
+      "moreImages": "{count, plural, one {Nog # afbeelding niet getoond} other {Nog # afbeeldingen niet getoond}}",
+      "downloadWithTranscripts": "Profiel downloaden als PDF met transcripties",
+      "transcripts": "Transcripties"
     }
   },
   "groups": {
