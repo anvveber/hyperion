@@ -18,7 +18,7 @@
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
-    <style name="Hyperion.Label">
+    <style name="Hyperion.Label" parent="">
         <item name="android:fontFamily">monospace</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.12</item>
@@ -26,7 +26,7 @@
         <item name="android:textColor">@color/secondary</item>
     </style>
 
-    <style name="Hyperion.Title">
+    <style name="Hyperion.Title" parent="">
         <item name="android:fontFamily">monospace</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.2</item>
@@ -35,13 +35,13 @@
         <item name="android:textColor">@color/foreground</item>
     </style>
 
-    <style name="Hyperion.Body">
+    <style name="Hyperion.Body" parent="">
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingMultiplier">1.25</item>
         <item name="android:textColor">@color/secondary</item>
     </style>
 
-    <style name="Hyperion.Button">
+    <style name="Hyperion.Button" parent="">
         <item name="android:fontFamily">monospace</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.12</item>
