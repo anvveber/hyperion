@@ -65,6 +65,7 @@
     "journal": "ジャーナル",
     "createJournal": "新しいエントリー",
     "map": "マップ",
+    "calendar": "カレンダー",
     "advancedSearch": "検索"
   },
   "advancedSearch": {
@@ -1734,6 +1735,22 @@
     "directions": "経路",
     "webglUnavailable": "WebGLが利用できないか無効になっているため、ブラウザでマップを表示できません。ブラウザでグラフィックアクセラレーションまたはWebGLを有効にして、ページを再読み込みしてください。",
     "colocatedTitle": "{count, plural, other {この場所に#人}}"
+  },
+  "calendar": {
+    "title": "カレンダー",
+    "subtitle": "ネットワーク内の人の誕生日、記念日、その他の大切な日。",
+    "downloadIcs": ".ics をダウンロード",
+    "empty": "大切な日はまだありません。人物のページで追加すると、ここに表示されます。",
+    "previousMonth": "前の月",
+    "nextMonth": "次の月",
+    "today": "今日",
+    "more": "ほか {count} 件",
+    "noDatesThisMonth": "今月の大切な日はありません。",
+    "yearsSince": "{count, plural, other {# 年}}",
+    "ics": {
+      "calendarName": "大切な日",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "関係の種類",

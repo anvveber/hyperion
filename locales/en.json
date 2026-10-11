@@ -65,6 +65,7 @@
     "journal": "Journal",
     "createJournal": "New entry",
     "map": "Map",
+    "calendar": "Calendar",
     "advancedSearch": "Search"
   },
   "advancedSearch": {
@@ -1734,6 +1735,22 @@
     "directions": "Directions",
     "webglUnavailable": "Your browser cannot display the map because WebGL is unavailable or disabled. Enable graphics acceleration or WebGL in your browser and reload the page.",
     "colocatedTitle": "{count, plural, one {1 person at this location} other {# people at this location}}"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Birthdays, anniversaries and other important dates of the people in your network.",
+    "downloadIcs": "Download .ics",
+    "empty": "No important dates yet. Add them on a person's page and they will show up here.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "more": "+{count} more",
+    "noDatesThisMonth": "No important dates this month.",
+    "yearsSince": "{count, plural, one {# year} other {# years}}",
+    "ics": {
+      "calendarName": "Important dates",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Relationship Types",
