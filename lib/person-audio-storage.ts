@@ -105,6 +105,57 @@ export async function savePersonAudioFile(
   return filename;
 }
 
+/** Largest recording that can be copied in from the recordings library. */
+export const MAX_LIBRARY_AUDIO_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+
+/**
+ * Copy an MP3 file that already sits on the server (from the recordings
+ * library) into a person's audio folder, without reading it into memory.
+ * Checks the first bytes look like MP3. Returns the stored filename and size.
+ */
+export async function copyFileIntoPersonAudio(
+  userId: string,
+  personId: string,
+  audioId: string,
+  sourcePath: string
+): Promise<{ filename: string; size: number }> {
+  const filename = `${audioId}.mp3`;
+  if (!SAFE_FILENAME.test(filename)) {
+    throw new Error('Invalid audio id');
+  }
+
+  const head = Buffer.alloc(4);
+  const handle = await fs.open(sourcePath, 'r');
+  let size: number;
+  try {
+    size = (await handle.stat()).size;
+    await handle.read(head, 0, 4, 0);
+  } finally {
+    await handle.close();
+  }
+  if (!isMp3Buffer(head)) {
+    throw new Error('Not an MP3 file');
+  }
+  if (size > MAX_LIBRARY_AUDIO_SIZE) {
+    throw new Error('Recording is too large');
+  }
+
+  const dirPath = getPersonAudioDir(userId, personId);
+  await fs.mkdir(dirPath, { recursive: true });
+  const filePath = path.join(dirPath, filename);
+  validateFilePath(filePath, getPhotoStoragePath());
+
+  const tmpPath = path.join(dirPath, `.nametag-tmp-${crypto.randomBytes(8).toString('hex')}`);
+  await fs.copyFile(sourcePath, tmpPath);
+  try {
+    await fs.rename(tmpPath, filePath);
+  } catch (err) {
+    await fs.unlink(tmpPath).catch(() => {});
+    throw err;
+  }
+  return { filename, size };
+}
+
 export type { ByteRange } from './file-range';
 export { parseRangeHeader } from './file-range';
 

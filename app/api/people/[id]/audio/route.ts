@@ -11,16 +11,11 @@ import {
   savePersonAudioFile,
 } from '@/lib/person-audio-storage';
 import { createModuleLogger } from '@/lib/logger';
+import { personAudioSelect, withTranscriptFlags } from '@/lib/person-audio';
 
 const log = createModuleLogger('people-audio');
 
-const audioSelect = {
-  id: true,
-  originalName: true,
-  recordedAt: true,
-  size: true,
-  createdAt: true,
-} as const;
+const audioSelect = personAudioSelect;
 
 // GET /api/people/[id]/audio - List the recordings in a person's audio folder
 export const GET = withAuth(async (_request, session, context) => {
@@ -42,7 +37,7 @@ export const GET = withAuth(async (_request, session, context) => {
       select: audioSelect,
     });
 
-    return apiResponse.ok({ audio });
+    return apiResponse.ok({ audio: await withTranscriptFlags(audio) });
   } catch (error) {
     return handleApiError(error, 'GET /api/people/[id]/audio');
   }
@@ -104,7 +99,7 @@ export const POST = withAuth(async (request, session, context) => {
       });
 
       log.info({ personId: id, audioId }, 'Person audio uploaded');
-      return apiResponse.created({ audio });
+      return apiResponse.created({ audio: { ...audio, hasTranscript: false } });
     } catch (error) {
       await deletePersonAudioFiles(session.user.id, id, [filename]);
       throw error;

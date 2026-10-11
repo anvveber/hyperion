@@ -83,6 +83,10 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `PHOTO_SIZE` | Max photo dimensions in pixels (square, 64 to 4096). Smaller images keep their original size. | `256` |
 | `PHOTO_QUALITY` | JPEG quality for opaque photos, 1 to 100 | `80` |
 | `PDF_CJK_FONT` | Path to a TTF, OTF or TTC font with Chinese, Japanese and Korean characters, used when profile PDFs contain them. The Docker image already includes Noto Sans CJK; set this only to use a different font or when running outside Docker | Noto Sans CJK if installed |
+| `RECORDINGS_LIBRARY_PATH` | Folder holding a voice-recording archive (`archive/`, `text/`, `index.db`), mounted read only. Lets admins add recordings with their transcripts to people. See [Audio recordings](/features/audio/#adding-from-your-recordings-library) | Not set |
+| `RECORDINGS_ARCHIVE_DIR` | Where the MP3 files are, if not `{RECORDINGS_LIBRARY_PATH}/archive` | `{library}/archive` |
+| `RECORDINGS_TEXT_DIR` | Where the whisper.cpp JSON transcripts are, if not `{RECORDINGS_LIBRARY_PATH}/text` | `{library}/text` |
+| `RECORDINGS_INDEX_DB` | The SQLite FTS5 search index, if not `{RECORDINGS_LIBRARY_PATH}/index.db` | `{library}/index.db` |
 | `TRASH_RETENTION_DAYS` | How many days deleted items stay in the trash before the `purge-deleted` job removes them for good, or `never` to keep them until a user deletes them by hand | `never` |
 | `OIDC_ISSUER_URL` | OIDC provider issuer URL, enables SSO login | Not set |
 | `OIDC_CLIENT_ID` | OIDC client ID registered with your provider | Not set |

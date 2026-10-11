@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {# file could not be uploaded (only .mp3 is accepted)} other {# files could not be uploaded (only .mp3 is accepted)}}",
       "uploadSuccess": "{count, plural, one {Recording added} other {# recordings added}}",
       "deleteSuccess": "Recording deleted",
-      "deleteFailed": "Could not delete the recording"
+      "deleteFailed": "Could not delete the recording",
+      "library": {
+        "open": "From library",
+        "title": "Add from your recordings library",
+        "searchPlaceholder": "Search transcripts",
+        "search": "Search",
+        "searchHint": "Use AND, OR and NOT in capitals, \"exact phrases\" and prefix*.",
+        "backToMonths": "Back to months",
+        "months": "Months",
+        "loading": "Loading...",
+        "noResults": "No recordings match this search.",
+        "emptyMonth": "No recordings this month.",
+        "alreadyAdded": "Already added",
+        "noTranscript": "No transcript",
+        "preview": "Play a preview of {name}",
+        "stopPreview": "Stop the preview of {name}",
+        "maxSelection": "You can add up to {max} recordings at a time",
+        "skipped": "{count, plural, one {# recording was already in this folder} other {# recordings were already in this folder}}",
+        "someFailed": "{count, plural, one {# recording could not be added} other {# recordings could not be added}}",
+        "addFailed": "Could not add the recordings",
+        "loadFailed": "Could not load the recordings library",
+        "searchFailed": "The search could not be understood. Check quotes and operators (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {None selected} one {# selected} other {# selected}}",
+        "adding": "Adding...",
+        "addSelected": "{count, plural, =0 {Add} one {Add # recording} other {Add # recordings}}"
+      },
+      "transcript": {
+        "show": "Transcript",
+        "loading": "Loading transcript...",
+        "failed": "Could not load the transcript.",
+        "retry": "Try again",
+        "language": "Language: {language}",
+        "jumpTo": "Play from {time}",
+        "fromLibrary": "From library: {path}"
+      }
     },
     "otherNames": "Other names",
     "openProfile": "Open profile",
@@ -1811,7 +1845,9 @@
       "generated": "Generated {date}",
       "page": "Page {page} of {total}",
       "images": "Images",
-      "moreImages": "{count, plural, one {# more image not shown} other {# more images not shown}}"
+      "moreImages": "{count, plural, one {# more image not shown} other {# more images not shown}}",
+      "downloadWithTranscripts": "Download profile as PDF with transcripts",
+      "transcripts": "Transcripts"
     }
   },
   "groups": {
