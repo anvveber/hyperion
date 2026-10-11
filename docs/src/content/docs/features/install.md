@@ -24,6 +24,8 @@ Chrome shows an install prompt on the dashboard the first time you visit. You ca
 
 Once installed, long-pressing the icon gives you shortcuts straight to Add person, Search and Dashboard.
 
+There is also a native [Android app](/features/android-app/) that works without Google Play Services, for example on GrapheneOS.
+
 ## Desktop
 
 Chrome and Edge show an install button in the address bar. Safari on macOS supports "Add to Dock" from the File menu.

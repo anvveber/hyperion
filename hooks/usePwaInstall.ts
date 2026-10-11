@@ -32,7 +32,10 @@ function detectStandalone(): boolean {
   const iosStandalone =
     'standalone' in window.navigator &&
     (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return displayMode || iosStandalone;
+  // The hyperion Android app (github.com/anvveber/hyperion_mobile) is a WebView
+  // that tags its user agent.
+  const androidApp = /\bHyperionAndroid\//.test(window.navigator.userAgent);
+  return displayMode || iosStandalone || androidApp;
 }
 
 function detectIos(): boolean {
