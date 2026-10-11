@@ -68,7 +68,7 @@ At least one field is required. Returns `{ "success": true }`.
 DELETE /api/admin/users/{id}
 ```
 
-Permanently deletes the account and all of its data. An admin can't delete their own account here; that goes through [`DELETE /api/user/delete`](/api/user/#account-deletion). Returns `{ "success": true }`.
+Permanently deletes the account and all of its data, including its photos, documents and audio files on disk. An admin can't delete their own account here; that goes through [`DELETE /api/user/delete`](/api/user/#account-deletion). Returns `{ "success": true }`.
 
 ## Technical details
 

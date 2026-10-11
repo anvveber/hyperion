@@ -70,7 +70,7 @@ Best for daily work: faster iteration and a more familiar debugging experience. 
 
 **Prerequisites:**
 
-- Node.js 20+
+- Node.js 24+
 - Docker and Docker Compose
 - Git
 

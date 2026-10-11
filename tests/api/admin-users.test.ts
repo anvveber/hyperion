@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   userDelete: vi.fn(),
   userCount: vi.fn(),
   isFeatureEnabled: vi.fn(),
+  deleteUserFiles: vi.fn(),
 }));
 
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }));
@@ -30,6 +31,7 @@ vi.mock('@/lib/features', () => ({
   isSaasMode: vi.fn(() => false),
 }));
 vi.mock('@/lib/billing', () => ({ createFreeSubscription: vi.fn() }));
+vi.mock('@/lib/person-files', () => ({ deleteUserFiles: mocks.deleteUserFiles }));
 vi.mock('@/lib/relationship-types', () => ({ createPreloadedRelationshipTypes: vi.fn() }));
 vi.mock('bcryptjs', () => ({
   hash: vi.fn(async () => 'hashed'),
@@ -210,6 +212,7 @@ describe('/api/admin/users/[id]', () => {
     const res = await DELETE(json('DELETE', 'http://localhost/api/admin/users/admin1'), params(ADMIN_ID));
     expect(res.status).toBe(400);
     expect(mocks.userDelete).not.toHaveBeenCalled();
+    expect(mocks.deleteUserFiles).not.toHaveBeenCalled();
   });
 
   it('deletes another account', async () => {
@@ -218,6 +221,7 @@ describe('/api/admin/users/[id]', () => {
     const res = await DELETE(json('DELETE', 'http://localhost/api/admin/users/u2'), params('u2'));
     expect(res.status).toBe(200);
     expect(mocks.userDelete).toHaveBeenCalledWith({ where: { id: 'u2' } });
+    expect(mocks.deleteUserFiles).toHaveBeenCalledWith('u2');
   });
 
   it('returns 404 for an unknown account', async () => {

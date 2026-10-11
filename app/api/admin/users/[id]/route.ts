@@ -5,6 +5,7 @@ import { countAdmins, withAdmin } from '@/lib/admin';
 import { adminUpdateUserSchema, validateRequest } from '@/lib/validations';
 import { isFeatureEnabled } from '@/lib/features';
 import { logger } from '@/lib/logger';
+import { deleteUserFiles } from '@/lib/person-files';
 
 export const PATCH = withAdmin(async (request, session, context) => {
   try {
@@ -72,8 +73,9 @@ export const DELETE = withAdmin(async (_request, session, context) => {
       return apiResponse.notFound('User not found');
     }
 
-    // Cascades delete all of the user's data
+    // Cascades delete all of the user's data; files on disk go separately
     await prisma.user.delete({ where: { id } });
+    await deleteUserFiles(id);
 
     logger.info({ adminId: session.user.id, userId: id }, 'Admin deleted user');
 

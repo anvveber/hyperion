@@ -277,7 +277,7 @@ curl https://your-instance.example.com/api/photos/user \
 DELETE /api/user/delete
 ```
 
-Permanently deletes the account and all associated data. This cannot be undone. The only admin gets `400` while other accounts exist, until another account is made an admin.
+Permanently deletes the account and all associated data, including photos, documents and audio files on disk. This cannot be undone. The only admin gets `400` while other accounts exist, until another account is made an admin.
 
 | Field | Type | Notes |
 | --- | --- | --- |
