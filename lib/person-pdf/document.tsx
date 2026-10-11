@@ -78,7 +78,10 @@ function styles() {
     metaItem: { flexDirection: 'row', marginRight: 18 },
     metaLabel: { fontFamily: mono, fontSize: 7, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.8, marginRight: 5 },
     metaValue: { fontFamily: mono, fontSize: 7, color: INK },
-    section: { marginTop: 18 },
+    // flexShrink 0 throughout: near the foot of a page yoga would otherwise
+    // squeeze blocks to fit, drawing their lines on top of each other.
+    section: { marginTop: 18, flexShrink: 0 },
+    keep: { flexShrink: 0 },
     sectionTitleRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -89,7 +92,7 @@ function styles() {
     },
     marker: { width: 5, height: 5, backgroundColor: GOLD, marginRight: 6 },
     sectionTitle: { fontFamily: mono, fontSize: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.2 },
-    fieldRow: { flexDirection: 'row', paddingVertical: 3 },
+    fieldRow: { flexDirection: 'row', paddingVertical: 3, flexShrink: 0 },
     fieldLabel: {
       width: '28%',
       paddingRight: 10,
@@ -116,11 +119,13 @@ function styles() {
     itemText: { fontSize: 9.5, lineHeight: 1.4 },
     itemSuperseded: { fontSize: 9, lineHeight: 1.4, color: MUTED, textDecoration: 'line-through' },
     itemDetail: { fontFamily: mono, fontSize: 7, lineHeight: 1.35, color: MUTED, marginTop: 1 },
-    paragraph: { marginBottom: 6 },
+    paragraph: { marginBottom: 6, flexShrink: 0 },
     // lineHeight needs an explicit fontSize next to it, or react-pdf scales it
     // from its default size instead of the inherited one.
     line: { fontSize: 9.5, lineHeight: 1.45 },
-    entry: { marginBottom: 10 },
+    // Space after a lead line that was a whole paragraph on its own.
+    leadGap: { marginBottom: 6 },
+    entryGap: { marginTop: 10 },
     entryHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 3 },
     entryHeading: { fontSize: 10, fontWeight: 600, flexShrink: 1, paddingRight: 8 },
     entryMeta: { fontFamily: mono, fontSize: 7, color: MUTED },
@@ -187,6 +192,19 @@ function Paragraph({ text, s }: { text: string; s: Styles }) {
   );
 }
 
+/**
+ * Split off the first line of the first paragraph. That line is all that
+ * travels with a title in an unbreakable block: binding a whole paragraph
+ * would push a long one past the foot of the page, where it gets cut off.
+ */
+function splitLead(paragraphs: string[]): { lead: string | null; rest: string[] } {
+  if (paragraphs.length === 0) return { lead: null, rest: [] };
+  const [first, ...others] = paragraphs;
+  const newline = first.indexOf('\n');
+  if (newline === -1) return { lead: first, rest: others };
+  return { lead: first.slice(0, newline), rest: [first.slice(newline + 1), ...others], };
+}
+
 function SectionTitle({ title, s }: { title: string; s: Styles }) {
   return (
     <View style={s.sectionTitleRow}>
@@ -218,7 +236,7 @@ function SectionView({ section, s }: { section: PdfSection; s: Styles }) {
     for (let i = 0; i < section.images.length; i += 3) rows.push(section.images.slice(i, i + 3));
     return (
       <View style={s.section}>
-        <View wrap={false}>
+        <View style={s.keep} wrap={false}>
           <SectionTitle title={section.title} s={s} />
           <ImageRow images={rows[0] ?? []} s={s} />
         </View>
@@ -236,7 +254,7 @@ function SectionView({ section, s }: { section: PdfSection; s: Styles }) {
     const [first, ...rest] = section.fields;
     return (
       <View style={s.section}>
-        <View wrap={false}>
+        <View style={s.keep} wrap={false}>
           <SectionTitle title={section.title} s={s} />
           {first ? <FieldView field={first} s={s} /> : null}
         </View>
@@ -248,12 +266,13 @@ function SectionView({ section, s }: { section: PdfSection; s: Styles }) {
   }
 
   if (section.kind === 'text') {
-    const [first, ...rest] = section.paragraphs;
+    const { lead, rest } = splitLead(section.paragraphs);
+    const continues = section.paragraphs[0]?.includes('\n') ?? false;
     return (
       <View style={s.section}>
-        <View wrap={false}>
+        <View style={s.keep} wrap={false}>
           <SectionTitle title={section.title} s={s} />
-          {first ? <Paragraph text={first} s={s} /> : null}
+          {lead !== null ? <Text style={[s.line, continues ? {} : s.leadGap]}>{lead}</Text> : null}
         </View>
         {rest.map((p, i) => (
           <Paragraph key={i} text={p} s={s} />
@@ -262,29 +281,25 @@ function SectionView({ section, s }: { section: PdfSection; s: Styles }) {
     );
   }
 
+  // Entries are laid out flat inside the section (no wrapper View per entry):
+  // an unbreakable block nested one level deeper than this gets drawn on top
+  // of the lines that follow it when it lands at the foot of a page.
   return (
     <View style={s.section}>
-      {section.entries.map((entry, i) => {
-        const head = (
-          <View style={s.entryHead}>
-            <Text style={s.entryHeading}>{entry.heading}</Text>
-            {entry.meta ? <Text style={s.entryMeta}>{entry.meta}</Text> : null}
-          </View>
-        );
-        const [firstParagraph, ...paragraphs] = entry.paragraphs;
-        return (
-          <View key={i} style={s.entry}>
-            {/* Each entry's heading stays with its first paragraph; the first entry also carries the section title. */}
-            <View wrap={false}>
-              {i === 0 ? <SectionTitle title={section.title} s={s} /> : null}
-              {head}
-              {firstParagraph ? <Paragraph text={firstParagraph} s={s} /> : null}
+      {section.entries.flatMap((entry, i) => {
+        const { lead, rest } = splitLead(entry.paragraphs);
+        const continues = entry.paragraphs[0]?.includes('\n') ?? false;
+        return [
+          <View key={`h${i}`} style={[s.keep, i > 0 ? s.entryGap : {}]} wrap={false}>
+            {i === 0 ? <SectionTitle title={section.title} s={s} /> : null}
+            <View style={s.entryHead}>
+              <Text style={s.entryHeading}>{entry.heading}</Text>
+              {entry.meta ? <Text style={s.entryMeta}>{entry.meta}</Text> : null}
             </View>
-            {paragraphs.map((p, j) => (
-              <Paragraph key={j} text={p} s={s} />
-            ))}
-          </View>
-        );
+            {lead !== null ? <Text style={[s.line, continues ? {} : s.leadGap]}>{lead}</Text> : null}
+          </View>,
+          ...rest.map((p, j) => <Paragraph key={`p${i}-${j}`} text={p} s={s} />),
+        ];
       })}
     </View>
   );
