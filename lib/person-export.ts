@@ -71,7 +71,15 @@ export const personExportInclude = {
     select: { type: true, url: true },
   },
   imHandles: {
-    select: { protocol: true, handle: true },
+    select: { protocol: true, handle: true, platformId: true },
+  },
+  aliases: {
+    select: { type: true, name: true, script: true },
+    orderBy: { createdAt: 'asc' },
+  },
+  fieldHistory: {
+    select: { field: true, type: true, value: true, data: true, validFrom: true, validTo: true },
+    orderBy: [{ field: 'asc' }, { validTo: 'desc' }],
   },
   locations: {
     select: { type: true, latitude: true, longitude: true, label: true },
@@ -136,6 +144,20 @@ export function serializePersonForExport(person: PersonForExport) {
     imHandles: person.imHandles.map((im) => ({
       protocol: im.protocol,
       handle: im.handle,
+      platformId: im.platformId,
+    })),
+    aliases: person.aliases.map((a) => ({
+      type: a.type,
+      name: a.name,
+      script: a.script,
+    })),
+    fieldHistory: person.fieldHistory.map((h) => ({
+      field: h.field,
+      type: h.type,
+      value: h.value,
+      data: h.data,
+      validFrom: h.validFrom,
+      validTo: h.validTo,
     })),
     locations: person.locations.map((l) => ({
       type: l.type,

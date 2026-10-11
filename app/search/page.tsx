@@ -77,6 +77,16 @@ export default async function SearchPage({
                 </div>
               ))}
             </div>
+            <label className="flex items-center gap-2 mt-4 text-sm text-foreground">
+              <input
+                type="checkbox"
+                name="previous"
+                value="1"
+                defaultChecked={filters.previous}
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              {t('includePrevious')}
+            </label>
             <div className="flex flex-wrap gap-3 mt-4">
               <Button type="submit">{t('submit')}</Button>
               {active && (
@@ -103,7 +113,7 @@ export default async function SearchPage({
                 <ul className="bg-surface border border-border rounded-lg divide-y divide-border">
                   {results.map((person) => {
                     const displayName = formatFullName(person, nameOrder, nameDisplayFormat);
-                    const details = [person.locations[0], person.emails[0], person.phones[0]].filter(Boolean);
+                    const details = [person.locations[0], person.emails[0], person.phones[0], person.handles[0]].filter(Boolean);
                     return (
                       <li key={person.id}>
                         <Link
@@ -115,6 +125,9 @@ export default async function SearchPage({
                             <p className="font-medium text-foreground truncate">{displayName}</p>
                             {details.length > 0 && (
                               <p className="text-sm text-muted truncate">{details.join(' · ')}</p>
+                            )}
+                            {person.matchedPrevious && (
+                              <p className="text-xs text-muted font-mono mt-0.5">{t('matchedPrevious')}</p>
                             )}
                           </div>
                         </Link>

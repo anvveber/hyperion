@@ -73,7 +73,7 @@
     "fields": {
       "name": {
         "label": "Nombre",
-        "placeholder": "Nombre, apellido o apodo"
+        "placeholder": "Nombre, apellido, apodo u otro nombre"
       },
       "location": {
         "label": "Ubicación",
@@ -87,6 +87,10 @@
         "label": "Teléfono",
         "placeholder": "Cualquier parte del número"
       },
+      "handle": {
+        "label": "Usuario",
+        "placeholder": "Nombre de usuario o ID de la plataforma"
+      },
       "keywords": {
         "label": "Palabras clave en las notas",
         "placeholder": "Palabras que aparecen en sus notas"
@@ -96,7 +100,9 @@
     "clear": "Limpiar",
     "resultCount": "{count, plural, =1 {1 persona encontrada} other {# personas encontradas}}",
     "resultsTruncated": "Mostrando las primeras {shown} de {total} coincidencias. Añade más filtros para acotar.",
-    "noResults": "Ninguna persona coincide con estos filtros."
+    "noResults": "Ninguna persona coincide con estos filtros.",
+    "includePrevious": "Incluir valores anteriores (números, direcciones, nombres y usuarios antiguos)",
+    "matchedPrevious": "Coincide con un valor anterior"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1479,48 @@
           "github": "Perfil de GitHub",
           "custom": "Campo personalizado"
         }
+      },
+      "sectionOtherNames": "Otros nombres",
+      "sectionImHandles": "Usuarios de mensajería",
+      "aliases": {
+        "label": "Otros nombres",
+        "add": "Añadir",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "remove": "Eliminar",
+        "typePlaceholder": "Tipo",
+        "namePlaceholder": "Nombre",
+        "scriptPlaceholder": "Idioma o alfabeto (opcional)",
+        "noAliases": "Aún no hay otros nombres",
+        "types": {
+          "nickname": "Apodo",
+          "formerName": "Nombre anterior",
+          "otherScript": "Otro alfabeto",
+          "other": "Otro"
+        }
+      },
+      "imHandles": {
+        "label": "Usuarios",
+        "add": "Añadir",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "remove": "Eliminar",
+        "typePlaceholder": "Plataforma",
+        "handlePlaceholder": "Nombre de usuario",
+        "platformIdPlaceholder": "ID de usuario (opcional)",
+        "platformIdShort": "ID",
+        "platformIdHelp": "Los nombres de usuario cambian, los ID no. En Discord, activa el modo desarrollador, haz clic derecho en la persona y elige Copiar ID de usuario.",
+        "noImHandles": "Aún no hay usuarios",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "Otro"
+        }
       }
     },
     "exportVcf": "Exportar VCF",
@@ -1632,6 +1680,56 @@
       "uploadSuccess": "{count, plural, one {Imagen añadida} other {# imágenes añadidas}}",
       "deleteSuccess": "Imagen eliminada",
       "deleteFailed": "No se pudo eliminar la imagen"
+    },
+    "otherNames": "Otros nombres",
+    "openProfile": "Abrir perfil",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "Valores anteriores",
+      "description": "Cuando cambia un nombre, número, dirección, sitio web o usuario, el valor antiguo se guarda aquí con sus fechas. También puedes añadir uno a mano.",
+      "view": {
+        "name": "Ver nombres anteriores",
+        "nickname": "Ver apodos anteriores",
+        "organization": "Ver organizaciones anteriores",
+        "jobTitle": "Ver cargos anteriores",
+        "phone": "Ver teléfonos anteriores",
+        "email": "Ver correos anteriores",
+        "address": "Ver direcciones anteriores",
+        "url": "Ver sitios web anteriores",
+        "im": "Ver usuarios anteriores"
+      },
+      "hide": "Ocultar valores anteriores",
+      "from": "Desde",
+      "to": "Hasta",
+      "period": "{from} a {to}",
+      "unknownDate": "desconocido",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "add": "Añadir",
+      "addPrevious": "Añadir un valor anterior",
+      "confirmDelete": "¿Eliminar este valor anterior? No se puede deshacer.",
+      "deleted": "Valor anterior eliminado",
+      "saved": "Valor anterior actualizado",
+      "added": "Valor anterior añadido",
+      "error": "Algo salió mal. Inténtalo de nuevo.",
+      "invalidRange": "La fecha de inicio debe ser igual o anterior a la de fin.",
+      "valuePlaceholder": "Valor anterior",
+      "typePlaceholder": "Etiqueta (opcional)",
+      "fieldLabel": "Campo",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "Nombre",
+        "nickname": "Apodo",
+        "organization": "Organización",
+        "jobTitle": "Cargo",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "address": "Dirección",
+        "url": "Sitio web",
+        "im": "Usuario"
+      }
     }
   },
   "groups": {

@@ -23,6 +23,17 @@ Nametag's name handling is flexible enough for real-world naming conventions, no
 - **Nickname**: what you actually call them
 - **Display name override**: forces a specific string to be shown everywhere in the app instead of the name built from the fields above
 
+### Other names
+
+People often go by more than one name. The **Other names** section holds as many extra names as you need, each tagged with a type:
+
+- **Nickname**: extra nicknames beyond the main one
+- **Former name**: a maiden name or a name someone used before
+- **Other alphabet**: the same name written in another script, like "Лена Иванова" or "李小龍"
+- **Other**, or any label you type
+
+Each entry can also note the language or alphabet. Other names show on the person page and are matched by both the quick search and the Name field of [advanced search](/features/search/#advanced-search).
+
 ### Work info
 
 Organization and job title, if you want to keep track of where someone works and what they do there.
@@ -35,9 +46,33 @@ Phones, emails, addresses, URLs, and IM handles all support multiple entries per
 - **Emails**: Personal, Work, Other
 - **Addresses**: Home, Work, Other. Each address is structured into street lines, city, state or region, postal code, and country, so it can be geocoded and shown on the Map
 - **Websites**: Personal, Work, Other
-- **IM handles**: tagged by protocol (Skype, WhatsApp, Telegram, Signal, and others)
+- **Messaging handles**: tagged by platform (Discord, Telegram, Signal, WhatsApp, Skype, Other, or any platform name you type)
 
-Add as many of each as you need. There's no limit on how many phone numbers or emails a single person can have.
+Add as many of each as you need, including several handles on the same platform. There's no limit on how many phone numbers or emails a single person can have.
+
+### Platform user IDs
+
+Usernames change, but most platforms also give each account a permanent numeric ID. Next to each handle you can store that **user ID** as well. For Discord, turn on Developer Mode in Discord's settings, then right-click the person and choose **Copy User ID**. On the person page, a Discord user ID links to the person's Discord profile. When the username later changes, edit the handle and keep the ID: the old username is kept in the field history together with the ID.
+
+User IDs are not part of vCards, so they are not sent to CardDAV servers. A sync from the server keeps the stored ID as long as the handle itself is unchanged.
+
+## Field history
+
+When you change or remove a name, nickname, organization, job title, phone number, email, address, website or handle, Nametag keeps the old value instead of throwing it away. Each kept value has a **valid from** and **valid to** date:
+
+- **Valid to** is the day the value was changed or removed
+- **Valid from** is when that value was first saved in Nametag, if known. Values that existed before field history was added start from the date they were last saved, so check those dates and correct them if needed
+
+On the person page, a **View previous ...** link appears under any field that has older values (for example "View previous phone numbers"). Open it to see the old values with their dates. From there you can:
+
+- **Edit** a value or its dates, for example to set the real date someone moved
+- **Delete** a value you don't want to keep. This cannot be undone
+
+Use **Add a previous value** in the **Previous values** panel to record an old value by hand, like an address from before you started using Nametag.
+
+Changing only the type of a value (Mobile to Work, for example) or its formatting (`+49 170 1112223` to `+491701112223`) does not create a history entry. Changes that arrive through [CardDAV sync](/features/carddav/) are recorded the same way as edits made in Nametag.
+
+Previous values are included in the [JSON export](/features/import-export/) and can be found with [advanced search](/features/search/#advanced-search) when you tick **Also match previous values**.
 
 ## Important dates
 
@@ -109,6 +144,11 @@ The detail page for a person brings every section together in one place: name an
 | Postal code | up to 20 characters |
 | URL | 1-500 characters |
 | IM handle | 1-200 characters |
+| IM platform name | 1-50 characters |
+| Platform user ID | up to 100 characters |
+| Other name | 1-200 characters, up to 100 other names per person |
+| Other name language or alphabet | up to 100 characters |
+| Previous value (field history) | 1-500 characters |
 | Pagination | 50 contacts per page |
 
 **Type options:**
@@ -117,4 +157,5 @@ The detail page for a person brings every section together in one place: name an
 - **Email types**: Personal, Work, Other
 - **Address types**: Home, Work, Other
 - **URL types**: Personal, Work, Other
-- **IM protocols**: Skype, WhatsApp, Telegram, Signal, Other
+- **IM platforms**: Discord, Telegram, Signal, WhatsApp, Skype, Other, or any name you type
+- **Other name types**: Nickname, Former name, Other alphabet, Other, or any label you type

@@ -73,7 +73,7 @@
     "fields": {
       "name": {
         "label": "姓名",
-        "placeholder": "名、姓或昵称"
+        "placeholder": "名字、姓氏、昵称或其他名字"
       },
       "location": {
         "label": "地点",
@@ -87,6 +87,10 @@
         "label": "电话",
         "placeholder": "号码的任意部分"
       },
+      "handle": {
+        "label": "用户名",
+        "placeholder": "用户名或平台 ID"
+      },
       "keywords": {
         "label": "备注关键词",
         "placeholder": "备注中出现的词语"
@@ -96,7 +100,9 @@
     "clear": "清除",
     "resultCount": "{count, plural, =1 {找到 1 人} other {找到 # 人}}",
     "resultsTruncated": "显示 {total} 个结果中的前 {shown} 个。添加更多筛选条件以缩小范围。",
-    "noResults": "没有符合这些筛选条件的联系人。"
+    "noResults": "没有符合这些筛选条件的联系人。",
+    "includePrevious": "同时搜索以前的值（旧号码、地址、名字、用户名）",
+    "matchedPrevious": "匹配到以前的值"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1479,48 @@
           "github": "GitHub 个人资料",
           "custom": "自定义字段"
         }
+      },
+      "sectionOtherNames": "其他名字",
+      "sectionImHandles": "通讯账号",
+      "aliases": {
+        "label": "其他名字",
+        "add": "添加",
+        "save": "保存",
+        "cancel": "取消",
+        "edit": "编辑",
+        "remove": "移除",
+        "typePlaceholder": "类型",
+        "namePlaceholder": "名字",
+        "scriptPlaceholder": "语言或文字（可选）",
+        "noAliases": "还没有其他名字",
+        "types": {
+          "nickname": "昵称",
+          "formerName": "曾用名",
+          "otherScript": "其他文字写法",
+          "other": "其他"
+        }
+      },
+      "imHandles": {
+        "label": "账号",
+        "add": "添加",
+        "save": "保存",
+        "cancel": "取消",
+        "edit": "编辑",
+        "remove": "移除",
+        "typePlaceholder": "平台",
+        "handlePlaceholder": "用户名",
+        "platformIdPlaceholder": "用户 ID（可选）",
+        "platformIdShort": "ID",
+        "platformIdHelp": "用户名可能会变，用户 ID 不会。在 Discord 中打开开发者模式，右键点击此人，选择“复制用户 ID”。",
+        "noImHandles": "还没有账号",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "其他"
+        }
       }
     },
     "exportVcf": "导出 VCF",
@@ -1632,6 +1680,56 @@
       "uploadSuccess": "{count, plural, other {已添加 # 张图片}}",
       "deleteSuccess": "图片已删除",
       "deleteFailed": "无法删除图片"
+    },
+    "otherNames": "其他名字",
+    "openProfile": "打开个人资料",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "以前的值",
+      "description": "名字、号码、地址、网站或用户名变更时，旧值会连同日期保存在这里。你也可以手动添加。",
+      "view": {
+        "name": "查看以前的名字",
+        "nickname": "查看以前的昵称",
+        "organization": "查看以前的单位",
+        "jobTitle": "查看以前的职位",
+        "phone": "查看以前的电话号码",
+        "email": "查看以前的电子邮箱",
+        "address": "查看以前的地址",
+        "url": "查看以前的网站",
+        "im": "查看以前的用户名"
+      },
+      "hide": "隐藏以前的值",
+      "from": "从",
+      "to": "到",
+      "period": "{from} 至 {to}",
+      "unknownDate": "未知",
+      "edit": "编辑",
+      "delete": "删除",
+      "save": "保存",
+      "cancel": "取消",
+      "add": "添加",
+      "addPrevious": "添加以前的值",
+      "confirmDelete": "删除这个以前的值？此操作无法撤销。",
+      "deleted": "已删除以前的值",
+      "saved": "已更新以前的值",
+      "added": "已添加以前的值",
+      "error": "出了点问题，请重试。",
+      "invalidRange": "开始日期必须早于或等于结束日期。",
+      "valuePlaceholder": "以前的值",
+      "typePlaceholder": "标签（可选）",
+      "fieldLabel": "字段",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "名字",
+        "nickname": "昵称",
+        "organization": "单位",
+        "jobTitle": "职位",
+        "phone": "电话号码",
+        "email": "电子邮箱",
+        "address": "地址",
+        "url": "网站",
+        "im": "用户名"
+      }
     }
   },
   "groups": {

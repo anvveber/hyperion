@@ -15,6 +15,13 @@ import { autoExportPerson, autoUpdatePerson } from '@/lib/carddav/auto-export';
 import { geocodePersonAddresses } from '@/lib/geocoding/geocode-person';
 import { personUpdateInclude, personDetailsInclude } from '@/lib/prisma-queries';
 import { createModuleLogger } from '@/lib/logger';
+import {
+  keepsScalarHistory,
+  loadScalarSince,
+  planTrackedUpdate,
+  trackedRelationsInclude,
+  type TrackedInput,
+} from '@/lib/field-history';
 
 const log = createModuleLogger('person-service');
 
@@ -191,6 +198,7 @@ export async function createPerson(userId: string, data: PersonInput) {
     imHandles,
     locations,
     customFields,
+    aliases,
   } = data;
 
   const sanitizedName = sanitizeName(name) || name;
@@ -262,7 +270,23 @@ export async function createPerson(userId: string, data: PersonInput) {
           : undefined,
       imHandles:
         imHandles && imHandles.length > 0
-          ? { create: imHandles.map((im) => ({ protocol: im.protocol, handle: im.handle })) }
+          ? {
+              create: imHandles.map((im) => ({
+                protocol: im.protocol,
+                handle: im.handle,
+                platformId: im.platformId?.trim() || null,
+              })),
+            }
+          : undefined,
+      aliases:
+        aliases && aliases.length > 0
+          ? {
+              create: aliases.map((a) => ({
+                type: a.type,
+                name: sanitizeName(a.name) || a.name,
+                script: a.script?.trim() || null,
+              })),
+            }
           : undefined,
       locations:
         locations && locations.length > 0
@@ -331,9 +355,10 @@ export async function createPerson(userId: string, data: PersonInput) {
  * - Photo upload (pass the filename in `data.photo`)
  */
 export async function updatePerson(id: string, userId: string, data: PersonUpdateInput) {
-  // Verify ownership
+  // Verify ownership, and load the current values field history compares against
   const existingPerson = await prisma.person.findUnique({
     where: { id, userId, deletedAt: null },
+    include: trackedRelationsInclude,
   });
 
   if (!existingPerson) {
@@ -372,6 +397,7 @@ export async function updatePerson(id: string, userId: string, data: PersonUpdat
     imHandles,
     locations,
     customFields,
+    aliases,
   } = data;
 
   const sanitizedName = name !== undefined ? sanitizeName(name) || name : undefined;
@@ -476,46 +502,69 @@ export async function updatePerson(id: string, userId: string, data: PersonUpdat
     };
   }
 
-  if (phoneNumbers !== undefined) {
-    updateData.phoneNumbers = {
-      deleteMany: {},
-      create: phoneNumbers.map((p) => ({ type: p.type, number: p.number })),
-    };
+  // Keep replaced or removed values as field history, and carry the original
+  // createdAt for values that did not change so "valid from" stays accurate.
+  const trackedInput: TrackedInput = {
+    name: sanitizedName,
+    middleName: sanitizedMiddleName,
+    surname: sanitizedSurname,
+    secondLastName: sanitizedSecondLastName,
+    nickname: sanitizedNickname,
+    organization: organization !== undefined ? organization ?? null : undefined,
+    jobTitle: jobTitle !== undefined ? jobTitle ?? null : undefined,
+    phoneNumbers,
+    emails,
+    addresses: addresses?.map((a) => ({
+      type: a.type,
+      streetLine1: a.streetLine1 ?? null,
+      streetLine2: a.streetLine2 ?? null,
+      locality: a.locality ?? null,
+      region: a.region ?? null,
+      postalCode: a.postalCode ?? null,
+      country: a.country ?? null,
+    })),
+    urls,
+    imHandles,
+  };
+  const now = new Date();
+  let plan = planTrackedUpdate(existingPerson, trackedInput, now);
+  if (keepsScalarHistory(plan)) {
+    // Only look up when the old value started once there is one to keep
+    plan = planTrackedUpdate(existingPerson, trackedInput, now, await loadScalarSince(prisma, id));
   }
 
-  if (emails !== undefined) {
-    updateData.emails = {
-      deleteMany: {},
-      create: emails.map((e) => ({ type: e.type, email: e.email })),
-    };
+  if (plan.phoneNumbers) {
+    updateData.phoneNumbers = { deleteMany: {}, create: plan.phoneNumbers };
   }
 
-  if (addresses !== undefined) {
-    updateData.addresses = {
+  if (plan.emails) {
+    updateData.emails = { deleteMany: {}, create: plan.emails };
+  }
+
+  if (plan.addresses) {
+    updateData.addresses = { deleteMany: {}, create: plan.addresses };
+  }
+
+  if (plan.urls) {
+    updateData.urls = { deleteMany: {}, create: plan.urls };
+  }
+
+  if (plan.imHandles) {
+    updateData.imHandles = { deleteMany: {}, create: plan.imHandles };
+  }
+
+  if (plan.history.length > 0) {
+    updateData.fieldHistory = { create: plan.history };
+  }
+
+  if (aliases !== undefined) {
+    updateData.aliases = {
       deleteMany: {},
-      create: addresses.map((a) => ({
+      create: aliases.map((a) => ({
         type: a.type,
-        streetLine1: a.streetLine1 ?? null,
-        streetLine2: a.streetLine2 ?? null,
-        locality: a.locality ?? null,
-        region: a.region ?? null,
-        postalCode: a.postalCode ?? null,
-        country: a.country ?? null,
+        name: sanitizeName(a.name) || a.name,
+        script: a.script?.trim() || null,
       })),
-    };
-  }
-
-  if (urls !== undefined) {
-    updateData.urls = {
-      deleteMany: {},
-      create: urls.map((u) => ({ type: u.type, url: u.url })),
-    };
-  }
-
-  if (imHandles !== undefined) {
-    updateData.imHandles = {
-      deleteMany: {},
-      create: imHandles.map((im) => ({ protocol: im.protocol, handle: im.handle })),
     };
   }
 
@@ -886,6 +935,10 @@ export async function mergePeople(
         await transfer(items.map((x) => x.id));
       }
     }
+
+    // (b2) Other names and field history move over as a whole
+    await tx.personAlias.updateMany({ where: { personId: sourceId }, data: { personId: targetId } });
+    await tx.personFieldHistory.updateMany({ where: { personId: sourceId }, data: { personId: targetId } });
 
     // (c) Transfer groups
     if (newGroupIds.length > 0) {

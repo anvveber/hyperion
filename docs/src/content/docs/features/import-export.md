@@ -11,7 +11,7 @@ Your data is always yours. Nametag supports exporting and importing your contact
 
 Go to **Settings > Account > Export Data**. This exports a complete snapshot of your data as a single JSON file, including:
 
-- All people, with every sub-field: contact details, addresses, custom fields, important dates, and more
+- All people, with every sub-field: contact details, addresses, messaging handles with their platform user IDs, other names, previous values from the field history, custom fields, important dates, and more
 - Groups
 - Relationship types
 - Journal entries

@@ -419,8 +419,8 @@ describe('Import - contact fields round-trip', () => {
 
       expect(mocks.imCreateMany).toHaveBeenCalledWith({
         data: [
-          { personId: 'new-person-1', protocol: 'telegram', handle: '@alice' },
-          { personId: 'new-person-1', protocol: 'signal', handle: '+1234567890' },
+          { personId: 'new-person-1', protocol: 'telegram', handle: '@alice', platformId: null },
+          { personId: 'new-person-1', protocol: 'signal', handle: '+1234567890', platformId: null },
         ],
       });
     });

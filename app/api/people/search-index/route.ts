@@ -32,7 +32,8 @@ export const GET = withAuth(async (_request, session) => {
         },
       },
       urls: { select: { url: true } },
-      imHandles: { select: { handle: true } },
+      imHandles: { select: { handle: true, platformId: true } },
+      aliases: { select: { name: true } },
       groups: {
         where: { group: { deletedAt: null } },
         include: { group: { select: { name: true } } },
@@ -64,7 +65,11 @@ export const GET = withAuth(async (_request, session) => {
       .filter(Boolean)
       .join(' '),
     urls: person.urls.map((u) => u.url).join(' '),
-    imHandles: person.imHandles.map((im) => im.handle).join(' '),
+    imHandles: person.imHandles
+      .flatMap((im) => [im.handle, im.platformId])
+      .filter(Boolean)
+      .join(' '),
+    aliases: person.aliases.map((a) => a.name).join(' '),
     groups: person.groups.map((pg) => pg.group.name).join(' '),
     customFields: [
       ...person.customFields.map((cf) => `${cf.key} ${cf.value}`),

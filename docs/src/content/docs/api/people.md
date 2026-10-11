@@ -92,6 +92,8 @@ Adds a new person. Can include group memberships, important dates, multi-value c
 | `cardDavSyncEnabled` | boolean | |
 | `displayNameOverride` | string or null | Per-person display name override, used in Nametag and CardDAV sync. |
 | `phoneNumbers`, `emails`, `addresses`, `urls`, `imHandles`, `locations`, `customFields` | array | Multi-value vCard-style fields, each `{ type, ...fields }`. |
+| `imHandles` | array | `{ protocol, handle, platformId? }`. `protocol` is any platform name (`discord`, `telegram`, `signal`, `whatsapp`, `skype`, `other`, or your own). `platformId` is the stable account ID, such as a Discord user ID. On update, leaving `platformId` out keeps the stored ID for the same handle; sending `""` or `null` clears it. |
+| `aliases` | array | Other names: `{ type, name, script? }`. `type` is `nickname`, `formerName`, `otherScript`, `other`, or any label. On update, the list replaces all stored other names. |
 | `customFieldValues` | array | `{ templateId, value }` pairs for typed custom field templates. |
 
 ```bash
@@ -579,6 +581,64 @@ curl -X DELETE https://your-instance.example.com/api/people/clx1/important-dates
 ```json
 { "success": true }
 ```
+
+## Field history
+
+When an update changes or removes a name, nickname, organization, job title, phone number, email, address, URL or IM handle, the old value is kept as a history entry with `validFrom` and `validTo` dates. These endpoints read and correct that history.
+
+### List previous values
+
+```
+GET /api/people/{id}/history?field=phone
+```
+
+`field` is optional and one of `name`, `nickname`, `organization`, `jobTitle`, `phone`, `email`, `address`, `url`, `im`. Entries are sorted newest first.
+
+```json
+{
+  "history": [
+    {
+      "id": "clx9",
+      "personId": "clx1",
+      "field": "im",
+      "type": "discord",
+      "value": "lena_old",
+      "data": { "platformId": "123456789012345678" },
+      "validFrom": "2024-01-15T10:00:00.000Z",
+      "validTo": "2026-10-11T08:00:00.000Z",
+      "createdAt": "2026-10-11T08:00:00.000Z"
+    }
+  ]
+}
+```
+
+### Add a previous value
+
+```
+POST /api/people/{id}/history
+```
+
+```json
+{ "field": "address", "type": "Home", "value": "Hauptstr. 5, Hamburg", "validFrom": "2019-03-01", "validTo": "2023-08-31" }
+```
+
+Returns `201` with `{ "entry": { ... } }`. Dates are `YYYY-MM-DD` and optional; `validFrom` must not be after `validTo`.
+
+### Update a previous value
+
+```
+PATCH /api/people/{id}/history/{historyId}
+```
+
+Send any of `value`, `type`, `validFrom`, `validTo`. Send `null` or `""` to clear a date. Returns `{ "entry": { ... } }`.
+
+### Delete a previous value
+
+```
+DELETE /api/people/{id}/history/{historyId}
+```
+
+Returns `{ "success": true }`. This cannot be undone.
 
 ## Photos
 

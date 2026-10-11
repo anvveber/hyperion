@@ -79,6 +79,8 @@ export default function FieldManager<T extends BaseFieldItem>({
 
   const isMultiField = fieldConfig.fields.length > 1 || fieldConfig.keyEditable === true;
 
+  const typeKey = fieldConfig.typeKey ?? 'type';
+
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const commitItem = (item: T): T | null => {
@@ -324,8 +326,11 @@ export default function FieldManager<T extends BaseFieldItem>({
     isAddForm: boolean
   ): React.ReactNode => {
     const field = fieldConfig.fields[0];
-    const accentBg = `bg-${fieldConfig.accentColor}-50 dark:bg-${fieldConfig.accentColor}-900/20`;
-    const accentBorder = `border-${fieldConfig.accentColor}-200 dark:border-${fieldConfig.accentColor}-800`;
+    const accentBg = fieldConfig.formClasses
+      ? ''
+      : `bg-${fieldConfig.accentColor}-50 dark:bg-${fieldConfig.accentColor}-900/20`;
+    const accentBorder = fieldConfig.formClasses
+      ?? `border-${fieldConfig.accentColor}-200 dark:border-${fieldConfig.accentColor}-800`;
 
     return (
       <div
@@ -333,8 +338,8 @@ export default function FieldManager<T extends BaseFieldItem>({
       >
         {typeOptions && (
           <TypeComboBox
-            value={getFieldValue(item, 'type')}
-            onChange={(val) => onItemChange({ ...item, type: val } as T)}
+            value={getFieldValue(item, typeKey)}
+            onChange={(val) => onItemChange({ ...item, [typeKey]: val } as T)}
             options={typeOptions}
             placeholder={t('typePlaceholder')}
             className={`${INPUT_BASE} flex-shrink-0 w-32`}
@@ -381,8 +386,11 @@ export default function FieldManager<T extends BaseFieldItem>({
     onCancel: () => void,
     confirmLabel: string
   ): React.ReactNode => {
-    const accentBg = `bg-${fieldConfig.accentColor}-50 dark:bg-${fieldConfig.accentColor}-900/20`;
-    const accentBorder = `border-${fieldConfig.accentColor}-200 dark:border-${fieldConfig.accentColor}-800`;
+    const accentBg = fieldConfig.formClasses
+      ? ''
+      : `bg-${fieldConfig.accentColor}-50 dark:bg-${fieldConfig.accentColor}-900/20`;
+    const accentBorder = fieldConfig.formClasses
+      ?? `border-${fieldConfig.accentColor}-200 dark:border-${fieldConfig.accentColor}-800`;
 
     // Custom field preset selector
     const customKeyElements: React.ReactNode[] = [];
@@ -437,8 +445,8 @@ export default function FieldManager<T extends BaseFieldItem>({
         {typeOptions && (
           <div className="flex gap-2">
             <TypeComboBox
-              value={getFieldValue(item, 'type')}
-              onChange={(val) => onItemChange({ ...item, type: val } as T)}
+              value={getFieldValue(item, typeKey)}
+              onChange={(val) => onItemChange({ ...item, [typeKey]: val } as T)}
               options={typeOptions}
               placeholder={t('typePlaceholder')}
               className={`${INPUT_BASE} w-32`}
@@ -467,6 +475,9 @@ export default function FieldManager<T extends BaseFieldItem>({
         {fieldConfig.namespace === 'locations' && (
           <p className="text-xs text-muted">{t('coordinatesHelp')}</p>
         )}
+        {fieldConfig.helpKey && (
+          <p className="text-xs text-muted">{t(fieldConfig.helpKey)}</p>
+        )}
       </div>
     );
   };
@@ -481,8 +492,8 @@ export default function FieldManager<T extends BaseFieldItem>({
         <>
           {typeOptions && (
             <TypeComboBox
-              value={getFieldValue(item, 'type')}
-              onChange={(val) => onItemChange({ ...item, type: val } as T)}
+              value={getFieldValue(item, typeKey)}
+              onChange={(val) => onItemChange({ ...item, [typeKey]: val } as T)}
               options={typeOptions}
               placeholder={t('typePlaceholder')}
               className={`${INPUT_BASE} flex-shrink-0 w-32`}
@@ -540,8 +551,8 @@ export default function FieldManager<T extends BaseFieldItem>({
         {typeOptions && (
           <div className="flex gap-2">
             <TypeComboBox
-              value={getFieldValue(item, 'type')}
-              onChange={(val) => onItemChange({ ...item, type: val } as T)}
+              value={getFieldValue(item, typeKey)}
+              onChange={(val) => onItemChange({ ...item, [typeKey]: val } as T)}
               options={typeOptions}
               placeholder={t('typePlaceholder')}
               className={`${INPUT_BASE} w-32`}
@@ -574,8 +585,8 @@ export default function FieldManager<T extends BaseFieldItem>({
 
   const renderViewItem = (item: T, index: number): React.ReactNode => {
     const typeDisplay = typeOptions
-      ? (typeOptions.find((o) => o.value === getFieldValue(item, 'type'))?.label ??
-          getFieldValue(item, 'type'))
+      ? (typeOptions.find((o) => o.value === getFieldValue(item, typeKey))?.label ??
+          getFieldValue(item, typeKey))
       : null;
 
     const badgeEl = typeDisplay ? (

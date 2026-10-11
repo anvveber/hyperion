@@ -43,6 +43,8 @@ export default async function EditPersonPage({
         emails: true,
         addresses: true,
         urls: true,
+        imHandles: { orderBy: { createdAt: 'asc' } },
+        aliases: { orderBy: { createdAt: 'asc' } },
         cardDavMapping: {
           select: { id: true },
         },

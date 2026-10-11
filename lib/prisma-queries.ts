@@ -34,6 +34,7 @@ function multiValueFieldsInclude() {
     addresses: true,
     urls: true,
     imHandles: true,
+    aliases: true,
     locations: true,
     customFields: true,
     customFieldValues: customFieldValuesInclude(),

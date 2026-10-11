@@ -37,6 +37,9 @@ vi.mock('../../lib/prisma', () => ({
     relationship: {
       create: mocks.relationshipCreate,
     },
+    personFieldHistory: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     importantDate: {
       count: mocks.importantDateCount,
     },
@@ -506,7 +509,13 @@ describe('People API', () => {
       await PUT(request, context);
 
       const updateCall = mocks.personUpdate.mock.calls[0][0];
-      expect(updateCall.data).toEqual({ name: 'John Updated' });
+      // The old name is kept as field history; nothing else is touched
+      expect(updateCall.data).toEqual({
+        name: 'John Updated',
+        fieldHistory: {
+          create: [expect.objectContaining({ field: 'name', value: 'John Michael Doe' })],
+        },
+      });
     });
   });
 

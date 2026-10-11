@@ -13,6 +13,7 @@ import type { ParsedVCardData } from './types';
 import type { Person } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { parseVCard } from './vcard-parser';
+import { loadTrackedUpdatePlan, type TrackedInput, type TrackedUpdatePlan } from '@/lib/field-history';
 
 // Derive the transaction client type from our actual (extended) prisma instance.
 // Parameters<...>[0] extracts the callback arg of $transaction, then
@@ -142,6 +143,59 @@ export function buildScalarPersonData(parsedData: ParsedVCardData, skipNameField
   };
 }
 
+/**
+ * Tracked field values a vCard update will write. Multi-value fields absent
+ * from the vCard are cleared by the update, so they count as empty lists.
+ */
+function trackedInputFromVCard(parsedData: ParsedVCardData, skipNameFields = false): TrackedInput {
+  const scalars = buildScalarPersonData(parsedData, skipNameFields);
+  return {
+    name: scalars.name,
+    middleName: scalars.middleName,
+    surname: scalars.surname,
+    secondLastName: scalars.secondLastName,
+    nickname: scalars.nickname,
+    organization: scalars.organization,
+    jobTitle: scalars.jobTitle,
+    phoneNumbers: parsedData.phoneNumbers ?? [],
+    emails: parsedData.emails ?? [],
+    addresses: (parsedData.addresses ?? []).map((a) => ({
+      type: a.type,
+      streetLine1: a.streetLine1 ?? null,
+      streetLine2: a.streetLine2 ?? null,
+      locality: a.locality ?? null,
+      region: a.region ?? null,
+      postalCode: a.postalCode ?? null,
+      country: a.country ?? null,
+    })),
+    urls: parsedData.urls ?? [],
+    // No platform ID in vCards: the stored ID is kept for unchanged handles
+    imHandles: (parsedData.imHandles ?? []).map((im) => ({ protocol: im.protocol, handle: im.handle })),
+  };
+}
+
+/** Multi-value creates and history for a vCard update, from a tracked plan. */
+function trackedWrites(parsedData: ParsedVCardData, plan: TrackedUpdatePlan | null) {
+  return {
+    phoneNumbers: plan?.phoneNumbers
+      ? { create: plan.phoneNumbers }
+      : parsedData.phoneNumbers ? { create: parsedData.phoneNumbers } : undefined,
+    emails: plan?.emails
+      ? { create: plan.emails }
+      : parsedData.emails ? { create: parsedData.emails } : undefined,
+    addresses: plan?.addresses
+      ? { create: plan.addresses }
+      : parsedData.addresses ? { create: parsedData.addresses } : undefined,
+    urls: plan?.urls
+      ? { create: plan.urls }
+      : parsedData.urls ? { create: parsedData.urls } : undefined,
+    imHandles: plan?.imHandles
+      ? { create: plan.imHandles }
+      : parsedData.imHandles ? { create: parsedData.imHandles } : undefined,
+    fieldHistory: plan && plan.history.length > 0 ? { create: plan.history } : undefined,
+  };
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Public API
 // ──────────────────────────────────────────────────────────────────────────────
@@ -240,6 +294,12 @@ export async function updatePersonFromVCard(
   // Delete all multi-value fields and update person in a single atomic transaction
   // to prevent partial data loss if either step fails
   await prisma.$transaction(async (tx) => {
+    const plan = await loadTrackedUpdatePlan(
+      tx,
+      personId,
+      trackedInputFromVCard(parsedData, options?.skipNameFields),
+    );
+
     await tx.personPhone.deleteMany({ where: { personId } });
     await tx.personEmail.deleteMany({ where: { personId } });
     await tx.personAddress.deleteMany({ where: { personId } });
@@ -257,21 +317,7 @@ export async function updatePersonFromVCard(
         uid: parsedData.uid,
 
         // Create new multi-value fields
-        phoneNumbers: parsedData.phoneNumbers
-          ? { create: parsedData.phoneNumbers }
-          : undefined,
-        emails: parsedData.emails
-          ? { create: parsedData.emails }
-          : undefined,
-        addresses: parsedData.addresses
-          ? { create: parsedData.addresses }
-          : undefined,
-        urls: parsedData.urls
-          ? { create: parsedData.urls }
-          : undefined,
-        imHandles: parsedData.imHandles
-          ? { create: parsedData.imHandles }
-          : undefined,
+        ...trackedWrites(parsedData, plan),
         locations: parsedData.locations
           ? { create: parsedData.locations }
           : undefined,
@@ -305,6 +351,12 @@ export async function updatePersonFromVCardInTransaction(
   parsedData: ParsedVCardData,
   options?: { skipNameFields?: boolean },
 ): Promise<void> {
+  const plan = await loadTrackedUpdatePlan(
+    tx,
+    personId,
+    trackedInputFromVCard(parsedData, options?.skipNameFields),
+  );
+
   // Delete all multi-value fields
   await tx.personPhone.deleteMany({ where: { personId } });
   await tx.personEmail.deleteMany({ where: { personId } });
@@ -322,21 +374,7 @@ export async function updatePersonFromVCardInTransaction(
       ...buildScalarPersonData(parsedData, options?.skipNameFields),
       uid: parsedData.uid,
 
-      phoneNumbers: parsedData.phoneNumbers
-        ? { create: parsedData.phoneNumbers }
-        : undefined,
-      emails: parsedData.emails
-        ? { create: parsedData.emails }
-        : undefined,
-      addresses: parsedData.addresses
-        ? { create: parsedData.addresses }
-        : undefined,
-      urls: parsedData.urls
-        ? { create: parsedData.urls }
-        : undefined,
-      imHandles: parsedData.imHandles
-        ? { create: parsedData.imHandles }
-        : undefined,
+      ...trackedWrites(parsedData, plan),
       locations: parsedData.locations
         ? { create: parsedData.locations }
         : undefined,

@@ -68,6 +68,12 @@ export interface FieldConfig<T extends BaseFieldItem> {
   fields: FieldDefinition[];
   /** Type options for the TypeComboBox; omit for configs without a type selector */
   typeOptions?: TypeOption[];
+  /** Item key the type selector writes to (defaults to `type`) */
+  typeKey?: string;
+  /** Translation key of a help line shown under the add/edit form */
+  helpKey?: string;
+  /** Token classes for the add-form background and border, used instead of accentColor */
+  formClasses?: string;
   /**
    * Derives the human-readable summary shown in view mode for a single item.
    * Should NOT include the type badge.
@@ -274,6 +280,101 @@ export const urlFieldConfig: FieldConfig<PersonUrl> = {
   ],
   formatSummary: (item) => item.url,
   validate: (item) => item.url.trim() !== '',
+};
+
+// ─── IM handle ───────────────────────────────────────────────────────────────
+
+export interface PersonImHandle extends BaseFieldItem {
+  protocol: string;
+  handle: string;
+  platformId?: string | null;
+}
+
+export const imHandleFieldConfig: FieldConfig<PersonImHandle> = {
+  namespace: 'imHandles',
+  accentColor: 'neutral',
+  formClasses: 'bg-surface border-border',
+  badgeClasses: 'bg-badge-bg text-badge-text font-mono',
+  defaultItem: { protocol: 'discord', handle: '', platformId: '' },
+  typeKey: 'protocol',
+  helpKey: 'platformIdHelp',
+  fields: [
+    {
+      key: 'handle',
+      inputType: 'text',
+      placeholderKey: 'handlePlaceholder',
+      fullWidth: false,
+    },
+    {
+      key: 'platformId',
+      inputType: 'text',
+      placeholderKey: 'platformIdPlaceholder',
+      fullWidth: false,
+    },
+  ],
+  typeOptions: [
+    { value: 'discord', labelKey: 'types.discord' },
+    { value: 'telegram', labelKey: 'types.telegram' },
+    { value: 'signal', labelKey: 'types.signal' },
+    { value: 'whatsapp', labelKey: 'types.whatsapp' },
+    { value: 'skype', labelKey: 'types.skype' },
+    { value: 'other', labelKey: 'types.other' },
+  ],
+  formatSummary: (item, t) =>
+    item.platformId?.trim()
+      ? `${item.handle} (${t('platformIdShort')} ${item.platformId.trim()})`
+      : item.handle,
+  validate: (item) => item.handle.trim() !== '' && item.protocol.trim() !== '',
+  transform: (item) => ({
+    ...item,
+    protocol: item.protocol.trim().toLowerCase(),
+    handle: item.handle.trim(),
+    platformId: item.platformId?.trim() || '',
+  }),
+};
+
+// ─── Other names (aliases) ───────────────────────────────────────────────────
+
+export interface PersonAlias extends BaseFieldItem {
+  type: string;
+  name: string;
+  script?: string | null;
+}
+
+export const aliasFieldConfig: FieldConfig<PersonAlias> = {
+  namespace: 'aliases',
+  accentColor: 'neutral',
+  formClasses: 'bg-surface border-border',
+  badgeClasses: 'bg-badge-bg text-badge-text font-mono',
+  defaultItem: { type: 'nickname', name: '', script: '' },
+  fields: [
+    {
+      key: 'name',
+      inputType: 'text',
+      placeholderKey: 'namePlaceholder',
+      fullWidth: false,
+    },
+    {
+      key: 'script',
+      inputType: 'text',
+      placeholderKey: 'scriptPlaceholder',
+      fullWidth: false,
+    },
+  ],
+  typeOptions: [
+    { value: 'nickname', labelKey: 'types.nickname' },
+    { value: 'formerName', labelKey: 'types.formerName' },
+    { value: 'otherScript', labelKey: 'types.otherScript' },
+    { value: 'other', labelKey: 'types.other' },
+  ],
+  formatSummary: (item) =>
+    item.script?.trim() ? `${item.name} (${item.script.trim()})` : item.name,
+  validate: (item) => item.name.trim() !== '' && item.type.trim() !== '',
+  transform: (item) => ({
+    ...item,
+    name: item.name.trim(),
+    script: item.script?.trim() || '',
+  }),
 };
 
 // ─── Location ────────────────────────────────────────────────────────────────

@@ -41,6 +41,9 @@ const mocks = vi.hoisted(() => {
   const deletedAwareDisconnect = vi.fn();
   const autoExportPerson = vi.fn();
   const autoUpdatePerson = vi.fn();
+  const personFieldHistoryFindMany = vi.fn().mockResolvedValue([]);
+  const personAliasUpdateMany = vi.fn();
+  const personFieldHistoryUpdateMany = vi.fn();
 
   const mockTxClient = {
     person: { update: personUpdate },
@@ -56,6 +59,8 @@ const mocks = vi.hoisted(() => {
     personCustomField: { updateMany: personCustomFieldUpdateMany, deleteMany: personCustomFieldDeleteMany },
     personCustomFieldValue: { updateMany: personCustomFieldValueUpdateMany, deleteMany: personCustomFieldValueDeleteMany },
     importantDate: { findMany: importantDateFindMany, updateMany: importantDateUpdateMany, deleteMany: importantDateDeleteMany },
+    personAlias: { updateMany: personAliasUpdateMany },
+    personFieldHistory: { updateMany: personFieldHistoryUpdateMany },
     journalEntryPerson: {
       findMany: journalEntryPersonFindMany,
       updateMany: journalEntryPersonUpdateMany,
@@ -99,6 +104,9 @@ const mocks = vi.hoisted(() => {
     deletedAwareDisconnect,
     autoExportPerson,
     autoUpdatePerson,
+    personFieldHistoryFindMany,
+    personAliasUpdateMany,
+    personFieldHistoryUpdateMany,
     mockTxClient,
   };
 });
@@ -125,6 +133,7 @@ vi.mock('../../../lib/prisma', () => ({
     personLocation: { updateMany: mocks.personLocationUpdateMany, deleteMany: mocks.personLocationDeleteMany },
     personCustomField: { updateMany: mocks.personCustomFieldUpdateMany, deleteMany: mocks.personCustomFieldDeleteMany },
     importantDate: { findMany: mocks.importantDateFindMany, updateMany: mocks.importantDateUpdateMany, deleteMany: mocks.importantDateDeleteMany },
+    personFieldHistory: { findMany: mocks.personFieldHistoryFindMany },
     journalEntryPerson: {
       findMany: mocks.journalEntryPersonFindMany,
       updateMany: mocks.journalEntryPersonUpdateMany,
@@ -231,8 +240,18 @@ function makeExistingPerson(overrides: Record<string, unknown> = {}) {
     deletedAt: null,
     name: 'Alice',
     surname: null,
+    middleName: null,
+    secondLastName: null,
+    nickname: null,
+    organization: null,
+    jobTitle: null,
     cardDavSyncEnabled: true,
     contactReminderEnabled: false,
+    phoneNumbers: [],
+    emails: [],
+    addresses: [],
+    urls: [],
+    imHandles: [],
     ...overrides,
   };
 }
@@ -479,9 +498,11 @@ describe('updatePerson', () => {
 
   it('verifies ownership by including userId in findUnique where', async () => {
     await updatePerson(PERSON_ID, USER_ID, { name: 'Alice' });
-    expect(mocks.personFindUnique).toHaveBeenCalledWith({
-      where: { id: PERSON_ID, userId: USER_ID, deletedAt: null },
-    });
+    expect(mocks.personFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: PERSON_ID, userId: USER_ID, deletedAt: null },
+      })
+    );
   });
 
   it('only includes fields that are provided in updateData', async () => {
@@ -711,7 +732,37 @@ describe('updatePerson', () => {
     const call = mocks.personUpdate.mock.calls[0][0];
     expect(call.data.imHandles).toEqual({
       deleteMany: {},
-      create: [{ protocol: 'telegram', handle: '@alice' }],
+      create: [{ protocol: 'telegram', handle: '@alice', platformId: null }],
+    });
+  });
+
+  it('keeps replaced values as field history and carries the platform ID', async () => {
+    const since = new Date('2024-01-01T00:00:00Z');
+    mocks.personFindUnique.mockResolvedValue(makeExistingPerson({
+      phoneNumbers: [{ type: 'Mobile', number: '+1 555 0100', createdAt: since }],
+      imHandles: [{ protocol: 'discord', handle: 'alice', platformId: '42', createdAt: since }],
+    }));
+    await updatePerson(PERSON_ID, USER_ID, {
+      phoneNumbers: [{ type: 'Mobile', number: '+1 555 0199' }],
+      imHandles: [{ protocol: 'discord', handle: 'alice' }],
+    });
+    const call = mocks.personUpdate.mock.calls[0][0];
+    expect(call.data.fieldHistory).toEqual({
+      create: [expect.objectContaining({ field: 'phone', value: '+1 555 0100', validFrom: since })],
+    });
+    expect(call.data.imHandles.create).toEqual([
+      { protocol: 'discord', handle: 'alice', platformId: '42', createdAt: since },
+    ]);
+  });
+
+  it('replaces other names when aliases are sent', async () => {
+    await updatePerson(PERSON_ID, USER_ID, {
+      aliases: [{ type: 'otherScript', name: ' Алиса ', script: 'Cyrillic' }],
+    });
+    const call = mocks.personUpdate.mock.calls[0][0];
+    expect(call.data.aliases).toEqual({
+      deleteMany: {},
+      create: [{ type: 'otherScript', name: 'Алиса', script: 'Cyrillic' }],
     });
   });
 

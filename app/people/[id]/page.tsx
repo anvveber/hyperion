@@ -23,6 +23,8 @@ import JournalSection from '@/components/JournalSection';
 import PersonImageFolder from '@/components/PersonImageFolder';
 import MessagingLinks from '@/components/MessagingLinks';
 import { customFieldValuesInclude } from '@/lib/prisma-queries';
+import FieldHistoryList, { AddFieldHistoryForm, type FieldHistoryEntry } from '@/components/FieldHistoryList';
+import { isHistoryField, type HistoryField } from '@/lib/field-history-fields';
 
 function isSafeUrl(url: string): boolean {
   try {
@@ -183,6 +185,8 @@ export default async function PersonDetailsPage({
         addresses: true,
         urls: true,
         imHandles: true,
+        aliases: { orderBy: { createdAt: 'asc' } },
+        fieldHistory: { orderBy: [{ validTo: 'desc' }, { createdAt: 'desc' }] },
         locations: true,
         customFields: true,
         customFieldValues: customFieldValuesInclude(),
@@ -273,11 +277,44 @@ export default async function PersonDetailsPage({
     latitude: address.latitude === null ? null : Number(address.latitude),
     longitude: address.longitude === null ? null : Number(address.longitude),
   }));
+  const { fieldHistory, ...personWithoutHistory } = person;
   const serializedPerson = {
-    ...person,
+    ...personWithoutHistory,
     locations: serializedLocations,
     addresses: serializedAddresses,
   };
+
+  // Previous values grouped by field, for the "view previous" toggles
+  const historyByField = new Map<HistoryField, FieldHistoryEntry[]>();
+  for (const entry of fieldHistory) {
+    if (!isHistoryField(entry.field)) continue;
+    const data = entry.data;
+    const platformId =
+      data && typeof data === 'object' && !Array.isArray(data) && typeof data.platformId === 'string'
+        ? data.platformId
+        : null;
+    const list = historyByField.get(entry.field) ?? [];
+    list.push({
+      id: entry.id,
+      field: entry.field,
+      type: entry.type,
+      value: entry.value,
+      platformId,
+      validFrom: entry.validFrom ? entry.validFrom.toISOString() : null,
+      validTo: entry.validTo ? entry.validTo.toISOString() : null,
+    });
+    historyByField.set(entry.field, list);
+  }
+  const historyFor = (field: HistoryField) => historyByField.get(field) ?? [];
+  const hasHistory = (...fields: HistoryField[]) => fields.some((field) => historyFor(field).length > 0);
+  const historyList = (field: HistoryField) => (
+    <FieldHistoryList
+      personId={person.id}
+      field={field}
+      entries={historyFor(field)}
+      dateFormat={dateFormat as DateFormat}
+    />
+  );
 
   // Filter out people who already have a relationship
   const relatedPersonIds = new Set(
@@ -407,6 +444,7 @@ export default async function PersonDetailsPage({
                         .filter(Boolean)
                         .join(' ')}
                     </p>
+                    {historyList('name')}
                   </div>
 
                   {person.displayNameOverride && (
@@ -420,12 +458,36 @@ export default async function PersonDetailsPage({
                     </div>
                   )}
 
-                  {person.nickname && (
+                  {(person.nickname || hasHistory('nickname')) && (
                     <div>
                       <h4 className="text-sm font-medium text-muted mb-1">
                         {t('nickname')}
                       </h4>
-                      <p className="text-foreground">{person.nickname}</p>
+                      {person.nickname && <p className="text-foreground">{person.nickname}</p>}
+                      {historyList('nickname')}
+                    </div>
+                  )}
+
+                  {person.aliases.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-muted mb-1">
+                        {t('otherNames')}
+                      </h4>
+                      <ul className="space-y-1">
+                        {person.aliases.map((alias) => (
+                          <li key={alias.id} className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-badge-bg text-badge-text">
+                              {['nickname', 'formerName', 'otherScript', 'other'].includes(alias.type)
+                                ? t(`form.aliases.types.${alias.type}`)
+                                : alias.type}
+                            </span>
+                            <span className="text-foreground">{alias.name}</span>
+                            {alias.script && (
+                              <span className="text-xs text-muted">{alias.script}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 
@@ -468,26 +530,28 @@ export default async function PersonDetailsPage({
               </div>
 
               {/* Professional Information */}
-              {(person.organization || person.jobTitle) && (
+              {(person.organization || person.jobTitle || hasHistory('organization', 'jobTitle')) && (
                 <div className="border border-border rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-foreground mb-4">
                     {t('professional')}
                   </h3>
                   <div className="space-y-3">
-                    {person.organization && (
+                    {(person.organization || hasHistory('organization')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-1">
                           {t('organization')}
                         </h4>
-                        <p className="text-foreground">{person.organization}</p>
+                        {person.organization && <p className="text-foreground">{person.organization}</p>}
+                        {historyList('organization')}
                       </div>
                     )}
-                    {person.jobTitle && (
+                    {(person.jobTitle || hasHistory('jobTitle')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-1">
                           {t('jobTitle')}
                         </h4>
-                        <p className="text-foreground">{person.jobTitle}</p>
+                        {person.jobTitle && <p className="text-foreground">{person.jobTitle}</p>}
+                        {historyList('jobTitle')}
                       </div>
                     )}
                   </div>
@@ -495,13 +559,13 @@ export default async function PersonDetailsPage({
               )}
 
               {/* Contact Information */}
-              {(person.phoneNumbers.length > 0 || person.emails.length > 0 || person.addresses.length > 0) && (
+              {(person.phoneNumbers.length > 0 || person.emails.length > 0 || person.addresses.length > 0 || hasHistory('phone', 'email', 'address')) && (
                 <div className="border border-border rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-foreground mb-4">
                     {t('contactInformation')}
                   </h3>
                   <div className="space-y-4">
-                    {person.phoneNumbers.length > 0 && (
+                    {(person.phoneNumbers.length > 0 || hasHistory('phone')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-2">
                           {t('phoneNumbers')}
@@ -524,10 +588,11 @@ export default async function PersonDetailsPage({
                             </div>
                           ))}
                         </div>
+                        {historyList('phone')}
                       </div>
                     )}
 
-                    {person.emails.length > 0 && (
+                    {(person.emails.length > 0 || hasHistory('email')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-2">
                           {t('emailAddresses')}
@@ -547,10 +612,11 @@ export default async function PersonDetailsPage({
                             </div>
                           ))}
                         </div>
+                        {historyList('email')}
                       </div>
                     )}
 
-                    {person.addresses.length > 0 && (
+                    {(person.addresses.length > 0 || hasHistory('address')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-2">
                           {t('addresses')}
@@ -594,6 +660,7 @@ export default async function PersonDetailsPage({
                             </div>
                           ))}
                         </div>
+                        {historyList('address')}
                       </div>
                     )}
                   </div>
@@ -601,13 +668,13 @@ export default async function PersonDetailsPage({
               )}
 
               {/* Online Presence */}
-              {(person.urls.length > 0 || person.imHandles.length > 0) && (
+              {(person.urls.length > 0 || person.imHandles.length > 0 || hasHistory('url', 'im')) && (
                 <div className="border border-border rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-foreground mb-4">
                     {t('onlinePresence')}
                   </h3>
                   <div className="space-y-4">
-                    {person.urls.length > 0 && (
+                    {(person.urls.length > 0 || hasHistory('url')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-2">
                           {t('websites')}
@@ -638,24 +705,43 @@ export default async function PersonDetailsPage({
                             </div>
                           ))}
                         </div>
+                        {historyList('url')}
                       </div>
                     )}
 
-                    {person.imHandles.length > 0 && (
+                    {(person.imHandles.length > 0 || hasHistory('im')) && (
                       <div>
                         <h4 className="text-sm font-medium text-muted mb-2">
                           {t('instantMessaging')}
                         </h4>
                         <div className="space-y-2">
                           {person.imHandles.map((im) => (
-                            <div key={im.id} className="flex items-center gap-2">
+                            <div key={im.id} className="flex flex-wrap items-center gap-2">
                               <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-surface-elevated text-muted capitalize">
                                 {im.protocol}
                               </span>
                               <span className="text-foreground">{im.handle}</span>
+                              {im.platformId && (
+                                im.protocol.toLowerCase() === 'discord' && /^\d+$/.test(im.platformId) ? (
+                                  <a
+                                    href={`https://discord.com/users/${im.platformId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs font-mono text-muted hover:text-foreground"
+                                    title={t('openProfile')}
+                                  >
+                                    {t('platformIdValue', { id: im.platformId })}
+                                  </a>
+                                ) : (
+                                  <span className="text-xs font-mono text-muted">
+                                    {t('platformIdValue', { id: im.platformId })}
+                                  </span>
+                                )
+                              )}
                             </div>
                           ))}
                         </div>
+                        {historyList('im')}
                       </div>
                     )}
                   </div>
@@ -710,6 +796,15 @@ export default async function PersonDetailsPage({
                   </div>
                 </div>
               )}
+
+              {/* Field history: add a previous value by hand */}
+              <div className="border border-border rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-foreground mb-1">
+                  {t('history.title')}
+                </h3>
+                <p className="text-sm text-muted mb-3">{t('history.description')}</p>
+                <AddFieldHistoryForm personId={person.id} />
+              </div>
 
               {/* Important Dates Section */}
               {person.importantDates && person.importantDates.length > 0 && (

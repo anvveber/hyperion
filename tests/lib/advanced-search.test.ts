@@ -17,7 +17,15 @@ import {
   type AdvancedSearchFilters,
 } from '@/lib/advanced-search';
 
-const emptyFilters: AdvancedSearchFilters = { name: '', location: '', email: '', phone: '', keywords: '' };
+const emptyFilters: AdvancedSearchFilters = {
+  name: '',
+  location: '',
+  email: '',
+  phone: '',
+  handle: '',
+  keywords: '',
+  previous: false,
+};
 
 function person(overrides: Partial<AdvancedSearchCandidate>): AdvancedSearchCandidate {
   return {
@@ -161,6 +169,62 @@ describe('advanced search', () => {
       expect(result.emails).toEqual(['Maria.Garcia@Example.com']);
       expect(result.phones).toEqual(['+34 612 345 678']);
       expect(result.locations).toEqual(['Madrid, Comunidad de Madrid, Spain']);
+    });
+  });
+
+  describe('other names, handles and previous values', () => {
+    const lena = person({
+      id: 'lena',
+      name: 'Lena',
+      surname: 'Ivanova',
+      aliases: [{ name: 'Лена Иванова' }, { name: 'Lena Petrova' }],
+      imHandles: [{ protocol: 'discord', handle: 'lenaplays', platformId: '123456789012345678' }],
+      fieldHistory: [
+        { field: 'phone', value: '+49 170 1112223', data: null },
+        { field: 'address', value: 'Hauptstr. 5, Hamburg, Germany', data: null },
+        { field: 'im', value: 'lena_old', data: { platformId: '123456789012345678' } },
+        { field: 'name', value: 'Lena Smirnova', data: null },
+      ],
+    });
+
+    function find(filters: Partial<AdvancedSearchFilters>) {
+      return filterAdvancedSearch([lena, maria], { ...emptyFilters, ...filters });
+    }
+
+    it('matches other names, including other alphabets', () => {
+      expect(find({ name: 'иванова' }).map((r) => r.id)).toEqual(['lena']);
+      expect(find({ name: 'petrova' }).map((r) => r.id)).toEqual(['lena']);
+    });
+
+    it('matches handles by username or platform ID', () => {
+      expect(find({ handle: '@lenaplays' }).map((r) => r.id)).toEqual(['lena']);
+      expect(find({ handle: '123456789012345678' }).map((r) => r.id)).toEqual(['lena']);
+    });
+
+    it('ignores previous values unless asked', () => {
+      expect(find({ phone: '1701112223' })).toEqual([]);
+      expect(find({ location: 'hamburg' })).toEqual([]);
+      expect(find({ name: 'smirnova' })).toEqual([]);
+    });
+
+    it('matches previous values when asked and flags them', () => {
+      const [byPhone] = find({ phone: '1701112223', previous: true });
+      expect(byPhone.id).toBe('lena');
+      expect(byPhone.matchedPrevious).toBe(true);
+      expect(find({ location: 'hamburg', previous: true }).map((r) => r.id)).toEqual(['lena']);
+      expect(find({ name: 'smirnova', previous: true }).map((r) => r.id)).toEqual(['lena']);
+      expect(find({ handle: 'lena_old', previous: true }).map((r) => r.id)).toEqual(['lena']);
+    });
+
+    it('does not flag a current match as previous', () => {
+      const [result] = find({ name: 'lena', previous: true });
+      expect(result.matchedPrevious).toBe(false);
+      expect(result.handles).toEqual(['discord: lenaplays']);
+    });
+
+    it('reads the previous flag from the URL', () => {
+      expect(parseAdvancedSearchFilters({ previous: '1' }).previous).toBe(true);
+      expect(parseAdvancedSearchFilters({}).previous).toBe(false);
     });
   });
 

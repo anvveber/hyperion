@@ -75,6 +75,8 @@ const basePerson = {
   addresses: [],
   urls: [],
   imHandles: [],
+  aliases: [],
+  fieldHistory: [],
   locations: [],
   customFields: [],
   customFieldValues: [],
