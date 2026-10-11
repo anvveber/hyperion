@@ -9,6 +9,7 @@ import UnifiedNetworkGraph from '@/components/UnifiedNetworkGraph';
 import Navigation from '@/components/Navigation';
 import PersonVCardRawView from '@/components/PersonVCardRawView';
 import PersonActionsMenu from '@/components/PersonActionsMenu';
+import { getTrashRetentionDays } from '@/lib/trash-retention';
 import LastContactQuickUpdate from '@/components/LastContactQuickUpdate';
 import RetryGeocodeButton from '@/components/RetryGeocodeButton';
 import { formatDate, formatDateWithoutYear, parseCalendarDate, YEAR_UNKNOWN_SENTINEL, type DateFormat } from '@/lib/date-format';
@@ -421,6 +422,7 @@ export default async function PersonDetailsPage({
                   allPeople={allPeople}
                   nameOrder={nameOrder}
                   nameDisplayFormat={nameDisplayFormat}
+                  trashRetentionDays={getTrashRetentionDays()}
                 />
               </div>
             </div>

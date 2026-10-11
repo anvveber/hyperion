@@ -10,6 +10,7 @@ import ImportSuccessToast from '@/components/ImportSuccessToast';
 import { canCreateResource } from '@/lib/billing/subscription';
 import { getTranslations } from 'next-intl/server';
 import PeopleListClient from '@/components/PeopleListClient';
+import { getTrashRetentionDays } from '@/lib/trash-retention';
 import { getUserDisplayPreferences } from '@/lib/user-preferences';
 
 const ITEMS_PER_PAGE = 50;
@@ -275,6 +276,7 @@ export default async function PeoplePage({
                 customFieldTemplates={customFieldTemplates}
                 nameOrder={nameOrder}
                 nameDisplayFormat={nameDisplayFormat}
+                trashRetentionDays={getTrashRetentionDays()}
                 translations={{
                   fullName: t('fullName'),
                   surname: t('surname'),

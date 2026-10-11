@@ -154,7 +154,7 @@ export function groupsPaths(): Record<string, Record<string, unknown>> {
       get: {
         tags: ['Deleted Items'],
         summary: 'List soft-deleted items',
-        description: 'Returns items deleted within the retention period (30 days), filtered by type.',
+        description: 'Returns items still in the trash, filtered by type. When TRASH_RETENTION_DAYS is a number, only items deleted within that many days are returned; when it is "never" (the default), all deleted items are returned.',
         security: sessionOrToken(),
         parameters: [
           {
@@ -170,8 +170,8 @@ export function groupsPaths(): Record<string, Record<string, unknown>> {
             type: 'object',
             properties: {
               deleted: { type: 'array', items: { type: 'object' } },
-              retentionDays: { type: 'integer' },
-              cutoffDate: { type: 'string', format: 'date-time' },
+              retentionDays: { type: 'integer', nullable: true, description: 'Null when retention is "never"' },
+              cutoffDate: { type: 'string', format: 'date-time', nullable: true },
             },
           }),
           '400': ref400(),

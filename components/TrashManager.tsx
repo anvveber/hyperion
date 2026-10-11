@@ -54,10 +54,10 @@ interface DeletedImportantDate {
 
 type DeletedItem = DeletedPerson | DeletedGroup | DeletedRelationship | DeletedRelationshipType | DeletedImportantDate;
 
-function getDaysRemaining(deletedAt: string): number {
+function getDaysRemaining(deletedAt: string, retentionDays: number): number {
   const deleted = new Date(deletedAt);
   const now = new Date();
-  const diffMs = deleted.getTime() + 30 * 24 * 60 * 60 * 1000 - now.getTime();
+  const diffMs = deleted.getTime() + retentionDays * 24 * 60 * 60 * 1000 - now.getTime();
   return Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
 }
 
@@ -109,7 +109,12 @@ function formatDeletedDate(dateStr: string): string {
   return d.toLocaleDateString();
 }
 
-export default function TrashManager() {
+interface TrashManagerProps {
+  /** Days before trash is purged, or null when it never is */
+  retentionDays?: number | null;
+}
+
+export default function TrashManager({ retentionDays = null }: TrashManagerProps) {
   const t = useTranslations('settings.trash');
   const [activeTab, setActiveTab] = useState<EntityType>('people');
   const [items, setItems] = useState<DeletedItem[]>([]);
@@ -326,7 +331,7 @@ export default function TrashManager() {
       ) : (
         <ul className="divide-y divide-border">
           {items.map((item) => {
-            const days = getDaysRemaining(getDeletedAt(item));
+            const days = retentionDays === null ? null : getDaysRemaining(getDeletedAt(item), retentionDays);
             return (
               <li key={item.id} className="flex flex-wrap items-center justify-between py-3 gap-x-4 gap-y-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -334,9 +339,11 @@ export default function TrashManager() {
                   <span className="text-foreground truncate">
                     {renderItemLabel(activeTab, item)}
                   </span>
-                  <span className={`text-xs whitespace-nowrap ${days <= 7 ? 'text-warning' : 'text-muted'}`}>
-                    {days < 1 ? t('lessThanOneDay') : t('daysRemaining', { days })}
-                  </span>
+                  {days !== null && (
+                    <span className={`text-xs whitespace-nowrap ${days <= 7 ? 'text-warning' : 'text-muted'}`}>
+                      {days < 1 ? t('lessThanOneDay') : t('daysRemaining', { days })}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Button

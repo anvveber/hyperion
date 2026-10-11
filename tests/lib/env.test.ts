@@ -200,6 +200,33 @@ describe('env validation', () => {
     });
   });
 
+  describe('TRASH_RETENTION_DAYS', () => {
+    const withRetention = (value?: string) => {
+      const vars: Record<string, string> = { ...BASE_VALID_ENV };
+      if (value !== undefined) vars.TRASH_RETENTION_DAYS = value;
+      process.env = vars as unknown as NodeJS.ProcessEnv;
+      return validateEnv().TRASH_RETENTION_DAYS;
+    };
+
+    it('defaults to "never" when unset or blank', () => {
+      expect(withRetention()).toBe('never');
+      expect(withRetention('')).toBe('never');
+    });
+
+    it('accepts "never" in any case', () => {
+      expect(withRetention('Never')).toBe('never');
+    });
+
+    it('parses a number of days', () => {
+      expect(withRetention('30')).toBe(30);
+    });
+
+    it.each(['0', '-5', '1.5', 'forever'])('rejects %s', (value) => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      expect(() => withRetention(value)).toThrow('Invalid environment configuration');
+    });
+  });
+
   describe('blank values mean "not set"', () => {
     it('treats a blank TRUSTED_PROXY_COUNT as the default of 1, not as 0', () => {
       // The dangerous case, and the reason blankAsUndefined exists.
