@@ -322,8 +322,9 @@ body:has(.hy-shell) .min-h-screen.bg-background {
  * Panels get a lighter touch of the same material: slightly see-through so
  * the grid is faintly visible, and the same lit top edge. No backdrop blur
  * here, because it would trap fixed-position modals rendered inside a panel.
+ * Menus and dialogs (absolute or fixed) stay solid so their text stays clear.
  */
-div.bg-surface.border,
+div.bg-surface.border:not(.absolute, .fixed),
 section.bg-surface.border {
   background-color: color-mix(in srgb, var(--surface) 88%, transparent);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
