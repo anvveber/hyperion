@@ -455,6 +455,20 @@ export function sharedSchemas(): Record<string, unknown> {
       },
       required: ['id', 'personId', 'field', 'value'],
     },
+    PersonVisit: {
+      type: 'object',
+      description: 'A place a person went (location history), with the date and the reason for going',
+      properties: {
+        id: { type: 'string', description: 'CUID identifier' },
+        personId: { type: 'string' },
+        date: { type: ['string', 'null'], format: 'date-time', description: 'Calendar date of the visit at UTC midnight, or null when unknown' },
+        location: { type: 'string', description: 'Where they went, as free text' },
+        motivation: { type: ['string', 'null'], description: 'Why they went there' },
+        createdAt: { type: 'string', format: 'date-time' },
+        updatedAt: { type: 'string', format: 'date-time' },
+      },
+      required: ['id', 'personId', 'location'],
+    },
     PersonLocation: {
       type: 'object',
       properties: {

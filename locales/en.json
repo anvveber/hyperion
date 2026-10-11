@@ -784,7 +784,8 @@
     "trash": {
       "title": "Trash",
       "description": "Restore or permanently delete items",
-      "pageDescription": "Items you delete are kept for 30 days before being permanently removed. You can restore them or delete them immediately.",
+      "pageDescription": "Items you delete are kept for {days, plural, one {# day} other {# days}} before being permanently removed. You can restore them or delete them immediately.",
+      "pageDescriptionNever": "Items you delete stay here until you restore them or delete them permanently.",
       "tabs": {
         "people": "People",
         "groups": "Groups",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "Are you sure you want to delete the relationship with {name}? This will also remove the reverse relationship.",
     "deletePersonTitle": "Delete Person",
     "deletePersonConfirm": "Are you sure you want to delete {name}?",
-    "canRestoreWithin30Days": "You can restore deleted items within 30 days.",
+    "canRestoreWithinDays": "You can restore deleted items within {days, plural, one {# day} other {# days}}.",
+    "canRestoreFromTrash": "You can restore deleted items from the trash.",
     "checkingOrphans": "Checking for orphaned people...",
     "orphanWarningNote": "Note: Deleting this person will leave others without any relationships, showing them as isolated nodes in the network graph:",
     "deleteToo": "Delete them too",
@@ -1203,7 +1205,8 @@
       "deleteToo": "Also delete these orphans",
       "deleteFromCardDav": "Also delete from CardDAV server",
       "deleteFromCardDavDescription": "If unchecked, contacts will be removed from Nametag but will remain on your CardDAV server and can be re-imported later.",
-      "canRestoreWithin30Days": "You can restore deleted items within 30 days.",
+      "canRestoreWithinDays": "You can restore deleted items within {days, plural, one {# day} other {# days}}.",
+      "canRestoreFromTrash": "You can restore deleted items from the trash.",
       "deleting": "Deleting...",
       "deleteSuccess": "Successfully deleted {count} people",
       "deleteFailed": "Failed to delete people. Please try again.",
@@ -1757,6 +1760,27 @@
         "url": "Website",
         "im": "Handle"
       }
+    },
+    "visits": {
+      "title": "Location history",
+      "description": "Places this person went, when, and why.",
+      "addVisit": "Log a visit",
+      "date": "Date",
+      "location": "Location",
+      "locationPlaceholder": "Where they went",
+      "motivation": "Motivation",
+      "motivationPlaceholder": "Why they went (optional)",
+      "unknownDate": "Date unknown",
+      "add": "Add",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete this visit? This cannot be undone.",
+      "added": "Visit added",
+      "saved": "Visit updated",
+      "deleted": "Visit deleted",
+      "error": "Something went wrong. Please try again."
     }
   },
   "groups": {

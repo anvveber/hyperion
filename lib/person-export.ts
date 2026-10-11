@@ -81,6 +81,10 @@ export const personExportInclude = {
     select: { field: true, type: true, value: true, data: true, validFrom: true, validTo: true },
     orderBy: [{ field: 'asc' }, { validTo: 'desc' }],
   },
+  visits: {
+    select: { date: true, location: true, motivation: true },
+    orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }],
+  },
   locations: {
     select: { type: true, latitude: true, longitude: true, label: true },
   },
@@ -162,6 +166,11 @@ export function serializePersonForExport(person: PersonForExport) {
       data: h.data,
       validFrom: h.validFrom,
       validTo: h.validTo,
+    })),
+    visits: person.visits.map((v) => ({
+      date: v.date ? v.date.toISOString().slice(0, 10) : null,
+      location: v.location,
+      motivation: v.motivation,
     })),
     locations: person.locations.map((l) => ({
       type: l.type,

@@ -58,7 +58,7 @@ Self-hosted installations are not subject to these limits.
 
 ## Soft delete
 
-Deleting a group doesn't erase it immediately. It moves to the trash, where it can be restored within 30 days before being permanently removed. See [Trash & Restore](/features/trash/) for how recovery works.
+Deleting a group doesn't erase it immediately. It moves to the trash, where it can be restored until you delete it permanently (or until it is purged, if your instance sets a retention period). See [Trash & Restore](/features/trash/) for how recovery works.
 
 ## Field limits
 

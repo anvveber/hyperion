@@ -9,6 +9,7 @@ import UnifiedNetworkGraph from '@/components/UnifiedNetworkGraph';
 import Navigation from '@/components/Navigation';
 import PersonVCardRawView from '@/components/PersonVCardRawView';
 import PersonActionsMenu from '@/components/PersonActionsMenu';
+import { getTrashRetentionDays } from '@/lib/trash-retention';
 import LastContactQuickUpdate from '@/components/LastContactQuickUpdate';
 import RetryGeocodeButton from '@/components/RetryGeocodeButton';
 import { formatDate, formatDateWithoutYear, parseCalendarDate, YEAR_UNKNOWN_SENTINEL, type DateFormat } from '@/lib/date-format';
@@ -22,6 +23,7 @@ import { getDateDisplayTitle } from '@/lib/important-date-types';
 import JournalSection from '@/components/JournalSection';
 import PersonDocumentFolder from '@/components/PersonDocumentFolder';
 import PersonAudioFolder from '@/components/PersonAudioFolder';
+import PersonVisits from '@/components/PersonVisits';
 import MessagingLinks from '@/components/MessagingLinks';
 import { customFieldValuesInclude } from '@/lib/prisma-queries';
 import FieldHistoryList, { AddFieldHistoryForm, type FieldHistoryEntry } from '@/components/FieldHistoryList';
@@ -188,6 +190,7 @@ export default async function PersonDetailsPage({
         imHandles: true,
         aliases: { orderBy: { createdAt: 'asc' } },
         fieldHistory: { orderBy: [{ validTo: 'desc' }, { createdAt: 'desc' }] },
+        visits: { orderBy: [{ date: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }] },
         locations: true,
         customFields: true,
         customFieldValues: customFieldValuesInclude(),
@@ -278,7 +281,13 @@ export default async function PersonDetailsPage({
     latitude: address.latitude === null ? null : Number(address.latitude),
     longitude: address.longitude === null ? null : Number(address.longitude),
   }));
-  const { fieldHistory, ...personWithoutHistory } = person;
+  const { fieldHistory, visits, ...personWithoutHistory } = person;
+  const serializedVisits = visits.map((visit) => ({
+    id: visit.id,
+    date: visit.date ? visit.date.toISOString() : null,
+    location: visit.location,
+    motivation: visit.motivation,
+  }));
   const serializedPerson = {
     ...personWithoutHistory,
     locations: serializedLocations,
@@ -421,6 +430,7 @@ export default async function PersonDetailsPage({
                   allPeople={allPeople}
                   nameOrder={nameOrder}
                   nameDisplayFormat={nameDisplayFormat}
+                  trashRetentionDays={getTrashRetentionDays()}
                 />
               </div>
             </div>
@@ -806,6 +816,9 @@ export default async function PersonDetailsPage({
                 <p className="text-sm text-muted mb-3">{t('history.description')}</p>
                 <AddFieldHistoryForm personId={person.id} />
               </div>
+
+              {/* Location history */}
+              <PersonVisits personId={person.id} visits={serializedVisits} dateFormat={dateFormat as DateFormat} />
 
               {/* Important Dates Section */}
               {person.importantDates && person.importantDates.length > 0 && (

@@ -784,7 +784,8 @@
     "trash": {
       "title": "Papirkurv",
       "description": "Gjenopprett eller slett elementer permanent",
-      "pageDescription": "Elementer du sletter, blir beholdt i 30 dager før de fjernes permanent. Du kan gjenopprette dem eller slette dem umiddelbart.",
+      "pageDescription": "Elementer du sletter, blir beholdt i {days, plural, one {# dag} other {# dager}} før de fjernes permanent. Du kan gjenopprette dem eller slette dem umiddelbart.",
+      "pageDescriptionNever": "Elementer du sletter, blir liggende her til du gjenoppretter dem eller sletter dem permanent.",
       "tabs": {
         "people": "Personer",
         "groups": "Grupper",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "Er du sikker på at du vil slette relasjonen med {name}? Dette vil også slette den omvendte relasjonen.",
     "deletePersonTitle": "Slett person",
     "deletePersonConfirm": "Er du sikker på at du vil slette {name}?",
-    "canRestoreWithin30Days": "Du kan gjenopprette slettede elementer innen 30 dager.",
+    "canRestoreWithinDays": "Du kan gjenopprette slettede elementer innen {days, plural, one {# dag} other {# dager}}.",
+    "canRestoreFromTrash": "Du kan gjenopprette slettede elementer fra papirkurven.",
     "checkingOrphans": "Sjekker personer uten relasjoner...",
     "orphanWarningNote": "Merk: Å slette denne personen vil gjøre at andre står uten relasjoner og vises som isolerte noder i nettverksgrafen:",
     "deleteToo": "Slett dem også",
@@ -1203,7 +1205,8 @@
       "deleteToo": "Slett også disse foreldreløse personene",
       "deleteFromCardDav": "Slett også fra CardDAV-server",
       "deleteFromCardDavDescription": "Hvis avkrysset er fjernet, vil kontaktene bli fjernet fra Nametag, men forblir på CardDAV-serveren og kan importeres på nytt senere.",
-      "canRestoreWithin30Days": "Du kan gjenopprette slettede elementer innen 30 dager.",
+      "canRestoreWithinDays": "Du kan gjenopprette slettede elementer innen {days, plural, one {# dag} other {# dager}}.",
+      "canRestoreFromTrash": "Du kan gjenopprette slettede elementer fra papirkurven.",
       "deleting": "Sletter...",
       "deleteSuccess": "{count} personer ble slettet",
       "deleteFailed": "Kunne ikke slette personene. Vennligst prøv igjen.",
@@ -1757,6 +1760,27 @@
         "url": "Nettside",
         "im": "Brukernavn"
       }
+    },
+    "visits": {
+      "title": "Stedshistorikk",
+      "description": "Steder denne personen har vært, når og hvorfor.",
+      "addVisit": "Registrer et besøk",
+      "date": "Dato",
+      "location": "Sted",
+      "locationPlaceholder": "Hvor personen dro",
+      "motivation": "Grunn",
+      "motivationPlaceholder": "Hvorfor (valgfritt)",
+      "unknownDate": "Ukjent dato",
+      "add": "Legg til",
+      "save": "Lagre",
+      "cancel": "Avbryt",
+      "edit": "Rediger",
+      "delete": "Slett",
+      "confirmDelete": "Slette dette besøket? Dette kan ikke angres.",
+      "added": "Besøk lagt til",
+      "saved": "Besøk oppdatert",
+      "deleted": "Besøk slettet",
+      "error": "Noe gikk galt. Prøv igjen."
     }
   },
   "groups": {

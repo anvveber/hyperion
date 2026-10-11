@@ -2,10 +2,12 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import TrashManager from '@/components/TrashManager';
+import { getTrashRetentionDays } from '@/lib/trash-retention';
 
 export default async function TrashSettingsPage() {
   const session = await auth();
   const t = await getTranslations('settings.trash');
+  const retentionDays = getTrashRetentionDays();
 
   if (!session?.user) {
     redirect('/login');
@@ -17,9 +19,11 @@ export default async function TrashSettingsPage() {
         {t('title')}
       </h2>
       <p className="text-muted mb-6">
-        {t('pageDescription')}
+        {retentionDays === null
+          ? t('pageDescriptionNever')
+          : t('pageDescription', { days: retentionDays })}
       </p>
-      <TrashManager />
+      <TrashManager retentionDays={retentionDays} />
     </div>
   );
 }

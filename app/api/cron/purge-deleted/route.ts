@@ -5,14 +5,12 @@ import { handleApiError, withLogging } from '@/lib/api-utils';
 import { resolveTrustedClientIp } from '@/lib/net/client-ip';
 import { hasValidBearerSecret } from '@/lib/shared-secret';
 import { logger, securityLogger } from '@/lib/logger';
-import { deletePersonPhotos } from '@/lib/photo-storage';
-import { removeAllPersonDocuments } from '@/lib/person-documents';
-import { deletePersonAudioDir } from '@/lib/person-audio-storage';
-
-const RETENTION_DAYS = 30;
+import { deletePersonFiles } from '@/lib/person-files';
+import { getTrashCutoffDate, getTrashRetentionDays } from '@/lib/trash-retention';
 
 // GET /api/cron/purge-deleted - Permanently delete records older than retention period
-// This endpoint should be called by a cron job daily
+// This endpoint should be called by a cron job daily. It does nothing when
+// TRASH_RETENTION_DAYS is "never" (the default).
 export const GET = withLogging(async function GET(request: Request) {
   const startTime = Date.now();
   let cronLogId: string | null = null;
@@ -35,8 +33,17 @@ export const GET = withLogging(async function GET(request: Request) {
     });
     cronLogId = cronLog.id;
 
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - RETENTION_DAYS);
+    const retentionDays = getTrashRetentionDays();
+    const cutoffDate = getTrashCutoffDate();
+    if (retentionDays === null || cutoffDate === null) {
+      const message = 'Skipped: TRASH_RETENTION_DAYS is "never", nothing is purged';
+      logger.info(message);
+      await prisma.cronJobLog.update({
+        where: { id: cronLogId },
+        data: { status: 'completed', duration: Date.now() - startTime, message },
+      });
+      return NextResponse.json({ success: true, skipped: true, retentionDays: null });
+    }
 
     // Purge in order to respect foreign key constraints
     // Track counts for each entity type
@@ -64,11 +71,9 @@ export const GET = withLogging(async function GET(request: Request) {
     });
     const personIds = personsToDelete.map((p: { id: string }) => p.id);
 
-    // Delete photo files, documents and audio folders for persons being purged
+    // Delete photos, documents and audio folders for persons being purged
     for (const person of personsToDelete as { id: string; userId: string }[]) {
-      await deletePersonPhotos(person.userId, person.id);
-      await removeAllPersonDocuments(person.userId, person.id);
-      await deletePersonAudioDir(person.userId, person.id);
+      await deletePersonFiles(person.userId, person.id);
     }
 
     // 3. Delete PersonGroups for persons being purged
@@ -175,7 +180,7 @@ export const GET = withLogging(async function GET(request: Request) {
     const result = {
       success: true,
       purged,
-      retentionDays: RETENTION_DAYS,
+      retentionDays,
       cutoffDate: cutoffDate.toISOString(),
     };
 

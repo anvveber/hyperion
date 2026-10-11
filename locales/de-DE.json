@@ -784,7 +784,8 @@
     "trash": {
       "title": "Papierkorb",
       "description": "Elemente wiederherstellen oder endgültig löschen",
-      "pageDescription": "Gelöschte Elemente werden 30 Tage lang aufbewahrt, bevor sie endgültig entfernt werden. Du kannst sie wiederherstellen oder sofort löschen.",
+      "pageDescription": "Gelöschte Elemente werden {days, plural, one {# Tag} other {# Tage}} lang aufbewahrt, bevor sie endgültig entfernt werden. Du kannst sie wiederherstellen oder sofort löschen.",
+      "pageDescriptionNever": "Gelöschte Elemente bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
       "tabs": {
         "people": "Personen",
         "groups": "Gruppen",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "Möchtest du die Beziehung mit {name} wirklich löschen? Dadurch wird auch die umgekehrte Beziehung entfernt.",
     "deletePersonTitle": "Person löschen",
     "deletePersonConfirm": "Möchtest du {name} wirklich löschen?",
-    "canRestoreWithin30Days": "Du kannst gelöschte Elemente innerhalb von 30 Tagen wiederherstellen.",
+    "canRestoreWithinDays": "Du kannst gelöschte Elemente innerhalb von {days, plural, one {# Tag} other {# Tagen}} wiederherstellen.",
+    "canRestoreFromTrash": "Du kannst gelöschte Elemente aus dem Papierkorb wiederherstellen.",
     "checkingOrphans": "Isolierte Personen werden geprüft...",
     "orphanWarningNote": "Hinweis: Wenn du diese Person löschst, bleiben andere ohne Beziehungen und werden als isolierte Knoten im Netzwerk-Graphen angezeigt:",
     "deleteToo": "Diese auch löschen",
@@ -1203,7 +1205,8 @@
       "deleteToo": "Diese verwaisten Personen auch löschen",
       "deleteFromCardDav": "Auch vom CardDAV-Server löschen",
       "deleteFromCardDavDescription": "Wenn deaktiviert, werden Kontakte aus Nametag entfernt, bleiben aber auf deinem CardDAV-Server erhalten und können später erneut importiert werden.",
-      "canRestoreWithin30Days": "Gelöschte Einträge können innerhalb von 30 Tagen wiederhergestellt werden.",
+      "canRestoreWithinDays": "Du kannst gelöschte Elemente innerhalb von {days, plural, one {# Tag} other {# Tagen}} wiederherstellen.",
+      "canRestoreFromTrash": "Du kannst gelöschte Elemente aus dem Papierkorb wiederherstellen.",
       "deleting": "Wird gelöscht...",
       "deleteSuccess": "{count} Personen erfolgreich gelöscht",
       "deleteFailed": "Personen konnten nicht gelöscht werden. Bitte versuche es erneut.",
@@ -1757,6 +1760,27 @@
         "url": "Website",
         "im": "Benutzername"
       }
+    },
+    "visits": {
+      "title": "Ortsverlauf",
+      "description": "Orte, an denen diese Person war, wann und warum.",
+      "addVisit": "Besuch eintragen",
+      "date": "Datum",
+      "location": "Ort",
+      "locationPlaceholder": "Wohin die Person ging",
+      "motivation": "Anlass",
+      "motivationPlaceholder": "Warum (optional)",
+      "unknownDate": "Datum unbekannt",
+      "add": "Hinzufügen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "confirmDelete": "Diesen Besuch löschen? Das kann nicht rückgängig gemacht werden.",
+      "added": "Besuch hinzugefügt",
+      "saved": "Besuch aktualisiert",
+      "deleted": "Besuch gelöscht",
+      "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     }
   },
   "groups": {

@@ -2,6 +2,7 @@ import {
   createPersonSchema, updatePersonSchema, deletePersonSchema,
   createImportantDateSchema, updateImportantDateSchema,
   createFieldHistorySchema, updateFieldHistorySchema,
+  createPersonVisitSchema, updatePersonVisitSchema,
   mergePersonSchema,
 } from '../validations';
 import { zodBody, jsonBody, pathParam, jsonResponse, ref400, ref401, ref404, refMessage, refGraph, refSuccess, resp, sessionOrToken } from './helpers';
@@ -700,6 +701,75 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         description: 'Permanently deletes a history entry.',
         security: sessionOrToken(),
         parameters: [pathParam('id', 'Person ID'), pathParam('historyId', 'History entry ID')],
+        responses: {
+          '200': refSuccess(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
+
+    // Location history
+    '/api/people/{id}/visits': {
+      get: {
+        tags: ['People'],
+        summary: 'List location history',
+        description: 'Returns the places a person went, with the date and the reason for going. Newest first; visits without a date come last.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        responses: {
+          '200': jsonResponse('Location history', {
+            type: 'object',
+            properties: {
+              visits: { type: 'array', items: { $ref: '#/components/schemas/PersonVisit' } },
+            },
+          }),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+      post: {
+        tags: ['People'],
+        summary: 'Add a visit to location history',
+        description: 'Logs a place a person went. The date is a calendar date (YYYY-MM-DD) and optional.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        requestBody: zodBody(createPersonVisitSchema),
+        responses: {
+          '201': jsonResponse('Visit created', {
+            type: 'object',
+            properties: { visit: { $ref: '#/components/schemas/PersonVisit' } },
+          }),
+          '400': ref400(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
+    '/api/people/{id}/visits/{visitId}': {
+      patch: {
+        tags: ['People'],
+        summary: 'Update a visit',
+        description: 'Changes the date, location or motivation of a visit. Send an empty string or null to clear the date or motivation.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID'), pathParam('visitId', 'Visit ID')],
+        requestBody: zodBody(updatePersonVisitSchema),
+        responses: {
+          '200': jsonResponse('Visit updated', {
+            type: 'object',
+            properties: { visit: { $ref: '#/components/schemas/PersonVisit' } },
+          }),
+          '400': ref400(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+      delete: {
+        tags: ['People'],
+        summary: 'Delete a visit',
+        description: 'Permanently deletes a visit from location history.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID'), pathParam('visitId', 'Visit ID')],
         responses: {
           '200': refSuccess(),
           '401': ref401(),

@@ -58,6 +58,7 @@ interface PeopleListClientProps {
   customFieldTemplates: CustomFieldTemplate[];
   nameOrder?: 'WESTERN' | 'EASTERN';
   nameDisplayFormat?: NameDisplayFormat;
+  trashRetentionDays?: number | null;
   translations: {
     fullName: string;
     surname: string;
@@ -140,6 +141,7 @@ export default function PeopleListClient({
   customFieldTemplates,
   nameOrder,
   nameDisplayFormat,
+  trashRetentionDays = null,
   translations: tt,
   commonTranslations: tc,
 }: PeopleListClientProps) {
@@ -768,6 +770,7 @@ export default function PeopleListClient({
         selectedNames={selectedNames}
         totalCount={totalCount}
         onSuccess={handleDeleteSuccess}
+        trashRetentionDays={trashRetentionDays}
       />
 
       <BulkGroupAssignModal

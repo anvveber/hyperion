@@ -784,7 +784,8 @@
     "trash": {
       "title": "ゴミ箱",
       "description": "アイテムを復元または完全に削除します",
-      "pageDescription": "削除したアイテムは30日間保持された後、完全に削除されます。復元することも、今すぐ削除することもできます。",
+      "pageDescription": "削除したアイテムは{days}日間保持された後、完全に削除されます。復元することも、今すぐ削除することもできます。",
+      "pageDescriptionNever": "削除したアイテムは、復元するか完全に削除するまでここに保持されます。",
       "tabs": {
         "people": "人物",
         "groups": "グループ",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "{name}との関係を削除してもよろしいですか？これにより逆の関係も削除されます。",
     "deletePersonTitle": "人物を削除",
     "deletePersonConfirm": "{name}を削除してもよろしいですか？",
-    "canRestoreWithin30Days": "削除されたアイテムは30日以内に復元できます。",
+    "canRestoreWithinDays": "削除されたアイテムは{days}日以内に復元できます。",
+    "canRestoreFromTrash": "削除されたアイテムはゴミ箱から復元できます。",
     "checkingOrphans": "孤立した人物を確認中...",
     "orphanWarningNote": "注：この人物を削除すると他の人物との関係がなくなり、ネットワークグラフで孤立したノードとして表示されます：",
     "deleteToo": "それらも削除する",
@@ -1203,7 +1205,8 @@
       "deleteToo": "これらの孤立した人物も削除する",
       "deleteFromCardDav": "CardDAVサーバーからも削除",
       "deleteFromCardDavDescription": "チェックを外すと、連絡先はNametagから削除されますが、CardDAVサーバーには残り、後で再インポートできます。",
-      "canRestoreWithin30Days": "削除した項目は30日以内に復元できます。",
+      "canRestoreWithinDays": "削除されたアイテムは{days}日以内に復元できます。",
+      "canRestoreFromTrash": "削除されたアイテムはゴミ箱から復元できます。",
       "deleting": "削除中...",
       "deleteSuccess": "{count}人を正常に削除しました",
       "deleteFailed": "人物の削除に失敗しました。もう一度お試しください。",
@@ -1757,6 +1760,27 @@
         "url": "ウェブサイト",
         "im": "ユーザー名"
       }
+    },
+    "visits": {
+      "title": "訪問履歴",
+      "description": "この人が訪れた場所、その日付と理由。",
+      "addVisit": "訪問を記録",
+      "date": "日付",
+      "location": "場所",
+      "locationPlaceholder": "訪れた場所",
+      "motivation": "目的",
+      "motivationPlaceholder": "訪れた理由（任意）",
+      "unknownDate": "日付不明",
+      "add": "追加",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "edit": "編集",
+      "delete": "削除",
+      "confirmDelete": "この訪問を削除しますか？元に戻せません。",
+      "added": "訪問を追加しました",
+      "saved": "訪問を更新しました",
+      "deleted": "訪問を削除しました",
+      "error": "問題が発生しました。もう一度お試しください。"
     }
   },
   "groups": {

@@ -784,7 +784,8 @@
     "trash": {
       "title": "Corbeille",
       "description": "Restaurer ou supprimer définitivement des éléments",
-      "pageDescription": "Les éléments que vous supprimez sont conservés 30 jours avant d'être définitivement effacés. Vous pouvez les restaurer ou les supprimer immédiatement.",
+      "pageDescription": "Les éléments que vous supprimez sont conservés {days, plural, one {# jour} other {# jours}} avant d'être définitivement effacés. Vous pouvez les restaurer ou les supprimer immédiatement.",
+      "pageDescriptionNever": "Les éléments que vous supprimez restent ici jusqu'à ce que vous les restauriez ou les supprimiez définitivement.",
       "tabs": {
         "people": "Personnes",
         "groups": "Groupes",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "Voulez-vous vraiment supprimer la relation avec {name} ? La relation inverse sera également supprimée.",
     "deletePersonTitle": "Supprimer la personne",
     "deletePersonConfirm": "Voulez-vous vraiment supprimer {name} ?",
-    "canRestoreWithin30Days": "Vous pouvez restaurer les éléments supprimés pendant 30 jours.",
+    "canRestoreWithinDays": "Vous pouvez restaurer les éléments supprimés pendant {days, plural, one {# jour} other {# jours}}.",
+    "canRestoreFromTrash": "Vous pouvez restaurer les éléments supprimés depuis la corbeille.",
     "checkingOrphans": "Recherche de personnes isolées...",
     "orphanWarningNote": "Remarque : la suppression de cette personne laissera d'autres personnes sans aucune relation, elles apparaîtront donc isolées dans le graphe du réseau :",
     "deleteToo": "Les supprimer aussi",
@@ -1203,7 +1205,8 @@
       "deleteToo": "Supprimer aussi ces personnes isolées",
       "deleteFromCardDav": "Supprimer aussi du serveur CardDAV",
       "deleteFromCardDavDescription": "Si cette case n'est pas cochée, les contacts seront retirés de Nametag mais resteront sur votre serveur CardDAV et pourront être réimportés plus tard.",
-      "canRestoreWithin30Days": "Vous pouvez restaurer les éléments supprimés pendant 30 jours.",
+      "canRestoreWithinDays": "Vous pouvez restaurer les éléments supprimés pendant {days, plural, one {# jour} other {# jours}}.",
+      "canRestoreFromTrash": "Vous pouvez restaurer les éléments supprimés depuis la corbeille.",
       "deleting": "Suppression...",
       "deleteSuccess": "{count} personnes supprimées",
       "deleteFailed": "Échec de la suppression des personnes. Veuillez réessayer.",
@@ -1757,6 +1760,27 @@
         "url": "Site web",
         "im": "Identifiant"
       }
+    },
+    "visits": {
+      "title": "Historique des lieux",
+      "description": "Les lieux où cette personne est allée, quand et pourquoi.",
+      "addVisit": "Noter une visite",
+      "date": "Date",
+      "location": "Lieu",
+      "locationPlaceholder": "Où elle est allée",
+      "motivation": "Motif",
+      "motivationPlaceholder": "Pourquoi (facultatif)",
+      "unknownDate": "Date inconnue",
+      "add": "Ajouter",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer cette visite ? Cette action est irréversible.",
+      "added": "Visite ajoutée",
+      "saved": "Visite mise à jour",
+      "deleted": "Visite supprimée",
+      "error": "Une erreur est survenue. Veuillez réessayer."
     }
   },
   "groups": {

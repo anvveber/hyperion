@@ -276,6 +276,20 @@ export const updateFieldHistorySchema = z.object({
   validTo: optionalHistoryDate,
 });
 
+// Location history: a place a person went, when and why. The date is a calendar date.
+export const createPersonVisitSchema = z.object({
+  date: optionalHistoryDate.describe('Calendar date of the visit (YYYY-MM-DD), or null when unknown'),
+  location: z.string().trim().min(1, 'Location is required').max(200),
+  motivation: z.string().trim().max(2000).nullable().optional()
+    .describe('Why they went there'),
+});
+
+export const updatePersonVisitSchema = z.object({
+  date: optionalHistoryDate,
+  location: z.string().trim().min(1, 'Location is required').max(200).optional(),
+  motivation: z.string().trim().max(2000).nullable().optional(),
+});
+
 export const deletePersonSchema = z.object({
   deleteOrphans: z.boolean().optional()
     .describe('Also delete people only connected through this person'),
@@ -604,6 +618,11 @@ export const importDataSchema = z.object({
       data: z.record(z.string(), z.unknown()).nullable().optional(),
       validFrom: z.string().nullable().optional(),
       validTo: z.string().nullable().optional(),
+    })).optional(),
+    visits: z.array(z.object({
+      date: z.string().nullable().optional(),
+      location: z.string(),
+      motivation: z.string().nullable().optional(),
     })).optional(),
     locations: z.array(z.object({
       type: z.string(),

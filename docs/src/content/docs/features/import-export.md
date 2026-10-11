@@ -11,7 +11,7 @@ Your data is always yours. Nametag supports exporting and importing your contact
 
 Go to **Settings > Account > Export Data**. This exports a complete snapshot of your data as a single JSON file, including:
 
-- All people, with every sub-field: contact details, addresses, messaging handles with their platform user IDs, other names, previous values from the field history, custom fields, important dates, and more
+- All people, with every sub-field: contact details, addresses, messaging handles with their platform user IDs, other names, previous values from the field history, location history, custom fields, important dates, and more
 - The list of files in each person's document folder (name, type, size, hash and date). The files themselves are not included; back up the storage folder for those (see [Backups](/self-hosting/backups/))
 - Groups
 - Relationship types
@@ -40,7 +40,7 @@ You can export contacts as standard vCard 4.0 files from a person's detail page,
 
 ## Single person JSON export
 
-On a person's detail page, open the actions menu (the three dots) and pick **Download profile as JSON**. The file holds everything about that one person: all fields, contact details, important dates, groups, relationships with their notes, and journal entries that mention them. The person's document list is included, but photo and document files themselves are not.
+On a person's detail page, open the actions menu (the three dots) and pick **Download profile as JSON**. The file holds everything about that one person: all fields, contact details, important dates, location history, groups, relationships with their notes, and journal entries that mention them. The person's document list is included, but photo and document files themselves are not.
 
 ## Data portability
 

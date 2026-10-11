@@ -784,7 +784,8 @@
     "trash": {
       "title": "Cestino",
       "description": "Ripristina o elimina definitivamente gli elementi",
-      "pageDescription": "Gli elementi eliminati vengono conservati per 30 giorni prima di essere rimossi definitivamente. Puoi ripristinarli o eliminarli subito.",
+      "pageDescription": "Gli elementi eliminati vengono conservati per {days, plural, one {# giorno} other {# giorni}} prima di essere rimossi definitivamente. Puoi ripristinarli o eliminarli subito.",
+      "pageDescriptionNever": "Gli elementi eliminati restano qui finché non li ripristini o li elimini definitivamente.",
       "tabs": {
         "people": "Persone",
         "groups": "Gruppi",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "Sei sicuro di voler eliminare la relazione con {name}? Verrà rimossa anche la relazione inversa.",
     "deletePersonTitle": "Elimina persona",
     "deletePersonConfirm": "Sei sicuro di voler eliminare {name}?",
-    "canRestoreWithin30Days": "Puoi ripristinare gli elementi eliminati entro 30 giorni.",
+    "canRestoreWithinDays": "Puoi ripristinare gli elementi eliminati entro {days, plural, one {# giorno} other {# giorni}}.",
+    "canRestoreFromTrash": "Puoi ripristinare gli elementi eliminati dal cestino.",
     "checkingOrphans": "Controllo persone orfane in corso...",
     "orphanWarningNote": "Nota: Eliminando questa persona, altre rimarranno senza alcuna relazione, mostrandole come nodi isolati nel grafico del network:",
     "deleteToo": "Eliminali anche",
@@ -1203,7 +1205,8 @@
       "deleteToo": "Elimina anche questi orfani",
       "deleteFromCardDav": "Elimina anche dal server CardDAV",
       "deleteFromCardDavDescription": "Se non selezionato, i contatti verranno rimossi da Nametag ma rimarranno sul tuo server CardDAV e potranno essere reimportati più tardi.",
-      "canRestoreWithin30Days": "Puoi ripristinare gli elementi eliminati entro 30 giorni.",
+      "canRestoreWithinDays": "Puoi ripristinare gli elementi eliminati entro {days, plural, one {# giorno} other {# giorni}}.",
+      "canRestoreFromTrash": "Puoi ripristinare gli elementi eliminati dal cestino.",
       "deleting": "Eliminazione in corso...",
       "deleteSuccess": "Eliminate con successo {count} persone",
       "deleteFailed": "Eliminazione persone fallita. Riprova.",
@@ -1757,6 +1760,27 @@
         "url": "Sito web",
         "im": "Nome utente"
       }
+    },
+    "visits": {
+      "title": "Cronologia dei luoghi",
+      "description": "Luoghi in cui è stata questa persona, quando e perché.",
+      "addVisit": "Registra una visita",
+      "date": "Data",
+      "location": "Luogo",
+      "locationPlaceholder": "Dove è andata",
+      "motivation": "Motivo",
+      "motivationPlaceholder": "Perché ci è andata (facoltativo)",
+      "unknownDate": "Data sconosciuta",
+      "add": "Aggiungi",
+      "save": "Salva",
+      "cancel": "Annulla",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "confirmDelete": "Eliminare questa visita? L'operazione non può essere annullata.",
+      "added": "Visita aggiunta",
+      "saved": "Visita aggiornata",
+      "deleted": "Visita eliminata",
+      "error": "Qualcosa è andato storto. Riprova."
     }
   },
   "groups": {

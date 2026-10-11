@@ -18,6 +18,8 @@ interface BulkDeleteModalProps {
   selectedNames: string[];
   totalCount: number;
   onSuccess: () => void;
+  /** Days before trash is purged, or null when it never is */
+  trashRetentionDays?: number | null;
 }
 
 export default function BulkDeleteModal({
@@ -28,6 +30,7 @@ export default function BulkDeleteModal({
   selectedNames,
   totalCount,
   onSuccess,
+  trashRetentionDays = null,
 }: BulkDeleteModalProps) {
   const t = useTranslations('people.bulk');
   const { refreshIndex } = useSearchIndex();
@@ -138,7 +141,9 @@ export default function BulkDeleteModal({
       )}
 
       <p className="text-sm text-muted mb-4">
-        {t('canRestoreWithin30Days')}
+        {trashRetentionDays === null
+          ? t('canRestoreFromTrash')
+          : t('canRestoreWithinDays', { days: trashRetentionDays })}
       </p>
 
       {isLoadingOrphans && (

@@ -98,7 +98,7 @@ curl -X PUT https://your-instance.example.com/api/groups/clxgroup1 \
 DELETE /api/groups/{id}
 ```
 
-Soft-deletes a group. Restorable within the 30-day retention period.
+Soft-deletes a group. Restorable from the trash until it is purged (never, by default; see `TRASH_RETENTION_DAYS`).
 
 **Query parameters**
 
@@ -181,7 +181,7 @@ curl -X DELETE https://your-instance.example.com/api/groups/clxgroup1/members/cl
 
 ## Deleted items
 
-Nametag retains soft-deleted records for 30 days before permanent purge. This endpoint powers the Trash view.
+Nametag keeps soft-deleted records until they are restored, deleted by hand, or purged after `TRASH_RETENTION_DAYS` days. This endpoint powers the Trash view. When retention is `never` (the default), it returns every deleted item and both `retentionDays` and `cutoffDate` are `null`; otherwise it returns items deleted after `cutoffDate`.
 
 ```
 GET /api/deleted

@@ -78,6 +78,7 @@ describe('Export API', () => {
     aliases: [],
     fieldHistory: [],
     documents: [],
+    visits: [],
     locations: [],
     customFields: [],
     customFieldValues: [],
@@ -145,6 +146,7 @@ describe('Export API', () => {
       aliases: [],
       fieldHistory: [],
       documents: [],
+      visits: [],
       locations: [{ type: 'home', latitude: 39.7817, longitude: -89.6501, label: 'Home' }],
       customFields: [{ key: 'X-HOBBY', value: 'Guitar', type: null }],
       customFieldValues: [

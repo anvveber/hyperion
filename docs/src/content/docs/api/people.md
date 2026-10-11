@@ -181,7 +181,7 @@ curl -X PUT https://your-instance.example.com/api/people/clx1 \
 DELETE /api/people/{id}
 ```
 
-Soft-deletes a person. Restorable within the 30-day retention period.
+Soft-deletes a person. Restorable from the trash until it is purged (never, by default; see `TRASH_RETENTION_DAYS`).
 
 **Request body** (all optional)
 
@@ -636,6 +636,62 @@ Send any of `value`, `type`, `validFrom`, `validTo`. Send `null` or `""` to clea
 
 ```
 DELETE /api/people/{id}/history/{historyId}
+```
+
+Returns `{ "success": true }`. This cannot be undone.
+
+## Location history
+
+Places a person went, each with a date, a location and a motivation (the reason for going).
+
+### List visits
+
+```
+GET /api/people/{id}/visits
+```
+
+Visits are sorted by date, newest first. Visits without a date come last.
+
+```json
+{
+  "visits": [
+    {
+      "id": "clx7",
+      "personId": "clx1",
+      "date": "2025-03-12T00:00:00.000Z",
+      "location": "Lisbon",
+      "motivation": "His sister's wedding",
+      "createdAt": "2026-10-11T12:00:00.000Z",
+      "updatedAt": "2026-10-11T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+### Add a visit
+
+```
+POST /api/people/{id}/visits
+```
+
+```json
+{ "date": "2025-03-12", "location": "Lisbon", "motivation": "His sister's wedding" }
+```
+
+Returns `201` with `{ "visit": { ... } }`. `location` is required (up to 200 characters). `date` is an optional `YYYY-MM-DD` date and `motivation` is optional (up to 2000 characters).
+
+### Update a visit
+
+```
+PATCH /api/people/{id}/visits/{visitId}
+```
+
+Send any of `date`, `location`, `motivation`. Send `null` or `""` to clear the date or motivation. Returns `{ "visit": { ... } }`.
+
+### Delete a visit
+
+```
+DELETE /api/people/{id}/visits/{visitId}
 ```
 
 Returns `{ "success": true }`. This cannot be undone.

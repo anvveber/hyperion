@@ -784,7 +784,8 @@
     "trash": {
       "title": "Prullenbak",
       "description": "Herstel of verwijder items permanent",
-      "pageDescription": "Items die je verwijdert, worden 30 dagen bewaard voordat ze permanent worden verwijderd. Je kunt ze herstellen of direct verwijderen.",
+      "pageDescription": "Items die je verwijdert, worden {days, plural, one {# dag} other {# dagen}} bewaard voordat ze permanent worden verwijderd. Je kunt ze herstellen of direct verwijderen.",
+      "pageDescriptionNever": "Items die je verwijdert, blijven hier staan totdat je ze herstelt of permanent verwijdert.",
       "tabs": {
         "people": "Personen",
         "groups": "Groepen",
@@ -1179,7 +1180,8 @@
     "deleteRelationshipConfirm": "Weet u zeker dat u de relatie met {name} wilt verwijderen? Dit zal ook de omgekeerde relatie verwijderen.",
     "deletePersonTitle": "Persoon verwijderen",
     "deletePersonConfirm": "Weet u zeker dat u {name} wilt verwijderen?",
-    "canRestoreWithin30Days": "U kunt verwijderde items binnen 30 dagen herstellen.",
+    "canRestoreWithinDays": "U kunt verwijderde items binnen {days, plural, one {# dag} other {# dagen}} herstellen.",
+    "canRestoreFromTrash": "U kunt verwijderde items herstellen vanuit de prullenbak.",
     "checkingOrphans": "Controleren op achtergelaten personen...",
     "orphanWarningNote": "Opmerking: Het verwijderen van deze persoon zal anderen achterlaten zonder relaties, waardoor ze als geïsoleerde nodes in de netwerkdiagram worden getoond:",
     "deleteToo": "Ook verwijderen",
@@ -1203,7 +1205,8 @@
       "deleteToo": "Ook deze achtergelaten verwijderen",
       "deleteFromCardDav": "Ook verwijderen van CardDAV server",
       "deleteFromCardDavDescription": "Indien niet aangevinkt, worden contacten verwijderd van Nametag maar blijven ze op uw CardDAV server en kunnen ze later opnieuw worden geïmporteerd.",
-      "canRestoreWithin30Days": "U kunt verwijderde items binnen 30 dagen herstellen.",
+      "canRestoreWithinDays": "U kunt verwijderde items binnen {days, plural, one {# dag} other {# dagen}} herstellen.",
+      "canRestoreFromTrash": "U kunt verwijderde items herstellen vanuit de prullenbak.",
       "deleting": "Verwijderen...",
       "deleteSuccess": "Succesvol {count} personen verwijderd",
       "deleteFailed": "Personen verwijderen mislukt. Probeer het opnieuw.",
@@ -1757,6 +1760,27 @@
         "url": "Website",
         "im": "Gebruikersnaam"
       }
+    },
+    "visits": {
+      "title": "Locatiegeschiedenis",
+      "description": "Plaatsen waar deze persoon is geweest, wanneer en waarom.",
+      "addVisit": "Bezoek vastleggen",
+      "date": "Datum",
+      "location": "Locatie",
+      "locationPlaceholder": "Waar diegene naartoe ging",
+      "motivation": "Reden",
+      "motivationPlaceholder": "Waarom (optioneel)",
+      "unknownDate": "Datum onbekend",
+      "add": "Toevoegen",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "edit": "Bewerken",
+      "delete": "Verwijderen",
+      "confirmDelete": "Dit bezoek verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "added": "Bezoek toegevoegd",
+      "saved": "Bezoek bijgewerkt",
+      "deleted": "Bezoek verwijderd",
+      "error": "Er ging iets mis. Probeer het opnieuw."
     }
   },
   "groups": {

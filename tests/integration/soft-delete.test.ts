@@ -7,7 +7,7 @@
  * - Cascade delete with orphans
  * - Purge removes records older than retention period
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock data store to simulate database state
 const mockDataStore = {
@@ -67,9 +67,14 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Hoist mockEnv so it's available for vi.mock
-const mockEnv = vi.hoisted(() => ({
+const mockEnv = vi.hoisted((): {
+  CRON_SECRET: string;
+  NEXTAUTH_URL: string;
+  TRASH_RETENTION_DAYS: number | 'never';
+} => ({
   CRON_SECRET: 'test-cron-secret',
   NEXTAUTH_URL: 'http://localhost:3000',
+  TRASH_RETENTION_DAYS: 30,
 }));
 
 // Mock Prisma
@@ -591,6 +596,25 @@ describe('Soft Delete Integration', () => {
       expect(body.retentionDays).toBe(30);
     });
 
+    it('should list every deleted item when retention is "never"', async () => {
+      mockEnv.TRASH_RETENTION_DAYS = 'never';
+      mocks.personFindMany.mockResolvedValue([]);
+
+      const request = new Request('http://localhost/api/deleted?type=people');
+      const response = await listDeleted(request);
+      const body = await response.json();
+      mockEnv.TRASH_RETENTION_DAYS = 30;
+
+      expect(response.status).toBe(200);
+      expect(body.retentionDays).toBeNull();
+      expect(body.cutoffDate).toBeNull();
+      expect(mocks.personFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ deletedAt: { not: null } }),
+        })
+      );
+    });
+
     it('should return deleted groups', async () => {
       mocks.groupFindMany.mockResolvedValue([
         { id: 'group-1', name: 'Friends', deletedAt: new Date() },
@@ -615,6 +639,54 @@ describe('Soft Delete Integration', () => {
   });
 
   describe('Purge Deleted Records', () => {
+    afterEach(() => {
+      mockEnv.TRASH_RETENTION_DAYS = 30;
+    });
+
+    it('should purge nothing when retention is "never"', async () => {
+      mockEnv.TRASH_RETENTION_DAYS = 'never';
+
+      const request = new Request('http://localhost/api/cron/purge-deleted', {
+        headers: { authorization: 'Bearer test-cron-secret' },
+      });
+
+      const response = await purgeDeleted(request);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body).toEqual({ success: true, skipped: true, retentionDays: null });
+      expect(mocks.personFindMany).not.toHaveBeenCalled();
+      expect(mocks.personDeleteMany).not.toHaveBeenCalled();
+      expect(mocks.importantDateDeleteMany).not.toHaveBeenCalled();
+      expect(mocks.cronJobLogUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ status: 'completed' }) })
+      );
+    });
+
+    it('should use the configured retention period', async () => {
+      mockEnv.TRASH_RETENTION_DAYS = 7;
+      mocks.importantDateDeleteMany.mockResolvedValue({ count: 0 });
+      mocks.personFindMany.mockResolvedValue([]);
+      mocks.relationshipDeleteMany.mockResolvedValue({ count: 0 });
+      mocks.groupFindMany.mockResolvedValue([]);
+      mocks.groupDeleteMany.mockResolvedValue({ count: 0 });
+      mocks.relationshipTypeFindMany.mockResolvedValue([]);
+      mocks.relationshipTypeDeleteMany.mockResolvedValue({ count: 0 });
+      mocks.personDeleteMany.mockResolvedValue({ count: 0 });
+
+      const request = new Request('http://localhost/api/cron/purge-deleted', {
+        headers: { authorization: 'Bearer test-cron-secret' },
+      });
+
+      const before = Date.now();
+      const response = await purgeDeleted(request);
+      const body = await response.json();
+
+      expect(body.retentionDays).toBe(7);
+      const ageDays = (before - new Date(body.cutoffDate).getTime()) / 86_400_000;
+      expect(Math.round(ageDays)).toBe(7);
+    });
+
     it('should require valid cron secret', async () => {
       const request = new Request('http://localhost/api/cron/purge-deleted', {
         headers: { authorization: 'Bearer invalid-secret' },
