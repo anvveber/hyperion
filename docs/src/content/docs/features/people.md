@@ -127,6 +127,8 @@ When editing a person, Nametag warns you before navigating away if you have unsa
 
 The detail page for a person brings every section together in one place: name and photo, work info, contact information, addresses, important dates, notes, custom field values, group memberships, your relationship to them, their relationships to other people, and a journal timeline of entries linked to them. It's designed to give you the full picture of a person at a glance, with editing just one click away.
 
+Under the name, a record line shows the person's record ID and the dates the record was created and last updated. On wide screens the page splits into two columns: the person's details on the left, and their relationships, network graph, journal, documents and audio on the right.
+
 ## Field limits
 
 | Field | Limit |

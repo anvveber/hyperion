@@ -670,7 +670,7 @@ function openPopup(
   const contactLink = document.createElement('a');
   contactLink.href = `/people/${encodeURIComponent(props.personId)}`;
   contactLink.textContent = labels.viewContact;
-  contactLink.className = 'underline text-blue-700';
+  contactLink.className = 'underline text-neutral-900';
   links.appendChild(contactLink);
 
   const directionsLink = document.createElement('a');
@@ -678,7 +678,7 @@ function openPopup(
   directionsLink.target = '_blank';
   directionsLink.rel = 'noopener noreferrer';
   directionsLink.textContent = labels.directions;
-  directionsLink.className = 'underline text-blue-700';
+  directionsLink.className = 'underline text-neutral-900';
   links.appendChild(directionsLink);
 
   container.appendChild(links);
@@ -727,7 +727,7 @@ function openColocatedPopup(
     const link = document.createElement('a');
     link.href = `/people/${encodeURIComponent(m.personId)}`;
     link.textContent = labels.viewContact;
-    link.className = 'text-xs underline text-blue-700 whitespace-nowrap';
+    link.className = 'text-xs underline text-neutral-900 whitespace-nowrap';
     row.appendChild(link);
 
     container.appendChild(row);
@@ -741,7 +741,7 @@ function openColocatedPopup(
   directionsLink.target = '_blank';
   directionsLink.rel = 'noopener noreferrer';
   directionsLink.textContent = labels.directions;
-  directionsLink.className = 'text-xs underline text-blue-700';
+  directionsLink.className = 'text-xs underline text-neutral-900';
   bottomDivider.appendChild(directionsLink);
 
   container.appendChild(bottomDivider);

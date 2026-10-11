@@ -235,13 +235,13 @@ export default function NavigationSearch({ autoFocus, onClose }: NavigationSearc
       </div>
 
       {isOpen && isLoading && (
-        <div className="absolute z-50 w-full mt-1 bg-surface border border-border rounded-lg shadow-lg p-3">
+        <div className="absolute z-50 w-full mt-1 hy-glass-pop border rounded-lg shadow-lg p-3">
           <p className="text-sm text-muted">{t('searching')}</p>
         </div>
       )}
 
       {isOpen && !isLoading && results.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-surface border border-border rounded-lg shadow-lg max-h-96 overflow-auto">
+        <div className="absolute z-50 w-full mt-1 hy-glass-pop border rounded-lg shadow-lg max-h-96 overflow-auto">
           {results.map((person, index) => (
             <button
               key={person.id}
@@ -268,7 +268,7 @@ export default function NavigationSearch({ autoFocus, onClose }: NavigationSearc
       )}
 
       {isOpen && !isLoading && searchTerm && results.length === 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-surface border border-border rounded-lg shadow-lg p-3">
+        <div className="absolute z-50 w-full mt-1 hy-glass-pop border rounded-lg shadow-lg p-3">
           <p className="text-sm text-muted">
             {t('noResults', { searchTerm })}
           </p>

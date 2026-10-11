@@ -66,7 +66,15 @@
     "createJournal": "Nieuwe invoer",
     "map": "Kaart",
     "calendar": "Kalender",
-    "advancedSearch": "Zoeken"
+    "advancedSearch": "Zoeken",
+    "appName": "hyperion",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "operator": "Operator",
+      "local": "Lokaal",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "Uitgebreid zoeken",
@@ -1792,6 +1800,11 @@
       "saved": "Bezoek bijgewerkt",
       "deleted": "Bezoek verwijderd",
       "error": "Er ging iets mis. Probeer het opnieuw."
+    },
+    "record": {
+      "id": "Dossier",
+      "created": "Aangemaakt",
+      "updated": "Bijgewerkt"
     }
   },
   "groups": {

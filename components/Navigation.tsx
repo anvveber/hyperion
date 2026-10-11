@@ -8,6 +8,7 @@ import NavigationSearch from './NavigationSearch';
 import UserMenu from './UserMenu';
 import AccountMenuItems from './AccountMenuItems';
 import UserAvatar from './UserAvatar';
+import StatusBar from './StatusBar';
 import { formatUserDisplayName } from '@/lib/nameUtils';
 
 interface NavigationProps {
@@ -62,16 +63,30 @@ const navIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-const navItems = [
+interface NavItem {
+  href: string;
+  labelKey: string;
+  createHref?: string;
+  createLabelKey?: string;
+}
+
+// Records first, then the views that look across them. The tab strip draws a
+// rule between the two blocks.
+const recordItems: NavItem[] = [
   { href: '/dashboard', labelKey: 'dashboard' },
   { href: '/people', labelKey: 'people', createHref: '/people/new', createLabelKey: 'people' },
   { href: '/groups', labelKey: 'groups', createHref: '/groups/new', createLabelKey: 'groups' },
+  { href: '/relationship-types', labelKey: 'relationshipTypes', createHref: '/relationship-types/new', createLabelKey: 'relationshipTypes' },
+];
+
+const viewItems: NavItem[] = [
+  { href: '/journal', labelKey: 'journal', createHref: '/journal/new', createLabelKey: 'journal' },
   { href: '/map', labelKey: 'map' },
   { href: '/calendar', labelKey: 'calendar' },
   { href: '/search', labelKey: 'advancedSearch' },
-  { href: '/journal', labelKey: 'journal', createHref: '/journal/new', createLabelKey: 'journal' },
-  { href: '/relationship-types', labelKey: 'relationshipTypes', createHref: '/relationship-types/new', createLabelKey: 'relationshipTypes' },
 ];
+
+const navItems: NavItem[] = [...recordItems, ...viewItems];
 
 export default function Navigation({ userEmail, userName, userNickname, userPhoto, currentPath }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -185,109 +200,137 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
     return currentPath === href || currentPath.startsWith(`${href}/`);
   };
 
+  const activeItem = navItems.find((item) => isActive(item.href));
+  const sectionLabel = activeItem
+    ? tNav(activeItem.labelKey)
+    : currentPath?.startsWith('/settings')
+      ? tNav('settings')
+      : null;
+
+  const renderTab = (item: NavItem) => {
+    const active = isActive(item.href);
+    return (
+      <li key={item.href} className="relative flex items-stretch">
+        <Link
+          href={item.href}
+          aria-current={active ? 'page' : undefined}
+          className={`flex items-center gap-2 h-10 px-3 font-mono text-xs uppercase tracking-[0.1em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ${
+            active ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground'
+          }`}
+        >
+          <span className={active ? 'text-primary' : ''}>{navIcons[item.labelKey]}</span>
+          {tNav(item.labelKey)}
+        </Link>
+        {active && <span aria-hidden="true" className="absolute left-2 right-2 bottom-0 h-0.5 bg-primary" />}
+      </li>
+    );
+  };
+
   return (
-    <nav className="bg-surface border-b border-border pt-[env(safe-area-inset-top)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top row: Logo, Search (centered), User menu */}
-        <div className="relative z-30 flex items-center justify-between h-16">
-          <Link href="/dashboard" className={`items-center shrink-0 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
-            <Image
-              src="/logo.svg"
-              alt="Nametag Logo"
-              width={64}
-              height={64}
-              className="text-foreground"
-            />
-          </Link>
-
-          {/* Desktop search, absolutely centered in the row */}
-          <div ref={desktopSearchRef} className="hidden md:block absolute left-1/2 -translate-x-1/2 w-full max-w-md lg:max-w-lg px-20 lg:px-24">
-            <NavigationSearch />
-          </div>
-
-          {/* Mobile search, expanded on demand in place of the rest of the row */}
-          {mobileSearchOpen && (
-            <div className="md:hidden flex items-center gap-1 w-full">
-              <div className="flex-1 min-w-0">
-                <NavigationSearch autoFocus onClose={closeMobileSearch} />
-              </div>
-              <button
-                type="button"
-                onClick={() => closeMobileSearch()}
-                className="shrink-0 px-2 py-3 text-sm font-medium text-secondary hover:text-foreground transition-colors"
+    <nav className="hy-shell sticky top-0 z-40">
+      {/*
+       * The navbar: frosted glass, so the page shows through blurred as content
+       * scrolls beneath it. The sticky positioning sits on the outer <nav>,
+       * whose containing block is the whole page; on this inner element it
+       * would only stick within the nav itself. Top row holds the
+       * mark, where you are, search and the account; the tab strip below it
+       * holds the sections on wide screens.
+       */}
+      <div className="hy-glass border-b pt-[env(safe-area-inset-top)]">
+        <div className="px-4 sm:px-6">
+          <div className="relative flex items-center justify-between h-14">
+            <div className={`items-center gap-4 min-w-0 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-3 shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
-                {tCommon('cancel')}
-              </button>
+                <Image src="/logo.svg" alt="Nametag Logo" width={40} height={25} />
+                <span className="hidden md:inline font-mono text-sm font-semibold tracking-[0.2em] uppercase text-foreground">
+                  {tNav('appName')}
+                </span>
+              </Link>
+
+              {/* Where you are, as a console path */}
+              {sectionLabel && (
+                <div className="hidden lg:flex items-center gap-2 min-w-0 pl-4 border-l border-border font-mono text-xs uppercase tracking-[0.12em]">
+                  <span className="text-muted" aria-hidden="true">/</span>
+                  <span className="text-foreground truncate">{sectionLabel}</span>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Right section: user menu (desktop), search and menu buttons (mobile) */}
-          <div className={`items-center space-x-1 sm:space-x-2 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
-            <button
-              ref={searchButtonRef}
-              type="button"
-              onClick={openMobileSearch}
-              className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
-              aria-label={tCommon('search')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+            {/* Desktop search, absolutely centered in the row */}
+            <div ref={desktopSearchRef} className="hidden md:block absolute left-1/2 -translate-x-1/2 w-full max-w-sm lg:max-w-md px-4">
+              <NavigationSearch />
+            </div>
 
-            {userEmail && (
-              <div className="hidden md:block">
-                <UserMenu userEmail={userEmail} userName={userName} userNickname={userNickname} userPhoto={userPhoto} />
+            {/* Mobile search, expanded on demand in place of the rest of the row */}
+            {mobileSearchOpen && (
+              <div className="md:hidden flex items-center gap-1 w-full">
+                <div className="flex-1 min-w-0">
+                  <NavigationSearch autoFocus onClose={closeMobileSearch} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => closeMobileSearch()}
+                  className="shrink-0 px-2 py-3 text-sm font-medium text-secondary hover:text-foreground transition-colors"
+                >
+                  {tCommon('cancel')}
+                </button>
               </div>
             )}
 
-            {/* Mobile menu button */}
-            <button
-              type="button"
-              onClick={() => (mobileMenuOpen ? setMobileMenuOpen(false) : openMobileMenu())}
-              aria-expanded={mobileMenuOpen}
-              className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
-              aria-label={mobileMenuOpen ? tNav('closeMenu') : tNav('openMenu')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+            {/* Right section: user menu (desktop), search and menu buttons (mobile) */}
+            <div className={`items-center space-x-1 sm:space-x-2 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
+              <button
+                ref={searchButtonRef}
+                type="button"
+                onClick={openMobileSearch}
+                className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
+                aria-label={tCommon('search')}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              {userEmail && (
+                <div className="hidden md:block">
+                  <UserMenu userEmail={userEmail} userName={userName} userNickname={userNickname} userPhoto={userPhoto} />
+                </div>
+              )}
+
+              {/* Mobile menu button */}
+              <button
+                type="button"
+                onClick={() => (mobileMenuOpen ? setMobileMenuOpen(false) : openMobileMenu())}
+                aria-expanded={mobileMenuOpen}
+                className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
+                aria-label={mobileMenuOpen ? tNav('closeMenu') : tNav('openMenu')}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Separator between rows */}
-        <div className="hidden md:block border-t border-border" />
-
-        {/* Bottom row: Nav items as tab bar (desktop) */}
-        <div className="hidden md:flex items-center justify-center gap-1">
-          {navItems.map((item) => (
-            <div key={item.href} className="relative">
-              <Link
-                href={item.href}
-                aria-current={isActive(item.href) ? 'page' : undefined}
-                className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-xs font-medium uppercase tracking-wider transition-colors ${
-                  isActive(item.href)
-                    ? 'text-primary'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                {navIcons[item.labelKey]}
-                {tNav(item.labelKey)}
-              </Link>
-              {/* Active indicator bar */}
-              {isActive(item.href) && (
-                <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary" />
-              )}
-            </div>
-          ))}
+        {/* Tab strip (wide screens) */}
+        <div className="hidden md:block border-t border-border/60">
+          <div className="flex items-stretch px-3 overflow-x-auto">
+            <ul className="flex items-stretch">{recordItems.map(renderTab)}</ul>
+            <div aria-hidden="true" className="my-2.5 mx-2 w-px bg-border shrink-0" />
+            <ul className="flex items-stretch">{viewItems.map(renderTab)}</ul>
+          </div>
         </div>
-
       </div>
+
+      <StatusBar operator={userEmail ? displayName : undefined} />
 
       {/* Mobile menu overlay - slides in from right */}
       {mobileMenuOpen && (
@@ -304,7 +347,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
             role="dialog"
             aria-modal="true"
             aria-label={tNav('menuLabel')}
-            className="md:hidden fixed top-0 right-0 bottom-0 w-[90%] max-w-md bg-surface shadow-xl z-50 transform transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]"
+            className="md:hidden fixed top-0 right-0 bottom-0 w-[90%] max-w-md hy-glass-pop shadow-xl z-50 transform transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]"
           >
             <div className="h-full flex flex-col">
               {/* Menu header: who is signed in, plus the close button */}

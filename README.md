@@ -21,7 +21,7 @@ It is a personal fork of [Nametag](https://github.com/mattogodoy/nametag) by Mat
 - **Calendar**: a month view of all important dates, with an `.ics` download for Google Calendar, Apple Calendar, Outlook or Thunderbird.
 - **Trash retention you choose**: deleted items stay in the trash until you delete them by hand. Set `TRASH_RETENTION_DAYS` to a number of days to empty it automatically instead.
 - **People list on phones**: one card per person instead of a table that scrolled sideways, with a sort picker and select-all.
-- **Console-style UI**: a black-and-white theme with monospace labels and a new eye logo, in dark and light mode.
+- **Operations-console UI**: graphite dark and light themes with a single gold accent with IBM Plex type (bundled, no network fetch), a frosted-glass two-row navbar, a grid background, a bottom status bar with online state and local/UTC clocks, mono panel titles, and a two-column person page with a record ID line.
 - **Map fix**: cluster counts on the map are readable in dark mode.
 - **Android app**: a native app for your own server that runs without Google Play Services (GrapheneOS works). It lives in its own repository, [anvveber/hyperion_mobile](https://github.com/anvveber/hyperion_mobile), and the APK is on its [Releases page](https://github.com/anvveber/hyperion_mobile/releases).
 

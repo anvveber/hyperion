@@ -66,7 +66,15 @@
     "createJournal": "Neuer Eintrag",
     "map": "Karte",
     "calendar": "Kalender",
-    "advancedSearch": "Suche"
+    "advancedSearch": "Suche",
+    "appName": "hyperion",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "operator": "Bediener",
+      "local": "Lokal",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "Erweiterte Suche",
@@ -1792,6 +1800,11 @@
       "saved": "Besuch aktualisiert",
       "deleted": "Besuch gelöscht",
       "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+    },
+    "record": {
+      "id": "Akte",
+      "created": "Angelegt",
+      "updated": "Geändert"
     }
   },
   "groups": {

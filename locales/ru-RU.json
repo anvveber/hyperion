@@ -66,7 +66,15 @@
     "createJournal": "Новая запись",
     "map": "Карта",
     "calendar": "Календарь",
-    "advancedSearch": "Поиск"
+    "advancedSearch": "Поиск",
+    "appName": "hyperion",
+    "status": {
+      "online": "В сети",
+      "offline": "Не в сети",
+      "operator": "Оператор",
+      "local": "Местное",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "Расширенный поиск",
@@ -1792,6 +1800,11 @@
       "saved": "Поездка обновлена",
       "deleted": "Поездка удалена",
       "error": "Что-то пошло не так. Попробуйте ещё раз."
+    },
+    "record": {
+      "id": "Запись",
+      "created": "Создана",
+      "updated": "Изменена"
     }
   },
   "groups": {

@@ -74,8 +74,8 @@ export function PasswordStrengthIndicator({
     } else if (metCount === 4) {
       score = 4;
       label = 'strong';
-      color = 'text-blue-600 dark:text-blue-400';
-      barColor = 'bg-blue-500';
+      color = 'text-primary';
+      barColor = 'bg-primary';
     } else if (metCount === 3) {
       score = 3;
       label = 'medium';

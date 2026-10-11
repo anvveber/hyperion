@@ -187,7 +187,7 @@ export default function FieldManager<T extends BaseFieldItem>({
       return (
         <>
           <div className="mb-1">
-            <span className="text-xs font-mono px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
+            <span className="text-xs font-mono px-2 py-1 bg-badge-bg text-badge-text rounded">
               {cfItem.key}
             </span>
           </div>

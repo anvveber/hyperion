@@ -66,7 +66,15 @@
     "createJournal": "Ny oppføring",
     "map": "Kart",
     "calendar": "Kalender",
-    "advancedSearch": "Søk"
+    "advancedSearch": "Søk",
+    "appName": "hyperion",
+    "status": {
+      "online": "Tilkoblet",
+      "offline": "Frakoblet",
+      "operator": "Operatør",
+      "local": "Lokal",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "Avansert søk",
@@ -1792,6 +1800,11 @@
       "saved": "Besøk oppdatert",
       "deleted": "Besøk slettet",
       "error": "Noe gikk galt. Prøv igjen."
+    },
+    "record": {
+      "id": "Oppføring",
+      "created": "Opprettet",
+      "updated": "Oppdatert"
     }
   },
   "groups": {
