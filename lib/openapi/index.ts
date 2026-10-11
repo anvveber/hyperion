@@ -15,6 +15,7 @@ import { mapPaths } from './map';
 import { calendarPaths } from './calendar';
 import { notificationsPaths } from './notifications';
 import { adminPaths } from './admin';
+import { recordingsLibraryPaths } from './recordingsLibrary';
 import { jsonResponse, ref400, ref401, ref404, refSuccess, pathParam, jsonBody, resp, sessionOrToken } from './helpers';
 
 // OpenAPI 3.1.0 specification generator for the Nametag API.
@@ -118,6 +119,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
       ...calendarPaths(),
       ...notificationsPaths(),
       ...adminPaths(),
+      ...recordingsLibraryPaths(),
 
       // Photos (non-person-specific)
       '/api/photos/{personId}': {

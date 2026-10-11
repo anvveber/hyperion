@@ -309,9 +309,13 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         description:
           'Returns one person\'s profile as an A4 PDF in the user\'s language and date format: details, contact information, ' +
           'previous values, important dates, custom fields, location history, notes, relationships, journal entries, the names ' +
-          'of attached documents and recordings, and up to 24 attached images. Sent as an attachment.',
+          'of attached documents and recordings, and up to 24 attached images. With `transcripts=1`, the transcripts of ' +
+          'recordings added from the recordings library are appended. Sent as an attachment.',
         security: sessionOrToken(),
-        parameters: [pathParam('id', 'Person ID')],
+        parameters: [
+          pathParam('id', 'Person ID'),
+          { name: 'transcripts', in: 'query', required: false, schema: { type: 'string', enum: ['1'] }, description: 'Append recording transcripts' },
+        ],
         responses: {
           '200': {
             description: 'The PDF file',

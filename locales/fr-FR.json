@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {# fichier n'a pas pu être envoyé (seul le .mp3 est accepté)} other {# fichiers n'ont pas pu être envoyés (seul le .mp3 est accepté)}}",
       "uploadSuccess": "{count, plural, one {Enregistrement ajouté} other {# enregistrements ajoutés}}",
       "deleteSuccess": "Enregistrement supprimé",
-      "deleteFailed": "Impossible de supprimer l'enregistrement"
+      "deleteFailed": "Impossible de supprimer l'enregistrement",
+      "library": {
+        "open": "Depuis la bibliothèque",
+        "title": "Ajouter depuis votre bibliothèque d’enregistrements",
+        "searchPlaceholder": "Rechercher dans les transcriptions",
+        "search": "Rechercher",
+        "searchHint": "Utilisez AND, OR et NOT en majuscules, des \"phrases exactes\" et préfixe*.",
+        "backToMonths": "Retour aux mois",
+        "months": "Mois",
+        "loading": "Chargement...",
+        "noResults": "Aucun enregistrement ne correspond à cette recherche.",
+        "emptyMonth": "Aucun enregistrement ce mois-ci.",
+        "alreadyAdded": "Déjà ajouté",
+        "noTranscript": "Pas de transcription",
+        "preview": "Écouter un extrait de {name}",
+        "stopPreview": "Arrêter l’extrait de {name}",
+        "maxSelection": "Vous pouvez ajouter jusqu’à {max} enregistrements à la fois",
+        "skipped": "{count, plural, one {# enregistrement était déjà dans ce dossier} other {# enregistrements étaient déjà dans ce dossier}}",
+        "someFailed": "{count, plural, one {# enregistrement n’a pas pu être ajouté} other {# enregistrements n’ont pas pu être ajoutés}}",
+        "addFailed": "Impossible d’ajouter les enregistrements",
+        "loadFailed": "Impossible de charger la bibliothèque d’enregistrements",
+        "searchFailed": "La recherche n’a pas été comprise. Vérifiez les guillemets et les opérateurs (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {Aucune sélection} one {# sélectionné} other {# sélectionnés}}",
+        "adding": "Ajout...",
+        "addSelected": "{count, plural, =0 {Ajouter} one {Ajouter # enregistrement} other {Ajouter # enregistrements}}"
+      },
+      "transcript": {
+        "show": "Transcription",
+        "loading": "Chargement de la transcription...",
+        "failed": "Impossible de charger la transcription.",
+        "retry": "Réessayer",
+        "language": "Langue : {language}",
+        "jumpTo": "Lire à partir de {time}",
+        "fromLibrary": "Depuis la bibliothèque : {path}"
+      }
     },
     "otherNames": "Autres noms",
     "openProfile": "Ouvrir le profil",
@@ -1811,7 +1845,9 @@
       "generated": "Généré le {date}",
       "page": "Page {page} sur {total}",
       "images": "Images",
-      "moreImages": "{count, plural, one {# autre image non affichée} other {# autres images non affichées}}"
+      "moreImages": "{count, plural, one {# autre image non affichée} other {# autres images non affichées}}",
+      "downloadWithTranscripts": "Télécharger le profil en PDF avec les transcriptions",
+      "transcripts": "Transcriptions"
     }
   },
   "groups": {

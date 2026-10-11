@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, other {# 件のファイルをアップロードできませんでした (.mp3 のみ対応)}}",
       "uploadSuccess": "{count, plural, one {録音を追加しました} other {# 件の録音を追加しました}}",
       "deleteSuccess": "録音を削除しました",
-      "deleteFailed": "録音を削除できませんでした"
+      "deleteFailed": "録音を削除できませんでした",
+      "library": {
+        "open": "ライブラリから",
+        "title": "録音ライブラリから追加",
+        "searchPlaceholder": "文字起こしを検索",
+        "search": "検索",
+        "searchHint": "大文字の AND、OR、NOT、\"完全一致のフレーズ\"、前方一致* が使えます。",
+        "backToMonths": "月の一覧に戻る",
+        "months": "月",
+        "loading": "読み込み中...",
+        "noResults": "この検索に一致する録音はありません。",
+        "emptyMonth": "この月の録音はありません。",
+        "alreadyAdded": "追加済み",
+        "noTranscript": "文字起こしなし",
+        "preview": "{name} を試聴",
+        "stopPreview": "{name} の試聴を停止",
+        "maxSelection": "一度に追加できる録音は {max} 件までです",
+        "skipped": "{count} 件の録音はすでにこのフォルダにありました",
+        "someFailed": "{count} 件の録音を追加できませんでした",
+        "addFailed": "録音を追加できませんでした",
+        "loadFailed": "録音ライブラリを読み込めませんでした",
+        "searchFailed": "検索を解釈できませんでした。引用符と演算子 (AND、OR、NOT) を確認してください。",
+        "selected": "{count, plural, =0 {選択なし} other {{count} 件選択中}}",
+        "adding": "追加中...",
+        "addSelected": "{count, plural, =0 {追加} other {{count} 件の録音を追加}}"
+      },
+      "transcript": {
+        "show": "文字起こし",
+        "loading": "文字起こしを読み込み中...",
+        "failed": "文字起こしを読み込めませんでした。",
+        "retry": "再試行",
+        "language": "言語: {language}",
+        "jumpTo": "{time} から再生",
+        "fromLibrary": "ライブラリから: {path}"
+      }
     },
     "otherNames": "別名",
     "openProfile": "プロフィールを開く",
@@ -1811,7 +1845,9 @@
       "generated": "作成日時 {date}",
       "page": "{page} / {total} ページ",
       "images": "画像",
-      "moreImages": "表示されていない画像が他に {count} 件あります"
+      "moreImages": "表示されていない画像が他に {count} 件あります",
+      "downloadWithTranscripts": "文字起こし付きでプロフィールをPDFでダウンロード",
+      "transcripts": "文字起こし"
     }
   },
   "groups": {

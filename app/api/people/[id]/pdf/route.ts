@@ -8,12 +8,13 @@ import { PersonPdfDocument } from '@/lib/person-pdf/document';
 // Rendering uses Node APIs (fonts and images from disk).
 export const runtime = 'nodejs';
 
-// GET /api/people/[id]/pdf - Download one person's profile as a PDF
-export const GET = withAuth(async (_request, session, context) => {
+// GET /api/people/[id]/pdf - Download one person's profile as a PDF (?transcripts=1 appends recording transcripts)
+export const GET = withAuth(async (request, session, context) => {
   try {
     const { id } = await context.params;
 
-    const model = await buildPersonPdfModel(session.user.id, id);
+    const includeTranscripts = new URL(request.url).searchParams.get('transcripts') === '1';
+    const model = await buildPersonPdfModel(session.user.id, id, { includeTranscripts });
     if (!model) {
       return apiResponse.notFound('Person not found');
     }

@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {No se pudo subir # archivo (solo se aceptan .mp3)} other {No se pudieron subir # archivos (solo se aceptan .mp3)}}",
       "uploadSuccess": "{count, plural, one {Grabación añadida} other {# grabaciones añadidas}}",
       "deleteSuccess": "Grabación eliminada",
-      "deleteFailed": "No se pudo eliminar la grabación"
+      "deleteFailed": "No se pudo eliminar la grabación",
+      "library": {
+        "open": "Desde la biblioteca",
+        "title": "Añadir desde tu biblioteca de grabaciones",
+        "searchPlaceholder": "Buscar en las transcripciones",
+        "search": "Buscar",
+        "searchHint": "Usa AND, OR y NOT en mayúsculas, \"frases exactas\" y prefijo*.",
+        "backToMonths": "Volver a los meses",
+        "months": "Meses",
+        "loading": "Cargando...",
+        "noResults": "Ninguna grabación coincide con esta búsqueda.",
+        "emptyMonth": "No hay grabaciones este mes.",
+        "alreadyAdded": "Ya añadida",
+        "noTranscript": "Sin transcripción",
+        "preview": "Reproducir un avance de {name}",
+        "stopPreview": "Detener el avance de {name}",
+        "maxSelection": "Puedes añadir hasta {max} grabaciones a la vez",
+        "skipped": "{count, plural, one {# grabación ya estaba en esta carpeta} other {# grabaciones ya estaban en esta carpeta}}",
+        "someFailed": "{count, plural, one {No se pudo añadir # grabación} other {No se pudieron añadir # grabaciones}}",
+        "addFailed": "No se pudieron añadir las grabaciones",
+        "loadFailed": "No se pudo cargar la biblioteca de grabaciones",
+        "searchFailed": "No se entendió la búsqueda. Revisa las comillas y los operadores (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {Nada seleccionado} one {# seleccionada} other {# seleccionadas}}",
+        "adding": "Añadiendo...",
+        "addSelected": "{count, plural, =0 {Añadir} one {Añadir # grabación} other {Añadir # grabaciones}}"
+      },
+      "transcript": {
+        "show": "Transcripción",
+        "loading": "Cargando la transcripción...",
+        "failed": "No se pudo cargar la transcripción.",
+        "retry": "Reintentar",
+        "language": "Idioma: {language}",
+        "jumpTo": "Reproducir desde {time}",
+        "fromLibrary": "De la biblioteca: {path}"
+      }
     },
     "otherNames": "Otros nombres",
     "openProfile": "Abrir perfil",
@@ -1811,7 +1845,9 @@
       "generated": "Generado el {date}",
       "page": "Página {page} de {total}",
       "images": "Imágenes",
-      "moreImages": "{count, plural, one {# imagen más no mostrada} other {# imágenes más no mostradas}}"
+      "moreImages": "{count, plural, one {# imagen más no mostrada} other {# imágenes más no mostradas}}",
+      "downloadWithTranscripts": "Descargar perfil como PDF con transcripciones",
+      "transcripts": "Transcripciones"
     }
   },
   "groups": {

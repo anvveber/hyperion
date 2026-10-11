@@ -411,8 +411,12 @@ export function sharedSchemas(): Record<string, unknown> {
         },
         size: { type: 'integer', description: 'Stored file size in bytes' },
         createdAt: { type: 'string', format: 'date-time' },
+        sourcePath: { type: ['string', 'null'], description: 'Path in the recordings library, when the recording was added from there' },
+        transcriptLanguage: { type: ['string', 'null'], description: 'Language of the copied transcript' },
+        durationMs: { type: ['integer', 'null'], description: 'Length, when the library knew it' },
+        hasTranscript: { type: 'boolean', description: 'Whether a transcript was copied with the recording' },
       },
-      required: ['id', 'originalName', 'recordedAt', 'size', 'createdAt'],
+      required: ['id', 'originalName', 'recordedAt', 'size', 'createdAt', 'sourcePath', 'transcriptLanguage', 'durationMs', 'hasTranscript'],
     },
     PersonIM: {
       type: 'object',

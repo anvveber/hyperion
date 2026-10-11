@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import BackLink from '@/components/BackLink';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import UserRelationshipCard from '@/components/UserRelationshipCard';
 import RelationshipManager from '@/components/RelationshipManager';
@@ -271,6 +272,11 @@ export default async function PersonDetailsPage({
     notFound();
   }
 
+  // Offers the "PDF with transcripts" download only when there is something to include.
+  const transcriptCount = await prisma.personAudio.count({
+    where: { personId: person.id, NOT: { transcript: { equals: Prisma.DbNull } } },
+  });
+
   // Convert Prisma Decimal objects to plain numbers for client components
   const serializedLocations = person.locations.map((loc) => ({
     ...loc,
@@ -432,6 +438,7 @@ export default async function PersonDetailsPage({
                   nameOrder={nameOrder}
                   nameDisplayFormat={nameDisplayFormat}
                   trashRetentionDays={getTrashRetentionDays()}
+                  hasTranscripts={transcriptCount > 0}
                 />
               </div>
             </div>

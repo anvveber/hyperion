@@ -1728,7 +1728,41 @@
       "uploadFailed": "{count, plural, one {# fil kunne ikke lastes opp (bare .mp3 godtas)} other {# filer kunne ikke lastes opp (bare .mp3 godtas)}}",
       "uploadSuccess": "{count, plural, one {Opptak lagt til} other {# opptak lagt til}}",
       "deleteSuccess": "Opptak slettet",
-      "deleteFailed": "Kunne ikke slette opptaket"
+      "deleteFailed": "Kunne ikke slette opptaket",
+      "library": {
+        "open": "Fra biblioteket",
+        "title": "Legg til fra opptaksbiblioteket",
+        "searchPlaceholder": "Søk i transkripsjoner",
+        "search": "Søk",
+        "searchHint": "Bruk AND, OR og NOT med store bokstaver, \"eksakte fraser\" og prefiks*.",
+        "backToMonths": "Tilbake til månedene",
+        "months": "Måneder",
+        "loading": "Laster...",
+        "noResults": "Ingen opptak passer til dette søket.",
+        "emptyMonth": "Ingen opptak denne måneden.",
+        "alreadyAdded": "Allerede lagt til",
+        "noTranscript": "Ingen transkripsjon",
+        "preview": "Spill av en forhåndsvisning av {name}",
+        "stopPreview": "Stopp forhåndsvisningen av {name}",
+        "maxSelection": "Du kan legge til opptil {max} opptak om gangen",
+        "skipped": "{count, plural, one {# opptak var allerede i denne mappen} other {# opptak var allerede i denne mappen}}",
+        "someFailed": "{count, plural, one {# opptak kunne ikke legges til} other {# opptak kunne ikke legges til}}",
+        "addFailed": "Kunne ikke legge til opptakene",
+        "loadFailed": "Kunne ikke laste opptaksbiblioteket",
+        "searchFailed": "Søket ble ikke forstått. Sjekk anførselstegn og operatorer (AND, OR, NOT).",
+        "selected": "{count, plural, =0 {Ingen valgt} one {# valgt} other {# valgt}}",
+        "adding": "Legger til...",
+        "addSelected": "{count, plural, =0 {Legg til} one {Legg til # opptak} other {Legg til # opptak}}"
+      },
+      "transcript": {
+        "show": "Transkripsjon",
+        "loading": "Laster transkripsjonen...",
+        "failed": "Kunne ikke laste transkripsjonen.",
+        "retry": "Prøv igjen",
+        "language": "Språk: {language}",
+        "jumpTo": "Spill av fra {time}",
+        "fromLibrary": "Fra biblioteket: {path}"
+      }
     },
     "otherNames": "Andre navn",
     "openProfile": "Åpne profil",
@@ -1811,7 +1845,9 @@
       "generated": "Generert {date}",
       "page": "Side {page} av {total}",
       "images": "Bilder",
-      "moreImages": "{count, plural, one {# bilde til vises ikke} other {# bilder til vises ikke}}"
+      "moreImages": "{count, plural, one {# bilde til vises ikke} other {# bilder til vises ikke}}",
+      "downloadWithTranscripts": "Last ned profilen som PDF med transkripsjoner",
+      "transcripts": "Transkripsjoner"
     }
   },
   "groups": {
