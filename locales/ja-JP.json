@@ -1753,6 +1753,27 @@
         "url": "ウェブサイト",
         "im": "ユーザー名"
       }
+    },
+    "visits": {
+      "title": "訪問履歴",
+      "description": "この人が訪れた場所、その日付と理由。",
+      "addVisit": "訪問を記録",
+      "date": "日付",
+      "location": "場所",
+      "locationPlaceholder": "訪れた場所",
+      "motivation": "目的",
+      "motivationPlaceholder": "訪れた理由（任意）",
+      "unknownDate": "日付不明",
+      "add": "追加",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "edit": "編集",
+      "delete": "削除",
+      "confirmDelete": "この訪問を削除しますか？元に戻せません。",
+      "added": "訪問を追加しました",
+      "saved": "訪問を更新しました",
+      "deleted": "訪問を削除しました",
+      "error": "問題が発生しました。もう一度お試しください。"
     }
   },
   "groups": {

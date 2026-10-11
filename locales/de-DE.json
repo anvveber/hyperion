@@ -1753,6 +1753,27 @@
         "url": "Website",
         "im": "Benutzername"
       }
+    },
+    "visits": {
+      "title": "Ortsverlauf",
+      "description": "Orte, an denen diese Person war, wann und warum.",
+      "addVisit": "Besuch eintragen",
+      "date": "Datum",
+      "location": "Ort",
+      "locationPlaceholder": "Wohin die Person ging",
+      "motivation": "Anlass",
+      "motivationPlaceholder": "Warum (optional)",
+      "unknownDate": "Datum unbekannt",
+      "add": "Hinzufügen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "confirmDelete": "Diesen Besuch löschen? Das kann nicht rückgängig gemacht werden.",
+      "added": "Besuch hinzugefügt",
+      "saved": "Besuch aktualisiert",
+      "deleted": "Besuch gelöscht",
+      "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     }
   },
   "groups": {

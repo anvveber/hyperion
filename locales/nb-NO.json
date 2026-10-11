@@ -1753,6 +1753,27 @@
         "url": "Nettside",
         "im": "Brukernavn"
       }
+    },
+    "visits": {
+      "title": "Stedshistorikk",
+      "description": "Steder denne personen har vært, når og hvorfor.",
+      "addVisit": "Registrer et besøk",
+      "date": "Dato",
+      "location": "Sted",
+      "locationPlaceholder": "Hvor personen dro",
+      "motivation": "Grunn",
+      "motivationPlaceholder": "Hvorfor (valgfritt)",
+      "unknownDate": "Ukjent dato",
+      "add": "Legg til",
+      "save": "Lagre",
+      "cancel": "Avbryt",
+      "edit": "Rediger",
+      "delete": "Slett",
+      "confirmDelete": "Slette dette besøket? Dette kan ikke angres.",
+      "added": "Besøk lagt til",
+      "saved": "Besøk oppdatert",
+      "deleted": "Besøk slettet",
+      "error": "Noe gikk galt. Prøv igjen."
     }
   },
   "groups": {

@@ -44,6 +44,7 @@ const mocks = vi.hoisted(() => {
   const personFieldHistoryFindMany = vi.fn().mockResolvedValue([]);
   const personAliasUpdateMany = vi.fn();
   const personFieldHistoryUpdateMany = vi.fn();
+  const personVisitUpdateMany = vi.fn();
 
   const mockTxClient = {
     person: { update: personUpdate },
@@ -61,6 +62,7 @@ const mocks = vi.hoisted(() => {
     importantDate: { findMany: importantDateFindMany, updateMany: importantDateUpdateMany, deleteMany: importantDateDeleteMany },
     personAlias: { updateMany: personAliasUpdateMany },
     personFieldHistory: { updateMany: personFieldHistoryUpdateMany },
+    personVisit: { updateMany: personVisitUpdateMany },
     journalEntryPerson: {
       findMany: journalEntryPersonFindMany,
       updateMany: journalEntryPersonUpdateMany,
@@ -107,6 +109,7 @@ const mocks = vi.hoisted(() => {
     personFieldHistoryFindMany,
     personAliasUpdateMany,
     personFieldHistoryUpdateMany,
+    personVisitUpdateMany,
     mockTxClient,
   };
 });
@@ -1067,6 +1070,14 @@ describe('mergePeople', () => {
   it('runs operations inside a transaction', async () => {
     await mergePeople(PERSON_ID, SOURCE_ID, USER_ID);
     expect(mocks.transaction).toHaveBeenCalledOnce();
+  });
+
+  it('moves location history from the source to the target', async () => {
+    await mergePeople(PERSON_ID, SOURCE_ID, USER_ID);
+    expect(mocks.personVisitUpdateMany).toHaveBeenCalledWith({
+      where: { personId: SOURCE_ID },
+      data: { personId: PERSON_ID },
+    });
   });
 
   it('soft-deletes the source person in the transaction', async () => {

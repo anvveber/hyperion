@@ -1753,6 +1753,27 @@
         "url": "Site web",
         "im": "Identifiant"
       }
+    },
+    "visits": {
+      "title": "Historique des lieux",
+      "description": "Les lieux où cette personne est allée, quand et pourquoi.",
+      "addVisit": "Noter une visite",
+      "date": "Date",
+      "location": "Lieu",
+      "locationPlaceholder": "Où elle est allée",
+      "motivation": "Motif",
+      "motivationPlaceholder": "Pourquoi (facultatif)",
+      "unknownDate": "Date inconnue",
+      "add": "Ajouter",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer cette visite ? Cette action est irréversible.",
+      "added": "Visite ajoutée",
+      "saved": "Visite mise à jour",
+      "deleted": "Visite supprimée",
+      "error": "Une erreur est survenue. Veuillez réessayer."
     }
   },
   "groups": {

@@ -1753,6 +1753,27 @@
         "url": "网站",
         "im": "用户名"
       }
+    },
+    "visits": {
+      "title": "地点记录",
+      "description": "此人去过的地方、时间和原因。",
+      "addVisit": "记录一次到访",
+      "date": "日期",
+      "location": "地点",
+      "locationPlaceholder": "去了哪里",
+      "motivation": "目的",
+      "motivationPlaceholder": "为什么去（可选）",
+      "unknownDate": "日期未知",
+      "add": "添加",
+      "save": "保存",
+      "cancel": "取消",
+      "edit": "编辑",
+      "delete": "删除",
+      "confirmDelete": "删除这次到访？此操作无法撤销。",
+      "added": "已添加到访",
+      "saved": "已更新到访",
+      "deleted": "已删除到访",
+      "error": "出了点问题，请重试。"
     }
   },
   "groups": {

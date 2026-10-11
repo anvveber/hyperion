@@ -27,6 +27,7 @@ const mocks = vi.hoisted(() => ({
   urlCreateMany: vi.fn(),
   imCreateMany: vi.fn(),
   locationCreateMany: vi.fn(),
+  visitCreateMany: vi.fn(),
   importantDateCreateMany: vi.fn(),
   customFieldCreateMany: vi.fn(),
 }));
@@ -87,6 +88,9 @@ vi.mock('../../lib/prisma', () => ({
     },
     personIM: {
       createMany: mocks.imCreateMany,
+    },
+    personVisit: {
+      createMany: mocks.visitCreateMany,
     },
     personLocation: {
       createMany: mocks.locationCreateMany,
@@ -449,6 +453,37 @@ describe('Import - contact fields round-trip', () => {
       expect(mocks.locationCreateMany).toHaveBeenCalledWith({
         data: [
           { personId: 'new-person-1', type: 'home', latitude: 37.386013, longitude: -122.082932, label: 'Home' },
+        ],
+      });
+    });
+  });
+
+  describe('location history', () => {
+    it('imports visits for a new person and skips empty locations', async () => {
+      const payload = {
+        ...BASE_PAYLOAD,
+        people: [
+          {
+            id: 'p1',
+            name: 'Alice',
+            groups: [],
+            relationships: [],
+            visits: [
+              { date: '2025-03-12', location: 'Lisbon', motivation: 'Wedding' },
+              { date: null, location: 'Berlin' },
+              { date: '2024-01-01', location: '  ' },
+            ],
+          },
+        ],
+      };
+
+      const response = await importRoute(makeRequest(payload));
+      expect(response.status).toBe(200);
+
+      expect(mocks.visitCreateMany).toHaveBeenCalledWith({
+        data: [
+          { personId: 'new-person-1', date: new Date('2025-03-12'), location: 'Lisbon', motivation: 'Wedding' },
+          { personId: 'new-person-1', date: null, location: 'Berlin', motivation: null },
         ],
       });
     });
