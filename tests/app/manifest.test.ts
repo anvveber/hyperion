@@ -40,8 +40,8 @@ describe('app/manifest.ts', () => {
     // Pointing at /dashboard would show an auth redirect on cold launch.
     expect(result.start_url).toBe('/');
     expect(result.display).toBe('standalone');
-    expect(result.background_color).toBe('#000000');
-    expect(result.theme_color).toBe('#000000');
+    expect(result.background_color).toBe('#0F141B');
+    expect(result.theme_color).toBe('#0F141B');
     expect(result.categories).toEqual(['productivity', 'lifestyle']);
   });
 

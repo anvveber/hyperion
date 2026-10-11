@@ -66,7 +66,16 @@
     "createJournal": "新条目",
     "map": "地图",
     "calendar": "日历",
-    "advancedSearch": "搜索"
+    "advancedSearch": "搜索",
+    "appName": "hyperion",
+    "classification": "个人档案 // 限阅",
+    "status": {
+      "online": "在线",
+      "offline": "离线",
+      "operator": "操作员",
+      "local": "本地",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "高级搜索",
@@ -1792,6 +1801,11 @@
       "saved": "已更新到访",
       "deleted": "已删除到访",
       "error": "出了点问题，请重试。"
+    },
+    "record": {
+      "id": "档案",
+      "created": "创建",
+      "updated": "更新"
     }
   },
   "groups": {

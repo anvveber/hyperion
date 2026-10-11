@@ -13,11 +13,15 @@ Your name, surname, nickname, email address, and profile photo. Photo uploads su
 
 ## Appearance
 
-- **Theme**: Light or Dark. Dark is the default. Both themes use the same black-and-white console look: square corners, hairline borders and monospace headings, labels, buttons, table data and graph names. Color appears only where it carries meaning, such as delete actions and the colors you give groups and relationship types.
+- **Theme**: Light or Dark. Dark is the default. Both themes use the same operations-console look: blue-slate panels, square corners, hairline borders, IBM Plex type, and monospace panel titles, labels and table data. Blue marks things you can click, amber marks things that need attention soon, and red marks delete actions and overdue items. The colors you give groups and relationship types are shown as you set them.
 - **Language**: choose from all of Nametag's supported languages, including English, Spanish, Japanese, Norwegian, German, Chinese, Italian, Russian, Dutch, and French.
 - **Date format**: MDY, DMY, or YMD.
 - **Name order**: Western (first name, then last name) or Eastern (last name, then first name).
 - **Name display format**: Full name, Nickname Preferred, or Short.
+
+### Layout
+
+On wide screens every signed-in page has the same frame: a strip across the top marking the app as personal records, a rail on the left with the main sections, a top bar with the current section, search and your account menu, and a status bar at the bottom showing whether the app is online, who is signed in, the date, and the time locally and in UTC. Hover a section in the rail to show a **+** button that creates a new item there. On phones the rail and status bar are hidden and the menu button opens the sections instead.
 
 ### Graph mode
 

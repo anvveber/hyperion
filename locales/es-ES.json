@@ -66,7 +66,16 @@
     "createJournal": "Nueva entrada",
     "map": "Mapa",
     "calendar": "Calendario",
-    "advancedSearch": "Buscar"
+    "advancedSearch": "Buscar",
+    "appName": "hyperion",
+    "classification": "Registros personales // Restringido",
+    "status": {
+      "online": "En línea",
+      "offline": "Sin conexión",
+      "operator": "Operador",
+      "local": "Local",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "Búsqueda avanzada",
@@ -1792,6 +1801,11 @@
       "saved": "Visita actualizada",
       "deleted": "Visita eliminada",
       "error": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "record": {
+      "id": "Registro",
+      "created": "Creado",
+      "updated": "Actualizado"
     }
   },
   "groups": {

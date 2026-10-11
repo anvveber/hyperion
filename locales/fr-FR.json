@@ -66,7 +66,16 @@
     "createJournal": "Nouvelle entrée",
     "map": "Carte",
     "calendar": "Calendrier",
-    "advancedSearch": "Recherche"
+    "advancedSearch": "Recherche",
+    "appName": "hyperion",
+    "classification": "Dossiers personnels // Diffusion restreinte",
+    "status": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "operator": "Opérateur",
+      "local": "Local",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "Recherche avancée",
@@ -1792,6 +1801,11 @@
       "saved": "Visite mise à jour",
       "deleted": "Visite supprimée",
       "error": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "record": {
+      "id": "Fiche",
+      "created": "Créée",
+      "updated": "Modifiée"
     }
   },
   "groups": {

@@ -8,6 +8,7 @@ import NavigationSearch from './NavigationSearch';
 import UserMenu from './UserMenu';
 import AccountMenuItems from './AccountMenuItems';
 import UserAvatar from './UserAvatar';
+import StatusBar from './StatusBar';
 import { formatUserDisplayName } from '@/lib/nameUtils';
 
 interface NavigationProps {
@@ -62,16 +63,37 @@ const navIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-const navItems = [
+interface NavItem {
+  href: string;
+  labelKey: string;
+  createHref?: string;
+  createLabelKey?: string;
+}
+
+// Records first, then the views that look across them. The rail draws a rule
+// between the two blocks.
+const recordItems: NavItem[] = [
   { href: '/dashboard', labelKey: 'dashboard' },
   { href: '/people', labelKey: 'people', createHref: '/people/new', createLabelKey: 'people' },
   { href: '/groups', labelKey: 'groups', createHref: '/groups/new', createLabelKey: 'groups' },
+  { href: '/relationship-types', labelKey: 'relationshipTypes', createHref: '/relationship-types/new', createLabelKey: 'relationshipTypes' },
+];
+
+const viewItems: NavItem[] = [
+  { href: '/journal', labelKey: 'journal', createHref: '/journal/new', createLabelKey: 'journal' },
   { href: '/map', labelKey: 'map' },
   { href: '/calendar', labelKey: 'calendar' },
   { href: '/search', labelKey: 'advancedSearch' },
-  { href: '/journal', labelKey: 'journal', createHref: '/journal/new', createLabelKey: 'journal' },
-  { href: '/relationship-types', labelKey: 'relationshipTypes', createHref: '/relationship-types/new', createLabelKey: 'relationshipTypes' },
 ];
+
+const navItems: NavItem[] = [...recordItems, ...viewItems];
+
+const settingsIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
 
 export default function Navigation({ userEmail, userName, userNickname, userPhoto, currentPath }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -185,109 +207,176 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
     return currentPath === href || currentPath.startsWith(`${href}/`);
   };
 
-  return (
-    <nav className="bg-surface border-b border-border pt-[env(safe-area-inset-top)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top row: Logo, Search (centered), User menu */}
-        <div className="relative z-30 flex items-center justify-between h-16">
-          <Link href="/dashboard" className={`items-center shrink-0 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
-            <Image
-              src="/logo.svg"
-              alt="Nametag Logo"
-              width={64}
-              height={64}
-              className="text-foreground"
-            />
+  const activeItem = navItems.find((item) => isActive(item.href));
+  const sectionLabel = activeItem
+    ? tNav(activeItem.labelKey)
+    : currentPath?.startsWith('/settings')
+      ? tNav('settings')
+      : null;
+
+  const renderRailItem = (item: NavItem) => {
+    const active = isActive(item.href);
+    return (
+      <li key={item.href} className={`group relative flex items-stretch ${active ? 'bg-surface-elevated' : ''}`}>
+        {active && <span aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary" />}
+        <Link
+          href={item.href}
+          aria-current={active ? 'page' : undefined}
+          className={`flex-1 flex items-center gap-3 pl-5 pr-2 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ${
+            active
+              ? 'text-foreground font-medium'
+              : 'text-muted hover:text-foreground hover:bg-surface-elevated/60'
+          }`}
+        >
+          <span className={active ? 'text-primary' : ''}>{navIcons[item.labelKey]}</span>
+          {tNav(item.labelKey)}
+        </Link>
+        {item.createHref && (
+          <Link
+            href={item.createHref}
+            aria-label={`${tCommon('create')} ${tNav(item.createLabelKey || item.labelKey)}`}
+            title={`${tCommon('create')} ${tNav(item.createLabelKey || item.labelKey)}`}
+            className="flex items-center px-3 text-muted hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </Link>
+        )}
+      </li>
+    );
+  };
 
-          {/* Desktop search, absolutely centered in the row */}
-          <div ref={desktopSearchRef} className="hidden md:block absolute left-1/2 -translate-x-1/2 w-full max-w-md lg:max-w-lg px-20 lg:px-24">
-            <NavigationSearch />
-          </div>
+  return (
+    <nav className="hy-shell">
+      {/* Status banner across the very top of every signed-in page */}
+      <div className="hy-banner fixed top-0 inset-x-0 z-50 h-[var(--banner-h)] flex items-center justify-center px-4 font-mono text-[0.625rem] font-semibold uppercase tracking-[0.24em] select-none">
+        <span className="truncate">{tNav('classification')}</span>
+      </div>
 
-          {/* Mobile search, expanded on demand in place of the rest of the row */}
-          {mobileSearchOpen && (
-            <div className="md:hidden flex items-center gap-1 w-full">
-              <div className="flex-1 min-w-0">
-                <NavigationSearch autoFocus onClose={closeMobileSearch} />
-              </div>
-              <button
-                type="button"
-                onClick={() => closeMobileSearch()}
-                className="shrink-0 px-2 py-3 text-sm font-medium text-secondary hover:text-foreground transition-colors"
-              >
-                {tCommon('cancel')}
-              </button>
+      {/* Command rail (wide screens) */}
+      <aside
+        aria-label={tNav('menuLabel')}
+        className="hidden md:flex fixed top-[var(--banner-h)] bottom-0 left-0 z-40 w-[var(--rail-w)] flex-col bg-rail border-r border-border"
+      >
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3 h-14 px-5 border-b border-border shrink-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
+        >
+          <Image src="/logo.svg" alt="" width={34} height={22} />
+          <span className="font-mono text-sm font-semibold tracking-[0.18em] uppercase text-foreground">
+            {tNav('appName')}
+          </span>
+        </Link>
+
+        <div className="flex-1 overflow-y-auto py-3">
+          <ul className="space-y-px">{recordItems.map(renderRailItem)}</ul>
+          <div className="mx-5 my-3 border-t border-border" />
+          <ul className="space-y-px">{viewItems.map(renderRailItem)}</ul>
+        </div>
+
+        <div className="border-t border-border py-2 shrink-0">
+          <Link
+            href="/settings"
+            aria-current={currentPath?.startsWith('/settings') ? 'page' : undefined}
+            className={`flex items-center gap-3 px-5 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary ${
+              currentPath?.startsWith('/settings') ? 'text-foreground' : 'text-muted hover:text-foreground'
+            }`}
+          >
+            {settingsIcon}
+            {tNav('settings')}
+          </Link>
+        </div>
+      </aside>
+
+      {/* Top bar: section title, search and account on wide screens; logo, search and menu on phones */}
+      <div className="sticky top-[var(--banner-h)] z-30 bg-surface/95 backdrop-blur border-b border-border pt-[env(safe-area-inset-top)]">
+        <div className="px-4 sm:px-6">
+          <div className="relative flex items-center justify-between h-14">
+            <Link href="/dashboard" className={`items-center shrink-0 z-10 md:hidden ${mobileSearchOpen ? 'hidden' : 'flex'}`}>
+              <Image
+                src="/logo.svg"
+                alt="Nametag Logo"
+                width={48}
+                height={30}
+                className="text-foreground"
+              />
+            </Link>
+
+            {/* Where you are, as a console path */}
+            <div className="hidden md:flex items-center gap-2 min-w-0 font-mono text-xs uppercase tracking-[0.12em] z-10">
+              <span className="text-muted">{tNav('appName')}</span>
+              {sectionLabel && (
+                <>
+                  <span className="text-muted" aria-hidden="true">/</span>
+                  <span className="text-foreground font-semibold truncate">{sectionLabel}</span>
+                </>
+              )}
             </div>
-          )}
 
-          {/* Right section: user menu (desktop), search and menu buttons (mobile) */}
-          <div className={`items-center space-x-1 sm:space-x-2 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
-            <button
-              ref={searchButtonRef}
-              type="button"
-              onClick={openMobileSearch}
-              className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
-              aria-label={tCommon('search')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+            {/* Desktop search, absolutely centered in the row */}
+            <div ref={desktopSearchRef} className="hidden md:block absolute left-1/2 -translate-x-1/2 w-full max-w-sm lg:max-w-md px-4">
+              <NavigationSearch />
+            </div>
 
-            {userEmail && (
-              <div className="hidden md:block">
-                <UserMenu userEmail={userEmail} userName={userName} userNickname={userNickname} userPhoto={userPhoto} />
+            {/* Mobile search, expanded on demand in place of the rest of the row */}
+            {mobileSearchOpen && (
+              <div className="md:hidden flex items-center gap-1 w-full">
+                <div className="flex-1 min-w-0">
+                  <NavigationSearch autoFocus onClose={closeMobileSearch} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => closeMobileSearch()}
+                  className="shrink-0 px-2 py-3 text-sm font-medium text-secondary hover:text-foreground transition-colors"
+                >
+                  {tCommon('cancel')}
+                </button>
               </div>
             )}
 
-            {/* Mobile menu button */}
-            <button
-              type="button"
-              onClick={() => (mobileMenuOpen ? setMobileMenuOpen(false) : openMobileMenu())}
-              aria-expanded={mobileMenuOpen}
-              className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
-              aria-label={mobileMenuOpen ? tNav('closeMenu') : tNav('openMenu')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+            {/* Right section: user menu (desktop), search and menu buttons (mobile) */}
+            <div className={`items-center space-x-1 sm:space-x-2 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
+              <button
+                ref={searchButtonRef}
+                type="button"
+                onClick={openMobileSearch}
+                className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
+                aria-label={tCommon('search')}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              {userEmail && (
+                <div className="hidden md:block">
+                  <UserMenu userEmail={userEmail} userName={userName} userNickname={userNickname} userPhoto={userPhoto} />
+                </div>
+              )}
+
+              {/* Mobile menu button */}
+              <button
+                type="button"
+                onClick={() => (mobileMenuOpen ? setMobileMenuOpen(false) : openMobileMenu())}
+                aria-expanded={mobileMenuOpen}
+                className="md:hidden p-3 rounded-md text-foreground hover:bg-surface-elevated transition-colors"
+                aria-label={mobileMenuOpen ? tNav('closeMenu') : tNav('openMenu')}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Separator between rows */}
-        <div className="hidden md:block border-t border-border" />
-
-        {/* Bottom row: Nav items as tab bar (desktop) */}
-        <div className="hidden md:flex items-center justify-center gap-1">
-          {navItems.map((item) => (
-            <div key={item.href} className="relative">
-              <Link
-                href={item.href}
-                aria-current={isActive(item.href) ? 'page' : undefined}
-                className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-xs font-medium uppercase tracking-wider transition-colors ${
-                  isActive(item.href)
-                    ? 'text-primary'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                {navIcons[item.labelKey]}
-                {tNav(item.labelKey)}
-              </Link>
-              {/* Active indicator bar */}
-              {isActive(item.href) && (
-                <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary" />
-              )}
-            </div>
-          ))}
-        </div>
-
       </div>
+
+      <StatusBar operator={userEmail ? displayName : undefined} />
 
       {/* Mobile menu overlay - slides in from right */}
       {mobileMenuOpen && (

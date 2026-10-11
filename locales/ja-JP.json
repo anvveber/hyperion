@@ -66,7 +66,16 @@
     "createJournal": "新しいエントリー",
     "map": "マップ",
     "calendar": "カレンダー",
-    "advancedSearch": "検索"
+    "advancedSearch": "検索",
+    "appName": "hyperion",
+    "classification": "個人記録 // 取扱注意",
+    "status": {
+      "online": "オンライン",
+      "offline": "オフライン",
+      "operator": "オペレーター",
+      "local": "現地",
+      "utc": "UTC"
+    }
   },
   "advancedSearch": {
     "title": "詳細検索",
@@ -1792,6 +1801,11 @@
       "saved": "訪問を更新しました",
       "deleted": "訪問を削除しました",
       "error": "問題が発生しました。もう一度お試しください。"
+    },
+    "record": {
+      "id": "記録",
+      "created": "作成",
+      "updated": "更新"
     }
   },
   "groups": {

@@ -349,7 +349,7 @@ export default async function PersonDetailsPage({
         currentPath="/people"
       />
 
-      <main className="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6">
             <BackLink
@@ -436,7 +436,25 @@ export default async function PersonDetailsPage({
               </div>
             </div>
 
-            <div className="px-6 py-6 space-y-8">
+            {/* Record metadata, read like the header of a file */}
+            <dl className="px-6 py-2 border-b border-border bg-surface-elevated flex flex-wrap gap-x-8 gap-y-1 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-muted tabular-nums">
+              <div className="flex gap-2 min-w-0">
+                <dt>{t('record.id')}</dt>
+                <dd className="text-foreground normal-case tracking-normal truncate">{person.id}</dd>
+              </div>
+              <div className="flex gap-2">
+                <dt>{t('record.created')}</dt>
+                <dd className="text-foreground">{formatDate(person.createdAt, dateFormat)}</dd>
+              </div>
+              <div className="flex gap-2">
+                <dt>{t('record.updated')}</dt>
+                <dd className="text-foreground">{formatDate(person.updatedAt, dateFormat)}</dd>
+              </div>
+            </dl>
+
+            {/* Two columns on wide screens: the record on the left, connections and files on the right */}
+            <div className="px-6 py-6 grid gap-8 xl:grid-cols-2 xl:items-start">
+              <div className="space-y-8 min-w-0">
               {/* Personal Details */}
               <div className="border border-border rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -928,82 +946,86 @@ export default async function PersonDetailsPage({
                 </div>
               )}
 
-              {/* Document folder */}
-              <PersonDocumentFolder personId={person.id} />
-
-              {/* Audio folder */}
-              <PersonAudioFolder personId={person.id} dateFormat={dateFormat as DateFormat} />
-
-              {/* Journal Section */}
-              <JournalSection
-                personId={person.id}
-                latestEntry={latestJournalEntry ? {
-                  ...latestJournalEntry,
-                  date: latestJournalEntry.date.toISOString(),
-                } : null}
-                nameOrder={nameOrder}
-                nameDisplayFormat={nameDisplayFormat}
-                locale={user?.language || 'en'}
-              />
-
-              {/* Relationship Network Section */}
-              <div className="border border-border rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  {t('relationshipNetwork')}
-                </h3>
-                <UnifiedNetworkGraph
-                  apiEndpoint={`/api/people/${person.id}/graph`}
-                  linkDistance={100}
-                  chargeStrength={-300}
-                  compact
-                  refreshKey={person.relationshipsTo.length + (person.relationshipToUserId ? 1000 : 0)}
-                />
-                <p className="text-xs text-muted mt-2">
-                  {t('graphHelp')}
-                </p>
               </div>
 
-              {/* Raw vCard Viewer (Development Only) */}
-              <PersonVCardRawView person={serializedPerson} />
+              {/* Right column: connections, network and attached material */}
+              <div className="space-y-8 min-w-0">
+                {/* Relationships Section */}
+                <div className="border border-border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">
+                    {t('relationships')}
+                  </h3>
 
-              {/* Relationships Section */}
-              <div className="border border-border rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  {t('relationships')}
-                </h3>
+                  {/* Relationship to user */}
+                  {relationshipToUser && (
+                    <UserRelationshipCard
+                      personId={person.id}
+                      personName={formatGraphName(person, nameOrder, nameDisplayFormat)}
+                      relationshipToUser={relationshipToUser}
+                      relationshipTypes={relationshipTypes}
+                      userName={user?.name || ''}
+                      userPhoto={user?.photo || null}
+                    />
+                  )}
 
-                {/* Relationship to user */}
-                {relationshipToUser && (
-                  <UserRelationshipCard
+                  {/* Relationships to other people */}
+                  <RelationshipManager
                     personId={person.id}
                     personName={formatGraphName(person, nameOrder, nameDisplayFormat)}
-                    relationshipToUser={relationshipToUser}
+                    relationships={person.relationshipsTo}
+                    availablePeople={availablePeople}
                     relationshipTypes={relationshipTypes}
-                    userName={user?.name || ''}
-                    userPhoto={user?.photo || null}
+                    currentUser={{
+                      id: session.user.id,
+                      name: user?.name || '',
+                      surname: user?.surname || null,
+                      nickname: user?.nickname || null,
+                      photo: user?.photo || null,
+                    }}
+                    hasUserRelationship={!!person.relationshipToUserId}
+                    nameOrder={nameOrder}
+                    nameDisplayFormat={nameDisplayFormat}
                   />
-                )}
+                </div>
 
-                {/* Relationships to other people */}
-                <RelationshipManager
+                {/* Relationship Network Section */}
+                <div className="border border-border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">
+                    {t('relationshipNetwork')}
+                  </h3>
+                  <UnifiedNetworkGraph
+                    apiEndpoint={`/api/people/${person.id}/graph`}
+                    linkDistance={100}
+                    chargeStrength={-300}
+                    compact
+                    refreshKey={person.relationshipsTo.length + (person.relationshipToUserId ? 1000 : 0)}
+                  />
+                  <p className="text-xs text-muted mt-2">
+                    {t('graphHelp')}
+                  </p>
+                </div>
+
+                {/* Document folder */}
+                <PersonDocumentFolder personId={person.id} />
+
+                {/* Audio folder */}
+                <PersonAudioFolder personId={person.id} dateFormat={dateFormat as DateFormat} />
+
+                {/* Journal Section */}
+                <JournalSection
                   personId={person.id}
-                  personName={formatGraphName(person, nameOrder, nameDisplayFormat)}
-                  relationships={person.relationshipsTo}
-                  availablePeople={availablePeople}
-                  relationshipTypes={relationshipTypes}
-                  currentUser={{
-                    id: session.user.id,
-                    name: user?.name || '',
-                    surname: user?.surname || null,
-                    nickname: user?.nickname || null,
-                    photo: user?.photo || null,
-                  }}
-                  hasUserRelationship={!!person.relationshipToUserId}
+                  latestEntry={latestJournalEntry ? {
+                    ...latestJournalEntry,
+                    date: latestJournalEntry.date.toISOString(),
+                  } : null}
                   nameOrder={nameOrder}
                   nameDisplayFormat={nameDisplayFormat}
+                  locale={user?.language || 'en'}
                 />
-              </div>
 
+                {/* Raw vCard Viewer (Development Only) */}
+                <PersonVCardRawView person={serializedPerson} />
+              </div>
             </div>
           </div>
         </div>

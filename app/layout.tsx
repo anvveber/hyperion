@@ -11,11 +11,18 @@ import { Toaster } from "sonner";
 import { auth } from "@/lib/auth";
 import { getUserLocale } from "@/lib/locale";
 import { THEME_COLORS } from "@/lib/theme-colors";
+// IBM Plex is bundled from npm, so builds and the offline PWA never fetch fonts.
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/500.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/ibm-plex-mono/600.css";
 import "./globals.css";
 import { DISPLAY_PREFERENCE_DEFAULTS, getUserDisplayPreferences } from '@/lib/user-preferences';
 
-// Use system fonts instead of Google Fonts to avoid network calls during Docker build
-// This is more performant and doesn't require external requests during build time
+// Fonts come from the @fontsource packages above rather than Google Fonts, so a
+// Docker build never needs network access for them.
 
 export const metadata: Metadata = {
   title: "Nametag - Personal Relationships Manager",

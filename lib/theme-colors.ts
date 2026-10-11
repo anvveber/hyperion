@@ -11,6 +11,6 @@
 export type Theme = 'LIGHT' | 'DARK';
 
 export const THEME_COLORS: Record<Theme, string> = {
-  LIGHT: '#F4F4F4',
-  DARK: '#000000',
+  LIGHT: '#E9EDF2',
+  DARK: '#0F141B',
 };
