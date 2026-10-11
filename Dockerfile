@@ -47,8 +47,9 @@ RUN npx esbuild prisma/seed.production.ts --platform=node --format=cjs --outfile
 FROM node:24-alpine AS runner
 WORKDIR /app
 
-# Install tzdata so the TZ env var can resolve non-UTC zones
-RUN apk add --no-cache tzdata
+# Install tzdata so the TZ env var can resolve non-UTC zones, and Noto Sans
+# CJK so profile PDFs can show Chinese, Japanese and Korean text
+RUN apk add --no-cache tzdata font-noto-cjk
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

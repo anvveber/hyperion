@@ -1805,6 +1805,13 @@
       "id": "档案",
       "created": "创建",
       "updated": "更新"
+    },
+    "pdf": {
+      "download": "将资料下载为 PDF",
+      "generated": "生成于 {date}",
+      "page": "第 {page} 页，共 {total} 页",
+      "images": "图片",
+      "moreImages": "另有 {count} 张图片未显示"
     }
   },
   "groups": {
