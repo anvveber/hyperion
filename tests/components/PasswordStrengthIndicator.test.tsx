@@ -98,9 +98,9 @@ describe('PasswordStrengthIndicator', () => {
       expect(bar).toBeInTheDocument();
     });
 
-    it('should show blue bar for strong password', () => {
+    it('should show the accent bar for strong password', () => {
       const { container } = render(<PasswordStrengthIndicator password="Aa1!" />, { wrapper: Wrapper });
-      const bar = container.querySelector('.bg-blue-500');
+      const bar = container.querySelector('.bg-primary');
       expect(bar).toBeInTheDocument();
     });
 

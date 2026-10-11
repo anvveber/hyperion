@@ -13,7 +13,7 @@ Your name, surname, nickname, email address, and profile photo. Photo uploads su
 
 ## Appearance
 
-- **Theme**: Light or Dark. Dark is the default. Both themes use the same operations-console look: blue-slate panels, square corners, hairline borders, IBM Plex type, and monospace panel titles, labels and table data. Blue marks things you can click, amber marks things that need attention soon, and red marks delete actions and overdue items. The colors you give groups and relationship types are shown as you set them.
+- **Theme**: Light or Dark. Dark is the default. Both themes use the same graphite console look: neutral greys from near-black to white, square corners, hairline borders, IBM Plex type, and monospace panel titles, labels and table data. Gold is the only accent: it marks buttons, the current tab and things that need attention soon. Links to people read as plain text and turn gold on hover. Red marks delete actions and overdue items. The colors you give groups and relationship types are shown as you set them, so pick muted ones if you want the whole screen grey.
 - **Language**: choose from all of Nametag's supported languages, including English, Spanish, Japanese, Norwegian, German, Chinese, Italian, Russian, Dutch, and French.
 - **Date format**: MDY, DMY, or YMD.
 - **Name order**: Western (first name, then last name) or Eastern (last name, then first name).

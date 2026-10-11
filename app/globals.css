@@ -5,85 +5,82 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * PALETTE: Operations console
+ * PALETTE: Graphite and gold
  *
- * Blue-slate grounds in the style of analyst workstations. Blue is the one
- * interactive color (buttons, links, the active nav item). Amber is reserved
- * for things that need attention soon, red for destructive actions and
- * overdue items. Everything else stays in the slate ramp, so the colors
- * people give their own groups and relationship types still stand out.
- * Dark is the primary theme; light is the daylight variant of the same ramp.
+ * Neutral greys only, from near-black to white, with a single gold accent.
+ * Gold marks what you can click (buttons, links, the active tab) and what
+ * needs attention soon. Red is kept for delete actions and overdue items.
+ * The colors people give their own groups and relationship types are the
+ * only other color on screen.
+ * Dark is the primary theme; light is the same ramp inverted.
  */
 :root {
-  --a-primary: #1F5FBF;
-  --a-secondary: #4F5D70;
-  --a-text: #18202B;
-  --a-bg: #E9EDF2;
+  --a-primary: #6E5300;
+  --a-secondary: #5E5E5E;
+  --a-text: #161616;
+  --a-bg: #ECECEC;
   --a-surface: #FFFFFF;
 
-  --background: #E9EDF2;
-  --foreground: #18202B;
+  --background: #ECECEC;
+  --foreground: #161616;
   --surface: #FFFFFF;
-  --surface-elevated: #F2F5F8;
-  --border: #C3CCD8;
-  --primary: #1F5FBF;
-  --primary-dark: #184C99;
+  --surface-elevated: #F5F5F5;
+  --border: #CFCFCF;
+  --primary: #6E5300;
+  --primary-dark: #574200;
   /*
-   * Text and icons sitting ON a --primary surface.
-   *
-   * A token rather than a hardcoded text-white, because the correct answer
-   * flips with the theme: white on the deep blue in light, near-black on
-   * the brighter blue in dark.
+   * Text and icons sitting ON a --primary surface: white on the deep gold in
+   * light (7.2:1), near-black on the bright gold in dark (8.4:1).
    */
   --on-primary: #FFFFFF;
-  --secondary: #4F5D70;
-  --tertiary: #4F5D70;
-  --accent: #8A5200;
-  --muted: #566476;
-  --warning: #C0282D;
-  --badge-bg: #E1E7EF;
-  --badge-text: #253244;
+  --secondary: #5E5E5E;
+  --tertiary: #5E5E5E;
+  --accent: #6E5300;
+  --muted: #5E5E5E;
+  --warning: #B42D2B;
+  --badge-bg: #E6E6E6;
+  --badge-text: #2A2A2A;
 
   /* Console chrome */
-  --signal: #7F4A00;
-  --signal-bg: #F3E3C3;
-  --ok: #1C7C4A;
+  --signal: #6E5300;
+  --signal-bg: #F1E6C8;
+  --ok: #6E5300;
   /* Tactical grid: dots every 16px, dashed lines and crosshairs every 128px. */
-  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cg fill='rgba%2831%2C52%2C82%2C0.16%29'%3E%3Crect x='15.5' y='15.5' width='1' height='1'/%3E%3Crect x='15.5' y='31.5' width='1' height='1'/%3E%3Crect x='15.5' y='47.5' width='1' height='1'/%3E%3Crect x='15.5' y='63.5' width='1' height='1'/%3E%3Crect x='15.5' y='79.5' width='1' height='1'/%3E%3Crect x='15.5' y='95.5' width='1' height='1'/%3E%3Crect x='15.5' y='111.5' width='1' height='1'/%3E%3Crect x='31.5' y='15.5' width='1' height='1'/%3E%3Crect x='31.5' y='31.5' width='1' height='1'/%3E%3Crect x='31.5' y='47.5' width='1' height='1'/%3E%3Crect x='31.5' y='63.5' width='1' height='1'/%3E%3Crect x='31.5' y='79.5' width='1' height='1'/%3E%3Crect x='31.5' y='95.5' width='1' height='1'/%3E%3Crect x='31.5' y='111.5' width='1' height='1'/%3E%3Crect x='47.5' y='15.5' width='1' height='1'/%3E%3Crect x='47.5' y='31.5' width='1' height='1'/%3E%3Crect x='47.5' y='47.5' width='1' height='1'/%3E%3Crect x='47.5' y='63.5' width='1' height='1'/%3E%3Crect x='47.5' y='79.5' width='1' height='1'/%3E%3Crect x='47.5' y='95.5' width='1' height='1'/%3E%3Crect x='47.5' y='111.5' width='1' height='1'/%3E%3Crect x='63.5' y='15.5' width='1' height='1'/%3E%3Crect x='63.5' y='31.5' width='1' height='1'/%3E%3Crect x='63.5' y='47.5' width='1' height='1'/%3E%3Crect x='63.5' y='79.5' width='1' height='1'/%3E%3Crect x='63.5' y='95.5' width='1' height='1'/%3E%3Crect x='63.5' y='111.5' width='1' height='1'/%3E%3Crect x='79.5' y='15.5' width='1' height='1'/%3E%3Crect x='79.5' y='31.5' width='1' height='1'/%3E%3Crect x='79.5' y='47.5' width='1' height='1'/%3E%3Crect x='79.5' y='63.5' width='1' height='1'/%3E%3Crect x='79.5' y='79.5' width='1' height='1'/%3E%3Crect x='79.5' y='95.5' width='1' height='1'/%3E%3Crect x='79.5' y='111.5' width='1' height='1'/%3E%3Crect x='95.5' y='15.5' width='1' height='1'/%3E%3Crect x='95.5' y='31.5' width='1' height='1'/%3E%3Crect x='95.5' y='47.5' width='1' height='1'/%3E%3Crect x='95.5' y='63.5' width='1' height='1'/%3E%3Crect x='95.5' y='79.5' width='1' height='1'/%3E%3Crect x='95.5' y='95.5' width='1' height='1'/%3E%3Crect x='95.5' y='111.5' width='1' height='1'/%3E%3Crect x='111.5' y='15.5' width='1' height='1'/%3E%3Crect x='111.5' y='31.5' width='1' height='1'/%3E%3Crect x='111.5' y='47.5' width='1' height='1'/%3E%3Crect x='111.5' y='63.5' width='1' height='1'/%3E%3Crect x='111.5' y='79.5' width='1' height='1'/%3E%3Crect x='111.5' y='95.5' width='1' height='1'/%3E%3Crect x='111.5' y='111.5' width='1' height='1'/%3E%3C/g%3E%3Cpath d='M0 .5H128M.5 0V128' stroke='rgba%2831%2C52%2C82%2C0.10%29' stroke-dasharray='2 4'/%3E%3Cpath d='M0 .5h6M122 .5h6M.5 0v6M.5 122v6' stroke='rgba%2831%2C52%2C82%2C0.28%29'/%3E%3C/svg%3E");
-  --glow: rgba(31, 95, 191, 0.10);
-  --vignette: rgba(31, 52, 82, 0.10);
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cg fill='rgba%280%2C0%2C0%2C0.12%29'%3E%3Crect x='15.5' y='15.5' width='1' height='1'/%3E%3Crect x='15.5' y='31.5' width='1' height='1'/%3E%3Crect x='15.5' y='47.5' width='1' height='1'/%3E%3Crect x='15.5' y='63.5' width='1' height='1'/%3E%3Crect x='15.5' y='79.5' width='1' height='1'/%3E%3Crect x='15.5' y='95.5' width='1' height='1'/%3E%3Crect x='15.5' y='111.5' width='1' height='1'/%3E%3Crect x='31.5' y='15.5' width='1' height='1'/%3E%3Crect x='31.5' y='31.5' width='1' height='1'/%3E%3Crect x='31.5' y='47.5' width='1' height='1'/%3E%3Crect x='31.5' y='63.5' width='1' height='1'/%3E%3Crect x='31.5' y='79.5' width='1' height='1'/%3E%3Crect x='31.5' y='95.5' width='1' height='1'/%3E%3Crect x='31.5' y='111.5' width='1' height='1'/%3E%3Crect x='47.5' y='15.5' width='1' height='1'/%3E%3Crect x='47.5' y='31.5' width='1' height='1'/%3E%3Crect x='47.5' y='47.5' width='1' height='1'/%3E%3Crect x='47.5' y='63.5' width='1' height='1'/%3E%3Crect x='47.5' y='79.5' width='1' height='1'/%3E%3Crect x='47.5' y='95.5' width='1' height='1'/%3E%3Crect x='47.5' y='111.5' width='1' height='1'/%3E%3Crect x='63.5' y='15.5' width='1' height='1'/%3E%3Crect x='63.5' y='31.5' width='1' height='1'/%3E%3Crect x='63.5' y='47.5' width='1' height='1'/%3E%3Crect x='63.5' y='63.5' width='1' height='1'/%3E%3Crect x='63.5' y='79.5' width='1' height='1'/%3E%3Crect x='63.5' y='95.5' width='1' height='1'/%3E%3Crect x='63.5' y='111.5' width='1' height='1'/%3E%3Crect x='79.5' y='15.5' width='1' height='1'/%3E%3Crect x='79.5' y='31.5' width='1' height='1'/%3E%3Crect x='79.5' y='47.5' width='1' height='1'/%3E%3Crect x='79.5' y='63.5' width='1' height='1'/%3E%3Crect x='79.5' y='79.5' width='1' height='1'/%3E%3Crect x='79.5' y='95.5' width='1' height='1'/%3E%3Crect x='79.5' y='111.5' width='1' height='1'/%3E%3Crect x='95.5' y='15.5' width='1' height='1'/%3E%3Crect x='95.5' y='31.5' width='1' height='1'/%3E%3Crect x='95.5' y='47.5' width='1' height='1'/%3E%3Crect x='95.5' y='63.5' width='1' height='1'/%3E%3Crect x='95.5' y='79.5' width='1' height='1'/%3E%3Crect x='95.5' y='95.5' width='1' height='1'/%3E%3Crect x='95.5' y='111.5' width='1' height='1'/%3E%3Crect x='111.5' y='15.5' width='1' height='1'/%3E%3Crect x='111.5' y='31.5' width='1' height='1'/%3E%3Crect x='111.5' y='47.5' width='1' height='1'/%3E%3Crect x='111.5' y='63.5' width='1' height='1'/%3E%3Crect x='111.5' y='79.5' width='1' height='1'/%3E%3Crect x='111.5' y='95.5' width='1' height='1'/%3E%3Crect x='111.5' y='111.5' width='1' height='1'/%3E%3C/g%3E%3Cpath d='M0 .5H128M.5 0V128' stroke='rgba%280%2C0%2C0%2C0.07%29' stroke-dasharray='2 4'/%3E%3Cpath d='M0 .5h6M122 .5h6M.5 0v6M.5 122v6' stroke='rgba%280%2C0%2C0%2C0.22%29'/%3E%3C/svg%3E");
+  --glow: rgba(255, 255, 255, 0.55);
+  --vignette: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  --a-primary: #4C90F0;
-  --a-secondary: #93A1B3;
-  --a-text: #DCE3EC;
-  --a-bg: #0F141B;
-  --a-surface: #171E28;
+  --a-primary: #D4A72C;
+  --a-secondary: #9A9A9A;
+  --a-text: #E6E6E6;
+  --a-bg: #101010;
+  --a-surface: #181818;
 
-  --background: #0F141B;
-  --foreground: #DCE3EC;
-  --surface: #171E28;
-  --surface-elevated: #202937;
-  --border: #303C4D;
-  --primary: #4C90F0;
-  --primary-dark: #77AAF5;
-  /* Near-black text on the dark theme's blue. See the light theme block. */
-  --on-primary: #0B1017;
-  --secondary: #93A1B3;
-  --tertiary: #93A1B3;
-  --accent: #E8A33D;
-  --muted: #8C9AAD;
-  --warning: #F0686C;
-  --badge-bg: #232D3B;
-  --badge-text: #C5CFDB;
+  --background: #101010;
+  --foreground: #E6E6E6;
+  --surface: #181818;
+  --surface-elevated: #222222;
+  --border: #333333;
+  --primary: #D4A72C;
+  --primary-dark: #E3BE5A;
+  /* Near-black text on the dark theme's gold. See the light theme block. */
+  --on-primary: #111111;
+  --secondary: #9A9A9A;
+  --tertiary: #9A9A9A;
+  --accent: #D4A72C;
+  --muted: #9A9A9A;
+  --warning: #E5605F;
+  --badge-bg: #262626;
+  --badge-text: #CFCFCF;
 
-  --signal: #E8A33D;
-  --signal-bg: #2A2012;
-  --ok: #3FB27F;
-  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cg fill='rgba%28150%2C180%2C220%2C0.16%29'%3E%3Crect x='15.5' y='15.5' width='1' height='1'/%3E%3Crect x='15.5' y='31.5' width='1' height='1'/%3E%3Crect x='15.5' y='47.5' width='1' height='1'/%3E%3Crect x='15.5' y='63.5' width='1' height='1'/%3E%3Crect x='15.5' y='79.5' width='1' height='1'/%3E%3Crect x='15.5' y='95.5' width='1' height='1'/%3E%3Crect x='15.5' y='111.5' width='1' height='1'/%3E%3Crect x='31.5' y='15.5' width='1' height='1'/%3E%3Crect x='31.5' y='31.5' width='1' height='1'/%3E%3Crect x='31.5' y='47.5' width='1' height='1'/%3E%3Crect x='31.5' y='63.5' width='1' height='1'/%3E%3Crect x='31.5' y='79.5' width='1' height='1'/%3E%3Crect x='31.5' y='95.5' width='1' height='1'/%3E%3Crect x='31.5' y='111.5' width='1' height='1'/%3E%3Crect x='47.5' y='15.5' width='1' height='1'/%3E%3Crect x='47.5' y='31.5' width='1' height='1'/%3E%3Crect x='47.5' y='47.5' width='1' height='1'/%3E%3Crect x='47.5' y='63.5' width='1' height='1'/%3E%3Crect x='47.5' y='79.5' width='1' height='1'/%3E%3Crect x='47.5' y='95.5' width='1' height='1'/%3E%3Crect x='47.5' y='111.5' width='1' height='1'/%3E%3Crect x='63.5' y='15.5' width='1' height='1'/%3E%3Crect x='63.5' y='31.5' width='1' height='1'/%3E%3Crect x='63.5' y='47.5' width='1' height='1'/%3E%3Crect x='63.5' y='79.5' width='1' height='1'/%3E%3Crect x='63.5' y='95.5' width='1' height='1'/%3E%3Crect x='63.5' y='111.5' width='1' height='1'/%3E%3Crect x='79.5' y='15.5' width='1' height='1'/%3E%3Crect x='79.5' y='31.5' width='1' height='1'/%3E%3Crect x='79.5' y='47.5' width='1' height='1'/%3E%3Crect x='79.5' y='63.5' width='1' height='1'/%3E%3Crect x='79.5' y='79.5' width='1' height='1'/%3E%3Crect x='79.5' y='95.5' width='1' height='1'/%3E%3Crect x='79.5' y='111.5' width='1' height='1'/%3E%3Crect x='95.5' y='15.5' width='1' height='1'/%3E%3Crect x='95.5' y='31.5' width='1' height='1'/%3E%3Crect x='95.5' y='47.5' width='1' height='1'/%3E%3Crect x='95.5' y='63.5' width='1' height='1'/%3E%3Crect x='95.5' y='79.5' width='1' height='1'/%3E%3Crect x='95.5' y='95.5' width='1' height='1'/%3E%3Crect x='95.5' y='111.5' width='1' height='1'/%3E%3Crect x='111.5' y='15.5' width='1' height='1'/%3E%3Crect x='111.5' y='31.5' width='1' height='1'/%3E%3Crect x='111.5' y='47.5' width='1' height='1'/%3E%3Crect x='111.5' y='63.5' width='1' height='1'/%3E%3Crect x='111.5' y='79.5' width='1' height='1'/%3E%3Crect x='111.5' y='95.5' width='1' height='1'/%3E%3Crect x='111.5' y='111.5' width='1' height='1'/%3E%3C/g%3E%3Cpath d='M0 .5H128M.5 0V128' stroke='rgba%28150%2C180%2C220%2C0.10%29' stroke-dasharray='2 4'/%3E%3Cpath d='M0 .5h6M122 .5h6M.5 0v6M.5 122v6' stroke='rgba%28150%2C180%2C220%2C0.30%29'/%3E%3C/svg%3E");
-  --glow: rgba(76, 144, 240, 0.12);
-  --vignette: rgba(0, 0, 0, 0.45);
+  --signal: #D4A72C;
+  --signal-bg: #1E1A10;
+  --ok: #D4A72C;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cg fill='rgba%28255%2C255%2C255%2C0.09%29'%3E%3Crect x='15.5' y='15.5' width='1' height='1'/%3E%3Crect x='15.5' y='31.5' width='1' height='1'/%3E%3Crect x='15.5' y='47.5' width='1' height='1'/%3E%3Crect x='15.5' y='63.5' width='1' height='1'/%3E%3Crect x='15.5' y='79.5' width='1' height='1'/%3E%3Crect x='15.5' y='95.5' width='1' height='1'/%3E%3Crect x='15.5' y='111.5' width='1' height='1'/%3E%3Crect x='31.5' y='15.5' width='1' height='1'/%3E%3Crect x='31.5' y='31.5' width='1' height='1'/%3E%3Crect x='31.5' y='47.5' width='1' height='1'/%3E%3Crect x='31.5' y='63.5' width='1' height='1'/%3E%3Crect x='31.5' y='79.5' width='1' height='1'/%3E%3Crect x='31.5' y='95.5' width='1' height='1'/%3E%3Crect x='31.5' y='111.5' width='1' height='1'/%3E%3Crect x='47.5' y='15.5' width='1' height='1'/%3E%3Crect x='47.5' y='31.5' width='1' height='1'/%3E%3Crect x='47.5' y='47.5' width='1' height='1'/%3E%3Crect x='47.5' y='63.5' width='1' height='1'/%3E%3Crect x='47.5' y='79.5' width='1' height='1'/%3E%3Crect x='47.5' y='95.5' width='1' height='1'/%3E%3Crect x='47.5' y='111.5' width='1' height='1'/%3E%3Crect x='63.5' y='15.5' width='1' height='1'/%3E%3Crect x='63.5' y='31.5' width='1' height='1'/%3E%3Crect x='63.5' y='47.5' width='1' height='1'/%3E%3Crect x='63.5' y='63.5' width='1' height='1'/%3E%3Crect x='63.5' y='79.5' width='1' height='1'/%3E%3Crect x='63.5' y='95.5' width='1' height='1'/%3E%3Crect x='63.5' y='111.5' width='1' height='1'/%3E%3Crect x='79.5' y='15.5' width='1' height='1'/%3E%3Crect x='79.5' y='31.5' width='1' height='1'/%3E%3Crect x='79.5' y='47.5' width='1' height='1'/%3E%3Crect x='79.5' y='63.5' width='1' height='1'/%3E%3Crect x='79.5' y='79.5' width='1' height='1'/%3E%3Crect x='79.5' y='95.5' width='1' height='1'/%3E%3Crect x='79.5' y='111.5' width='1' height='1'/%3E%3Crect x='95.5' y='15.5' width='1' height='1'/%3E%3Crect x='95.5' y='31.5' width='1' height='1'/%3E%3Crect x='95.5' y='47.5' width='1' height='1'/%3E%3Crect x='95.5' y='63.5' width='1' height='1'/%3E%3Crect x='95.5' y='79.5' width='1' height='1'/%3E%3Crect x='95.5' y='95.5' width='1' height='1'/%3E%3Crect x='95.5' y='111.5' width='1' height='1'/%3E%3Crect x='111.5' y='15.5' width='1' height='1'/%3E%3Crect x='111.5' y='31.5' width='1' height='1'/%3E%3Crect x='111.5' y='47.5' width='1' height='1'/%3E%3Crect x='111.5' y='63.5' width='1' height='1'/%3E%3Crect x='111.5' y='79.5' width='1' height='1'/%3E%3Crect x='111.5' y='95.5' width='1' height='1'/%3E%3Crect x='111.5' y='111.5' width='1' height='1'/%3E%3C/g%3E%3Cpath d='M0 .5H128M.5 0V128' stroke='rgba%28255%2C255%2C255%2C0.06%29' stroke-dasharray='2 4'/%3E%3Cpath d='M0 .5h6M122 .5h6M.5 0v6M.5 122v6' stroke='rgba%28255%2C255%2C255%2C0.20%29'/%3E%3C/svg%3E");
+  --glow: rgba(255, 255, 255, 0.05);
+  --vignette: rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
@@ -251,6 +248,19 @@ h4.text-sm.text-muted {
 }
 
 /*
+ * Keep gold for actions, not for every link. Links that point at a record
+ * (a person's name, an edit icon) read as plain text and turn gold on hover
+ * or focus. Filled gold buttons are untouched.
+ */
+a.text-primary:not([class*="bg-primary"]) {
+  color: var(--foreground);
+}
+
+a.text-primary:not([class*="bg-primary"]):is(:hover, :focus-visible) {
+  color: var(--primary);
+}
+
+/*
  * Console shell. Navigation renders a fixed status banner, a sticky
  * translucent navbar and, on wide screens, a bottom status bar. The body makes
  * room for the fixed parts only on pages that render the shell, so login and
@@ -316,7 +326,7 @@ body:has(.hy-shell) .min-h-screen.bg-background {
 body {
   background-color: var(--background);
   /*
-   * A soft blue glow from the top of the screen and a darker fall-off at the
+   * A soft light from the top of the screen and a darker fall-off at the
    * edges sit over the tactical grid. Fixed, so the grid reads as the screen
    * and the content scrolls across it.
    */

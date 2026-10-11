@@ -241,8 +241,8 @@ export default function ConflictList({ conflicts }: ConflictListProps) {
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted uppercase border-r border-border w-36"></th>
                     <th className="px-3 py-2 text-left text-xs font-medium border-r border-border w-1/2">
                       <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
-                        <span className="text-blue-700 dark:text-blue-300">{t('localVersion')}</span>
+                        <div className="w-2.5 h-2.5 bg-primary rounded-full"></div>
+                        <span className="text-primary">{t('localVersion')}</span>
                       </div>
                     </th>
                     <th className="px-3 py-2 text-left text-xs font-medium w-1/2">
