@@ -242,6 +242,40 @@ export default function PersonActionsMenu({
     }
   };
 
+  const handleExportPdf = async () => {
+    setMenuOpen(false);
+    setIsExporting(true);
+
+    try {
+      const response = await fetch(`/api/people/${personId}/pdf`);
+      if (!response.ok) {
+        throw new Error(`PDF export failed with status ${response.status}`);
+      }
+      const blob = await response.blob();
+
+      // The server picks a safe file name; fall back to one built here.
+      const disposition = response.headers.get('Content-Disposition') ?? '';
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const fullName = [person.name, person.surname].filter(Boolean).join(' ') || 'contact';
+      const filename = match?.[1] ?? generateVcfFilename(fullName).replace(/\.vcf$/, '.pdf');
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success(t('vcfExportSuccess', { filename }));
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      toast.error(t('vcfExportError'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleShowQr = async () => {
     setMenuOpen(false);
     setIsExporting(true);
@@ -364,6 +398,17 @@ export default function PersonActionsMenu({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
                 {t('downloadJsonFile')}
+              </button>
+
+              {/* Export PDF */}
+              <button
+                onClick={handleExportPdf}
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-3"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {t('pdf.download')}
               </button>
 
               {/* Show QR */}

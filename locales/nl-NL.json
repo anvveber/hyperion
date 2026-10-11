@@ -1805,6 +1805,13 @@
       "id": "Dossier",
       "created": "Aangemaakt",
       "updated": "Bijgewerkt"
+    },
+    "pdf": {
+      "download": "Profiel downloaden als PDF",
+      "generated": "Gemaakt op {date}",
+      "page": "Pagina {page} van {total}",
+      "images": "Afbeeldingen",
+      "moreImages": "{count, plural, one {Nog # afbeelding niet getoond} other {Nog # afbeeldingen niet getoond}}"
     }
   },
   "groups": {

@@ -302,6 +302,26 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         },
       },
     },
+    '/api/people/{id}/pdf': {
+      get: {
+        tags: ['People'],
+        summary: 'Download a person as a PDF',
+        description:
+          'Returns one person\'s profile as an A4 PDF in the user\'s language and date format: details, contact information, ' +
+          'previous values, important dates, custom fields, location history, notes, relationships, journal entries, the names ' +
+          'of attached documents and recordings, and up to 24 attached images. Sent as an attachment.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        responses: {
+          '200': {
+            description: 'The PDF file',
+            content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+          },
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
     '/api/people/bulk': {
       post: {
         tags: ['People'],

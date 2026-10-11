@@ -11,8 +11,18 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_PHOTO_QUALITY: String(process.env.PHOTO_QUALITY || '80'),
   },
 
-  // Externalize Pino from Next.js webpack bundle (uses Node.js native modules)
-  serverExternalPackages: ['pino', 'pino-pretty'],
+  // Externalize Pino from Next.js webpack bundle (uses Node.js native modules).
+  // react-pdf loads fontkit and yoga at runtime and is meant to run unbundled.
+  serverExternalPackages: ['pino', 'pino-pretty', '@react-pdf/renderer'],
+
+  // The PDF route reads its font files from node_modules by path, which the
+  // standalone build cannot trace on its own.
+  outputFileTracingIncludes: {
+    '/api/people/[id]/pdf': [
+      './node_modules/@ibm/plex-sans/fonts/complete/woff/IBMPlexSans-{Regular,Italic,SemiBold}.woff',
+      './node_modules/@ibm/plex-mono/fonts/complete/woff/IBMPlexMono-{Regular,SemiBold}.woff',
+    ],
+  },
 
   // Production optimization
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
