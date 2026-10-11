@@ -245,6 +245,49 @@ describe('Import — custom field round-trip', () => {
     );
   });
 
+  it('points PERSON values at the imported copy and skips links outside the import', async () => {
+    mocks.templateFindFirst.mockImplementation(async ({ where }) => {
+      if (where.slug === 'best-friend') {
+        return { id: 'tpl-friend', type: 'PERSON', options: [] };
+      }
+      return null;
+    });
+    mocks.personCreate
+      .mockResolvedValueOnce({ id: 'new-alice' })
+      .mockResolvedValueOnce({ id: 'new-bob' });
+
+    const payload = {
+      ...BASE_PAYLOAD,
+      people: [
+        {
+          id: 'old-alice',
+          name: 'Alice',
+          groups: [],
+          relationships: [],
+          customFieldValues: [{ slug: 'best-friend', value: 'old-bob' }],
+        },
+        {
+          id: 'old-bob',
+          name: 'Bob',
+          groups: [],
+          relationships: [],
+          customFieldValues: [{ slug: 'best-friend', value: 'old-carol' }],
+        },
+      ],
+      customFieldTemplates: [{ name: 'Best friend', slug: 'best-friend', type: 'PERSON', order: 0 }],
+    };
+
+    const response = await importRoute(makeRequest(payload));
+    expect(response.status).toBe(200);
+
+    expect(mocks.cfvUpsert).toHaveBeenCalledTimes(1);
+    expect(mocks.cfvUpsert).toHaveBeenCalledWith({
+      where: { personId_templateId: { personId: 'new-alice', templateId: 'tpl-friend' } },
+      create: { personId: 'new-alice', templateId: 'tpl-friend', value: 'new-bob' },
+      update: { value: 'new-bob' },
+    });
+  });
+
   it('skips a value whose slug has no matching template (unknown slug)', async () => {
     // No templates pre-exist; no templates in payload matching 'unknown-slug'
     mocks.templateFindFirst.mockResolvedValue(null);

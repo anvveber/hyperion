@@ -121,6 +121,7 @@ export default async function NewPersonPage({
               <PersonForm
                 groups={groups}
                 customFieldTemplates={customFieldTemplates}
+                linkablePeople={people}
                 relationshipTypes={relationshipTypes}
                 availablePeople={people}
                 userName={session.user.name || session.user.email || 'You'}

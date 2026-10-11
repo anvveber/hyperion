@@ -92,6 +92,10 @@
         "label": "用户名",
         "placeholder": "用户名或平台 ID"
       },
+      "customFields": {
+        "label": "自定义字段",
+        "placeholder": "任意字段值，或关联人物的姓名"
+      },
       "keywords": {
         "label": "备注关键词",
         "placeholder": "备注中出现的词语"
@@ -952,6 +956,10 @@
       "typeNumber": "数字",
       "typeBoolean": "是 / 否",
       "typeSelect": "单选",
+      "typeMultiSelect": "多选",
+      "typeDate": "日期",
+      "typeUrl": "链接",
+      "typePerson": "人物",
       "typeLockedNotice": "类型在创建后无法更改。",
       "optionsLabel": "选项",
       "optionPlaceholder": "选项",
@@ -985,7 +993,10 @@
       "booleanNo": "否",
       "booleanNotSet": "未设置",
       "selectEmpty": "-",
-      "valueOutOfOptions": "此值已不在该字段的选项列表中。"
+      "valueOutOfOptions": "此值已不在该字段的选项列表中。",
+      "personPlaceholder": "搜索人物...",
+      "clearPerson": "清除",
+      "linkedPersonMissing": "关联的人物已不存在"
     },
     "filter": {
       "moreFilters": "更多筛选",

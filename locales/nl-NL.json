@@ -92,6 +92,10 @@
         "label": "Gebruikersnaam",
         "placeholder": "Gebruikersnaam of platform-ID"
       },
+      "customFields": {
+        "label": "Aangepaste velden",
+        "placeholder": "Elke veldwaarde, of de naam van een gekoppelde persoon"
+      },
       "keywords": {
         "label": "Trefwoorden in notities",
         "placeholder": "Woorden die in hun notities staan"
@@ -952,6 +956,10 @@
       "typeNumber": "Nummer",
       "typeBoolean": "Ja / Nee",
       "typeSelect": "Enkele selectie",
+      "typeMultiSelect": "Meervoudige selectie",
+      "typeDate": "Datum",
+      "typeUrl": "Link",
+      "typePerson": "Persoon",
       "typeLockedNotice": "Type kan niet worden gewijzigd na creatie.",
       "optionsLabel": "Opties",
       "optionPlaceholder": "Optie",
@@ -985,7 +993,10 @@
       "booleanNo": "Nee",
       "booleanNotSet": "Niet ingesteld",
       "selectEmpty": "-",
-      "valueOutOfOptions": "Deze waarde staat niet langer in de opties voor dit veld."
+      "valueOutOfOptions": "Deze waarde staat niet langer in de opties voor dit veld.",
+      "personPlaceholder": "Zoek een persoon...",
+      "clearPerson": "Wissen",
+      "linkedPersonMissing": "De gekoppelde persoon bestaat niet meer"
     },
     "filter": {
       "moreFilters": "Meer filters",

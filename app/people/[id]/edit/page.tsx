@@ -95,6 +95,15 @@ export default async function EditPersonPage({
     notFound();
   }
 
+  // PERSON custom fields link to another of the user's people
+  const linkablePeople = customFieldTemplates.some((tpl) => tpl.type === 'PERSON')
+    ? await prisma.person.findMany({
+        where: { userId: session.user.id, deletedAt: null, id: { not: person.id } },
+        select: { id: true, name: true, surname: true, nickname: true, displayNameOverride: true },
+        orderBy: { name: 'asc' },
+      })
+    : [];
+
   // Convert Prisma Decimal objects to plain numbers for client components
   const serializedPerson = {
     ...person,
@@ -136,6 +145,7 @@ export default async function EditPersonPage({
             <PersonForm
               person={serializedPerson}
               customFieldTemplates={customFieldTemplates}
+              linkablePeople={linkablePeople}
               groups={groups}
               relationshipTypes={relationshipTypes}
               mode="edit"

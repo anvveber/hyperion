@@ -94,7 +94,7 @@ Adds a new person. Can include group memberships, important dates, multi-value c
 | `phoneNumbers`, `emails`, `addresses`, `urls`, `imHandles`, `locations`, `customFields` | array | Multi-value vCard-style fields, each `{ type, ...fields }`. |
 | `imHandles` | array | `{ protocol, handle, platformId? }`. `protocol` is any platform name (`discord`, `telegram`, `signal`, `whatsapp`, `skype`, `other`, or your own). `platformId` is the stable account ID, such as a Discord user ID. On update, leaving `platformId` out keeps the stored ID for the same handle; sending `""` or `null` clears it. |
 | `aliases` | array | Other names: `{ type, name, script? }`. `type` is `nickname`, `formerName`, `otherScript`, `other`, or any label. On update, the list replaces all stored other names. |
-| `customFieldValues` | array | `{ templateId, value }` pairs for typed custom field templates. |
+| `customFieldValues` | array | `{ templateId, value }` pairs for typed custom field templates. Each value must match its template's type (see [stored value formats](/features/custom-fields/#stored-value-formats)); a PERSON value must be the ID of another of your people. |
 
 ```bash
 curl -X POST https://your-instance.example.com/api/people \

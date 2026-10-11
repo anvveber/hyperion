@@ -5,6 +5,7 @@ import { apiResponse, handleApiError, parseRequestBody, withAuth } from '@/lib/a
 import { sanitizeName } from '@/lib/sanitize';
 import { canCreateResource } from '@/lib/billing';
 import { deriveSlug } from '@/lib/customFields/slug';
+import { usesOptions } from '@/lib/customFields/values';
 
 // GET /api/custom-field-templates - List all custom field templates for the current user
 export const GET = withAuth(async (_request, session) => {
@@ -72,7 +73,7 @@ export const POST = withAuth(async (request, session) => {
         name: sanitizedName,
         slug,
         type,
-        options: options ?? [],
+        options: usesOptions(type) ? options ?? [] : [],
         order,
       },
       include: {

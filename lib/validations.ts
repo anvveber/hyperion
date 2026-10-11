@@ -151,7 +151,9 @@ const customFieldSchema = z.object({
 // Custom field schemas
 // ============================================
 
-export const customFieldTypeSchema = z.enum(['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT']);
+export const CUSTOM_FIELD_TYPES = ['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'DATE', 'URL', 'MULTI_SELECT', 'PERSON'] as const;
+
+export const customFieldTypeSchema = z.enum(CUSTOM_FIELD_TYPES);
 
 const optionSchema = z
   .string()
@@ -166,8 +168,10 @@ export const customFieldTemplateCreateSchema = z
     options: z.array(optionSchema).max(50, 'Up to 50 options').optional(),
   })
   .refine(
-    (val) => val.type !== 'SELECT' || (val.options && val.options.length > 0),
-    { message: 'At least one option is required for single-select fields', path: ['options'] }
+    (val) =>
+      (val.type !== 'SELECT' && val.type !== 'MULTI_SELECT') ||
+      (val.options && val.options.length > 0),
+    { message: 'At least one option is required for select fields', path: ['options'] }
   );
 
 export const customFieldTemplateUpdateSchema = z
@@ -649,7 +653,7 @@ export const importDataSchema = z.object({
   customFieldTemplates: z.array(z.object({
     name: z.string(),
     slug: z.string(),
-    type: z.enum(['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT']),
+    type: customFieldTypeSchema,
     options: z.array(z.string()).optional(),
     order: z.number().optional(),
   })).optional(),

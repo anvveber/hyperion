@@ -1,9 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CustomFieldType } from '@prisma/client';
 import { TemplateWithCount } from './CustomFieldsManager';
-import CustomFieldTemplateForm from './CustomFieldTemplateForm';
+import CustomFieldTemplateForm, { TYPE_LABEL_KEYS } from './CustomFieldTemplateForm';
 
 interface CustomFieldTemplateRowProps {
   template: TemplateWithCount;
@@ -17,13 +16,6 @@ interface CustomFieldTemplateRowProps {
   onSaved: () => void;
   onCancel: () => void;
 }
-
-const TYPE_LABEL_KEYS: Record<CustomFieldType, string> = {
-  TEXT: 'typeText',
-  NUMBER: 'typeNumber',
-  BOOLEAN: 'typeBoolean',
-  SELECT: 'typeSelect',
-};
 
 export default function CustomFieldTemplateRow({
   template,

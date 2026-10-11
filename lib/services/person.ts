@@ -986,6 +986,16 @@ export async function mergePeople(
       data: { personId: targetId },
     });
 
+    // (d3) PERSON custom fields that linked to the source now link to the
+    // target. A link the target would hold to itself is dropped.
+    await tx.personCustomFieldValue.updateMany({
+      where: { value: sourceId, template: { userId, type: 'PERSON' } },
+      data: { value: targetId },
+    });
+    await tx.personCustomFieldValue.deleteMany({
+      where: { personId: targetId, value: targetId, template: { type: 'PERSON' } },
+    });
+
     // (e) Delete source's CardDAV mapping
     await tx.cardDavMapping.deleteMany({ where: { personId: sourceId } });
 

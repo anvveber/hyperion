@@ -12,6 +12,7 @@ import PersonAvatar from './PersonPhoto';
 import { formatCanonicalName, type NameDisplayFormat } from '@/lib/nameUtils';
 import { formatDate, parseCalendarDate, type DateFormat } from '@/lib/date-format';
 import CustomFieldFilter from './customFields/CustomFieldFilter';
+import type { LinkablePerson } from './customFields/CustomFieldsSection';
 import type { CustomFieldTemplate } from '@prisma/client';
 
 interface PersonRow {
@@ -56,6 +57,8 @@ interface PeopleListClientProps {
   availableGroups: Group[];
   relationshipTypes: RelationshipType[];
   customFieldTemplates: CustomFieldTemplate[];
+  /** People a PERSON custom field filter can pick from */
+  linkablePeople?: LinkablePerson[];
   nameOrder?: 'WESTERN' | 'EASTERN';
   nameDisplayFormat?: NameDisplayFormat;
   translations: {
@@ -138,6 +141,7 @@ export default function PeopleListClient({
   availableGroups,
   relationshipTypes,
   customFieldTemplates,
+  linkablePeople = [],
   nameOrder,
   nameDisplayFormat,
   translations: tt,
@@ -328,6 +332,9 @@ export default function PeopleListClient({
           </select>
           <CustomFieldFilter
             templates={customFieldTemplates}
+            people={linkablePeople}
+            nameOrder={nameOrder}
+            nameDisplayFormat={nameDisplayFormat}
             current={cfFilter}
             onChange={(value) => handleFilterChange('cf', value)}
           />

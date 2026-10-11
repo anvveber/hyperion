@@ -573,11 +573,19 @@ export const POST = withAuth(async (request, session) => {
         const validation = validateRawValue(template.type, cfv.value, template.options);
         if (!validation.ok) continue; // invalid value — skip silently
 
+        // PERSON values hold the exported person ID: point them at the imported copy
+        let value = cfv.value;
+        if (template.type === 'PERSON') {
+          const linkedId = personIdMap.get(cfv.value);
+          if (!linkedId) continue; // linked person not part of this import
+          value = linkedId;
+        }
+
         // Upsert the value honoring the [personId, templateId] unique constraint
         await prisma.personCustomFieldValue.upsert({
           where: { personId_templateId: { personId: newPersonId, templateId: template.id } },
-          create: { personId: newPersonId, templateId: template.id, value: cfv.value },
-          update: { value: cfv.value },
+          create: { personId: newPersonId, templateId: template.id, value },
+          update: { value },
         });
       }
     }

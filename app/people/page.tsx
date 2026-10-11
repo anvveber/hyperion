@@ -64,7 +64,7 @@ export default async function PeoplePage({
     relationshipToUserId?: string | null;
     customFieldValues?: {
       some: {
-        value: { equals: string; mode: 'insensitive' };
+        value: { equals: string; mode?: 'insensitive' } | { contains: string };
         template: { slug: string; userId: string; deletedAt: null };
       };
     };
@@ -86,13 +86,25 @@ export default async function PeoplePage({
   }
 
   if (cfFilter) {
-    // Case-insensitive match. Harmless for NUMBER ("42" == "42"), BOOLEAN
-    // ("true"/"false" are lowercase), and SELECT (dropdown values match the
-    // stored option's exact casing). For TEXT, this lets users find values
-    // without remembering the exact casing.
+    const filterTemplate = await prisma.customFieldTemplate.findFirst({
+      where: { userId: session.user.id, slug: cfFilter.slug, deletedAt: null },
+      select: { type: true },
+    });
+    // Multi-select values are JSON lists, so match the quoted option inside
+    // the list. Person links match the linked person's id exactly. Everything
+    // else is a case-insensitive match: harmless for NUMBER ("42" == "42"),
+    // BOOLEAN ("true"/"false" are lowercase), DATE (YYYY-MM-DD) and SELECT
+    // (dropdown values match the stored option's exact casing). For TEXT and
+    // URL, this lets users find values without remembering the exact casing.
+    const valueMatch =
+      filterTemplate?.type === 'MULTI_SELECT'
+        ? { contains: JSON.stringify(cfFilter.value) }
+        : filterTemplate?.type === 'PERSON'
+          ? { equals: cfFilter.value }
+          : { equals: cfFilter.value, mode: 'insensitive' as const };
     peopleWhere.customFieldValues = {
       some: {
-        value: { equals: cfFilter.value, mode: 'insensitive' },
+        value: valueMatch,
         template: {
           slug: cfFilter.slug,
           userId: session.user.id,
@@ -138,6 +150,15 @@ export default async function PeoplePage({
       orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
     }),
   ]);
+
+  // A PERSON filter is picked from all of the user's people, not just this page
+  const linkablePeople = customFieldTemplates.some((tpl) => tpl.type === 'PERSON')
+    ? await prisma.person.findMany({
+        where: { userId: session.user.id, deletedAt: null },
+        select: { id: true, name: true, surname: true, nickname: true, displayNameOverride: true },
+        orderBy: { name: 'asc' },
+      })
+    : [];
 
   // Sort the people based on sortBy and order
   const sortedPeople = [...allPeople].sort((a, b) => {
@@ -273,6 +294,7 @@ export default async function PeoplePage({
                 availableGroups={allGroups}
                 relationshipTypes={relationshipTypes}
                 customFieldTemplates={customFieldTemplates}
+                linkablePeople={linkablePeople}
                 nameOrder={nameOrder}
                 nameDisplayFormat={nameDisplayFormat}
                 translations={{

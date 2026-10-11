@@ -1030,6 +1030,10 @@ enum CustomFieldType {
   NUMBER
   BOOLEAN
   SELECT
+  DATE
+  URL
+  MULTI_SELECT
+  PERSON
 }
 
 // PersonCustomFieldValue - Per-person value for a CustomFieldTemplate

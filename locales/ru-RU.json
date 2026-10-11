@@ -92,6 +92,10 @@
         "label": "Имя пользователя",
         "placeholder": "Имя пользователя или ID на платформе"
       },
+      "customFields": {
+        "label": "Пользовательские поля",
+        "placeholder": "Любое значение поля или имя связанного человека"
+      },
       "keywords": {
         "label": "Ключевые слова в заметках",
         "placeholder": "Слова из их заметок"
@@ -952,6 +956,10 @@
       "typeNumber": "Число",
       "typeBoolean": "Да / Нет",
       "typeSelect": "Выбор из списка",
+      "typeMultiSelect": "Множественный выбор",
+      "typeDate": "Дата",
+      "typeUrl": "Ссылка",
+      "typePerson": "Человек",
       "typeLockedNotice": "Тип нельзя изменить после создания.",
       "optionsLabel": "Варианты",
       "optionPlaceholder": "Вариант",
@@ -985,7 +993,10 @@
       "booleanNo": "Нет",
       "booleanNotSet": "Не задано",
       "selectEmpty": "-",
-      "valueOutOfOptions": "Это значение больше не входит в варианты поля."
+      "valueOutOfOptions": "Это значение больше не входит в варианты поля.",
+      "personPlaceholder": "Найти человека...",
+      "clearPerson": "Очистить",
+      "linkedPersonMissing": "Связанного человека больше нет"
     },
     "filter": {
       "moreFilters": "Больше фильтров",

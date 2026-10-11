@@ -92,6 +92,10 @@
         "label": "Identifiant",
         "placeholder": "Nom d'utilisateur ou ID de la plateforme"
       },
+      "customFields": {
+        "label": "Champs personnalisés",
+        "placeholder": "N'importe quelle valeur de champ ou le nom d'une personne liée"
+      },
       "keywords": {
         "label": "Mots-clés dans les notes",
         "placeholder": "Mots présents dans leurs notes"
@@ -952,6 +956,10 @@
       "typeNumber": "Nombre",
       "typeBoolean": "Oui / Non",
       "typeSelect": "Choix unique",
+      "typeMultiSelect": "Choix multiple",
+      "typeDate": "Date",
+      "typeUrl": "Lien",
+      "typePerson": "Personne",
       "typeLockedNotice": "Le type ne peut pas être modifié après la création.",
       "optionsLabel": "Options",
       "optionPlaceholder": "Option",
@@ -985,7 +993,10 @@
       "booleanNo": "Non",
       "booleanNotSet": "Non renseigné",
       "selectEmpty": "-",
-      "valueOutOfOptions": "Cette valeur ne fait plus partie des options du champ."
+      "valueOutOfOptions": "Cette valeur ne fait plus partie des options du champ.",
+      "personPlaceholder": "Rechercher une personne...",
+      "clearPerson": "Retirer",
+      "linkedPersonMissing": "La personne liée n'existe plus"
     },
     "filter": {
       "moreFilters": "Plus de filtres",

@@ -23,6 +23,7 @@ const emptyFilters: AdvancedSearchFilters = {
   email: '',
   phone: '',
   handle: '',
+  customFields: '',
   keywords: '',
   previous: false,
 };
@@ -228,6 +229,19 @@ describe('advanced search', () => {
     });
   });
 
+  describe('custom fields filter', () => {
+    const withFields = person({ id: 'cf', customFieldTexts: ['Vegan, Gluten free', 'Ana Pérez'] });
+    const without = person({ id: 'none' });
+
+    it('matches any part of any custom field text, ignoring case and accents', () => {
+      const run = (customFields: string) =>
+        filterAdvancedSearch([withFields, without], { ...emptyFilters, customFields }).map((r) => r.id);
+      expect(run('gluten')).toEqual(['cf']);
+      expect(run('perez')).toEqual(['cf']);
+      expect(run('keto')).toEqual([]);
+    });
+  });
+
   describe('advancedSearchPeople', () => {
     beforeEach(() => {
       vi.clearAllMocks();
@@ -247,6 +261,29 @@ describe('advanced search', () => {
       );
       expect(result.total).toBe(1);
       expect(result.results[0].id).toBe('john');
+    });
+
+    it('searches PERSON fields by the linked person\'s name and multi-selects by option', async () => {
+      mocks.personFindMany.mockResolvedValue([
+        person({
+          id: 'a',
+          name: 'Ana',
+          surname: 'Pérez',
+        }),
+        {
+          ...person({ id: 'b', name: 'Ben' }),
+          customFieldValues: [
+            { value: 'a', template: { type: 'PERSON' } },
+            { value: '["Vegan"]', template: { type: 'MULTI_SELECT' } },
+          ],
+        },
+      ]);
+
+      const byName = await advancedSearchPeople('user1', { ...emptyFilters, customFields: 'perez' });
+      expect(byName.results.map((r) => r.id)).toEqual(['b']);
+
+      const byOption = await advancedSearchPeople('user1', { ...emptyFilters, customFields: 'vegan' });
+      expect(byOption.results.map((r) => r.id)).toEqual(['b']);
     });
   });
 });

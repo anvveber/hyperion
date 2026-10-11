@@ -61,6 +61,28 @@ export async function validateCustomFieldValues(
       throw new CustomFieldValidationError(`${template.name}: ${result.error}`);
     }
   }
+
+  // PERSON values must point at one of the user's own, non-deleted people
+  const linkedIds = Array.from(
+    new Set(
+      inputs
+        .filter((input) => byId.get(input.templateId)?.type === 'PERSON')
+        .map((input) => input.value)
+    )
+  );
+  if (linkedIds.length > 0) {
+    const found = await prisma.person.findMany({
+      where: { id: { in: linkedIds }, userId, deletedAt: null },
+      select: { id: true },
+    });
+    const foundIds = new Set(found.map((p) => p.id));
+    for (const input of inputs) {
+      const template = byId.get(input.templateId);
+      if (template?.type === 'PERSON' && !foundIds.has(input.value)) {
+        throw new CustomFieldValidationError(`${template.name}: NOT_A_PERSON`);
+      }
+    }
+  }
 }
 
 /**

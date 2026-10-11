@@ -24,7 +24,7 @@ import ImportantDatesManager from '../ImportantDatesManager';
 import MarkdownEditor from '../MarkdownEditor';
 import { Button } from '../ui/Button';
 import CardDavSyncSection from './CardDavSyncSection';
-import CustomFieldsSection from '../customFields/CustomFieldsSection';
+import CustomFieldsSection, { type LinkablePerson } from '../customFields/CustomFieldsSection';
 import type { CustomFieldTemplate } from '@prisma/client';
 import { useSearchIndex } from '@/components/SearchIndexProvider';
 import { isHeicFile, convertHeicToJpeg } from '@/lib/photo-client';
@@ -121,6 +121,8 @@ export interface PersonFormProps {
     }>;
   };
   customFieldTemplates?: CustomFieldTemplate[];
+  /** People that PERSON custom fields can link to */
+  linkablePeople?: LinkablePerson[];
   groups: Array<{
     id: string;
     name: string;
@@ -166,6 +168,7 @@ export interface PersonFormProps {
 export default function PersonForm({
   person,
   customFieldTemplates = [],
+  linkablePeople = [],
   groups,
   relationshipTypes,
   availablePeople = [],
@@ -577,6 +580,8 @@ export default function PersonForm({
             templates={customFieldTemplates}
             values={customFieldValues}
             onChange={setCustomFieldValues}
+            people={linkablePeople}
+            nameOrder={nameOrder}
           />
         </Section>
       )}
