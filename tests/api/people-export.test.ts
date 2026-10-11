@@ -77,6 +77,7 @@ const basePerson = {
   imHandles: [],
   aliases: [],
   fieldHistory: [],
+  documents: [],
   locations: [],
   customFields: [],
   customFieldValues: [],

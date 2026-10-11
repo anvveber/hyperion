@@ -677,61 +677,73 @@ curl -X DELETE https://your-instance.example.com/api/people/clx1/photo \
 { "message": "Photo deleted" }
 ```
 
-## Image folder
+## Document folder
 
-Each person has a folder of images separate from their profile photo.
+Each person has a folder of files of any type (images, PDFs, video, anything else). Files are stored by their SHA-256 hash, so the same file is kept on disk once per account.
 
-### List a person's images
+### List a person's documents
 
 ```
-GET /api/people/{id}/images
+GET /api/people/{id}/documents
 ```
 
-Returns the images newest first.
+Returns the documents newest first. `width` and `height` are set for images and `null` otherwise.
 
 ```bash
-curl https://your-instance.example.com/api/people/clx1/images \
+curl https://your-instance.example.com/api/people/clx1/documents \
   -H "Authorization: Bearer ntag_xxx"
 ```
 
 ```json
 {
-  "images": [
-    { "id": "6f1c0a9e2b7d4c3a1e5f8b20", "width": 2560, "height": 1707, "size": 734120, "createdAt": "2026-10-10T19:00:00.000Z" }
+  "documents": [
+    {
+      "id": "clx9doc1",
+      "originalName": "lease.pdf",
+      "mimeType": "application/pdf",
+      "size": 184320,
+      "width": null,
+      "height": null,
+      "hasThumbnail": false,
+      "createdAt": "2026-10-11T12:00:00.000Z"
+    }
   ]
 }
 ```
 
-### Add an image
+### Add a document
 
 ```
-POST /api/people/{id}/images
+POST /api/people/{id}/documents
 ```
 
-`multipart/form-data` with an `image` field holding one JPEG, PNG, GIF or WebP file (up to 50 MB). The image is auto-rotated, stripped of EXIF data and scaled down to at most 2560px on the long side, and a 400x400 thumbnail is made. Convert HEIC/HEIF files with `POST /api/photos/convert` first. A person can hold up to 500 images. Returns `201` with the new image.
+`multipart/form-data` with a `file` field holding one file of any type, up to 200 MB. The file is stored as uploaded and its name is kept. The type is detected from the content. Images (JPEG, PNG, GIF, WebP, AVIF) get a 400x400 thumbnail. A person can hold up to 1000 documents.
+
+Returns `201` with `{ "document": {...}, "duplicate": false }`. If this person already has a file with the same content, nothing is added and the response is `200` with the existing entry and `"duplicate": true`.
 
 ```bash
-curl -X POST https://your-instance.example.com/api/people/clx1/images \
+curl -X POST https://your-instance.example.com/api/people/clx1/documents \
   -H "Authorization: Bearer ntag_xxx" \
-  -F "image=@trip.jpg"
+  -F "file=@lease.pdf"
 ```
 
-### Get an image file
+### Get a document file
 
 ```
-GET /api/people/{id}/images/{imageId}
-GET /api/people/{id}/images/{imageId}?size=thumb
+GET /api/people/{id}/documents/{documentId}
+GET /api/people/{id}/documents/{documentId}?size=thumb
+GET /api/people/{id}/documents/{documentId}?download=1
 ```
 
-Returns the image bytes (`image/jpeg` or `image/png`). Add `size=thumb` for the thumbnail.
+Returns the file with its detected `Content-Type`. Images, PDF, common video and audio formats and plain text are sent inline; other types are sent as attachments. `download=1` always sends an attachment. `size=thumb` returns the thumbnail (JPEG or PNG), or `404` when the document has none. A single `Range` header is supported (`206 Partial Content`, or `416` when the range is outside the file), so video and audio can be seeked.
 
-### Delete an image
+### Delete a document
 
 ```
-DELETE /api/people/{id}/images/{imageId}
+DELETE /api/people/{id}/documents/{documentId}
 ```
 
-Removes the image and its files from disk.
+Removes the document. The file on disk is deleted once no other document in the account uses the same content.
 
 ```json
 { "success": true }

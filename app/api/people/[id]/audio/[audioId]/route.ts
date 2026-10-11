@@ -5,6 +5,7 @@ import {
   openPersonAudioFile,
   parseRangeHeader,
 } from '@/lib/person-audio-storage';
+import { contentDisposition } from '@/lib/file-range';
 import { createModuleLogger } from '@/lib/logger';
 
 const log = createModuleLogger('people-audio');
@@ -18,12 +19,6 @@ async function findAudio(userId: string, personId: string, audioId: string) {
     },
     select: { id: true, filename: true, originalName: true },
   });
-}
-
-// Content-Disposition value that keeps non-ASCII filenames intact (RFC 6266)
-function contentDisposition(type: 'inline' | 'attachment', filename: string): string {
-  const fallback = filename.replace(/[^\x20-\x7e]/g, '_').replace(/["\\]/g, '_');
-  return `${type}; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`;
 }
 
 // GET /api/people/[id]/audio/[audioId] - Stream a recording (supports Range; ?download=1 to save it)

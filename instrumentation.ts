@@ -15,5 +15,12 @@ export async function register() {
     } catch (error) {
       log.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'Redis initialization failed');
     }
+
+    // Move files from the old per-person image folder into the document store.
+    // Not awaited: old files keep being served from their old place meanwhile.
+    const { migrateLegacyImages } = await import('./lib/person-documents');
+    migrateLegacyImages().catch((error: unknown) => {
+      log.error({ err: error instanceof Error ? error : new Error(String(error)) }, 'Moving old image folder files failed');
+    });
   }
 }

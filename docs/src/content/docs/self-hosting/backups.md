@@ -52,7 +52,7 @@ docker compose exec db pg_dump -U ${DB_USER} -d ${DB_NAME} > nametag_backup_$(da
 
 ## Backing up photos
 
-Uploaded photos, image folders and audio recordings live in the `photo_data` Docker volume, mounted at `/app/data/photos` inside the `app` container. Back up the volume itself:
+Uploaded photos, document folders and audio recordings live in the `photo_data` Docker volume, mounted at `/app/data/photos` inside the `app` container. Back up the volume itself:
 
 ```bash
 docker run --rm \

@@ -13,7 +13,7 @@ It is a personal fork of [Nametag](https://github.com/mattogodoy/nametag) by Mat
 - **Advanced search**: a Search page with separate fields for name, location, email, phone and words in notes. Filters combine, match partially, and ignore case and accents. Phone search ignores formatting.
 - **Admin-managed accounts**: the first account created on a fresh instance becomes the admin, and public signup closes after that. The admin adds, resets, promotes and deletes accounts in Settings > Users.
 - **Single-person JSON export**: download one person's full profile as JSON from the person's menu, next to the existing whole-account export.
-- **Image folder per person**: a gallery for each person, separate from the profile photo, with a full-size viewer.
+- **Document folder per person**: photos, PDFs, videos or any other file for each person, separate from the profile photo. Images get thumbnails, PDFs and videos open in the browser, and identical files are stored once.
 - **Audio folder per person**: upload and play MP3 recordings. Files named `YYMMDD_HHMM.mp3` are dated automatically.
 - **Handles and field history**: several messaging handles per platform with platform user IDs, other names (former names, other alphabets), and a history of old values (names, numbers, addresses, websites, handles) with editable dates.
 - **Calendar**: a month view of all important dates, with an `.ics` download for Google Calendar, Apple Calendar, Outlook or Thunderbird.

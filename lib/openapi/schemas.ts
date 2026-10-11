@@ -385,16 +385,19 @@ export function sharedSchemas(): Record<string, unknown> {
       },
       required: ['id', 'personId', 'type', 'url'],
     },
-    PersonImage: {
+    PersonDocument: {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        width: { type: 'integer', description: 'Stored width in pixels' },
-        height: { type: 'integer', description: 'Stored height in pixels' },
-        size: { type: 'integer', description: 'Stored file size in bytes' },
+        originalName: { type: 'string', description: 'Filename as uploaded' },
+        mimeType: { type: 'string', description: 'Type detected from the file content' },
+        size: { type: 'integer', description: 'File size in bytes' },
+        width: { type: ['integer', 'null'], description: 'Image width in pixels, null for other files' },
+        height: { type: ['integer', 'null'], description: 'Image height in pixels, null for other files' },
+        hasThumbnail: { type: 'boolean', description: 'Whether `?size=thumb` returns a thumbnail' },
         createdAt: { type: 'string', format: 'date-time' },
       },
-      required: ['id', 'width', 'height', 'size', 'createdAt'],
+      required: ['id', 'originalName', 'mimeType', 'size', 'width', 'height', 'hasThumbnail', 'createdAt'],
     },
     PersonAudio: {
       type: 'object',

@@ -173,6 +173,11 @@ vi.mock('../../lib/prisma', () => ({
 }));
 
 // Mock auth
+// Document folders touch the database and disk; covered in tests/lib/person-documents.test.ts
+vi.mock('../../lib/person-documents', () => ({
+  removeAllPersonDocuments: vi.fn(),
+}));
+
 vi.mock('../../lib/auth', () => ({
   auth: vi.fn(() =>
     Promise.resolve({

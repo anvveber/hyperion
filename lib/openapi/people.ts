@@ -761,21 +761,21 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
       },
     },
 
-    // Image folder (person-specific)
-    '/api/people/{id}/images': {
+    // Document folder (person-specific)
+    '/api/people/{id}/documents': {
       get: {
         tags: ['Photos'],
-        summary: "List a person's images",
-        description: "Returns the images in a person's image folder, newest first.",
+        summary: "List a person's documents",
+        description: "Returns the files in a person's document folder, newest first.",
         security: sessionOrToken(),
         parameters: [pathParam('id', 'Person ID')],
         responses: {
-          '200': jsonResponse('Image list', {
+          '200': jsonResponse('Document list', {
             type: 'object',
             properties: {
-              images: { type: 'array', items: { $ref: '#/components/schemas/PersonImage' } },
+              documents: { type: 'array', items: { $ref: '#/components/schemas/PersonDocument' } },
             },
-            required: ['images'],
+            required: ['documents'],
           }),
           '401': ref401(),
           '404': ref404(),
@@ -783,11 +783,13 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
       },
       post: {
         tags: ['Photos'],
-        summary: "Add an image to a person's folder",
+        summary: "Add a file to a person's document folder",
         description:
-          'Upload one image (JPEG, PNG, GIF or WebP, up to 50MB). The image is auto-rotated, EXIF data is stripped, ' +
-          'it is scaled down to at most 2560px on the long side, and a 400x400 thumbnail is generated. ' +
-          'HEIC/HEIF files should be converted first with `POST /api/photos/convert`. A person can hold up to 500 images.',
+          'Upload one file of any type, up to 200MB. The file is stored as uploaded and named by its SHA-256 hash, ' +
+          'so identical files are kept on disk once per account. Images (JPEG, PNG, GIF, WebP, AVIF) get a 400x400 thumbnail. ' +
+          'Uploading a file this person already has returns the existing entry with `duplicate: true` and status 200. ' +
+          'The type is detected from the file content; the browser-supplied type is only used for formats that are not recognised. ' +
+          'A person can hold up to 1000 documents.',
         security: sessionOrToken(),
         parameters: [pathParam('id', 'Person ID')],
         requestBody: {
@@ -797,60 +799,90 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
               schema: {
                 type: 'object',
                 properties: {
-                  image: { type: 'string', format: 'binary', description: 'Image file' },
+                  file: { type: 'string', format: 'binary', description: 'The file; its name is kept as originalName' },
                 },
-                required: ['image'],
+                required: ['file'],
               },
             },
           },
         },
         responses: {
-          '201': jsonResponse('Image added', {
+          '200': jsonResponse('The person already has this file', {
             type: 'object',
-            properties: { image: { $ref: '#/components/schemas/PersonImage' } },
-            required: ['image'],
+            properties: {
+              document: { $ref: '#/components/schemas/PersonDocument' },
+              duplicate: { type: 'boolean', const: true },
+            },
+            required: ['document', 'duplicate'],
           }),
-          '400': resp('Validation error, invalid image or folder full'),
+          '201': jsonResponse('Document added', {
+            type: 'object',
+            properties: {
+              document: { $ref: '#/components/schemas/PersonDocument' },
+              duplicate: { type: 'boolean', const: false },
+            },
+            required: ['document', 'duplicate'],
+          }),
+          '400': resp('Validation error, empty or too large file, or folder full'),
           '401': ref401(),
           '404': ref404(),
         },
       },
     },
-    '/api/people/{id}/images/{imageId}': {
+    '/api/people/{id}/documents/{documentId}': {
       get: {
         tags: ['Photos'],
-        summary: 'Get an image file',
-        description: 'Serves the stored image. Pass `size=thumb` for the thumbnail.',
+        summary: 'Get a document file',
+        description:
+          'Serves the stored file with its detected Content-Type. Supports a single HTTP Range for seeking in video and audio. ' +
+          'Images, PDF, common video and audio formats and plain text are served inline; everything else as an attachment. ' +
+          'Pass `size=thumb` for an image thumbnail, or `download=1` to always get an attachment.',
         security: sessionOrToken(),
         parameters: [
           pathParam('id', 'Person ID'),
-          pathParam('imageId', 'Image ID'),
+          pathParam('documentId', 'Document ID'),
           {
             name: 'size',
             in: 'query',
             required: false,
             schema: { type: 'string', enum: ['thumb'] },
-            description: 'Return the thumbnail instead of the full image',
+            description: 'Return the thumbnail (JPEG or PNG) instead of the file. 404 when the document has none.',
+          },
+          {
+            name: 'download',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['1'] },
+            description: 'Serve with Content-Disposition: attachment',
+          },
+          {
+            name: 'Range',
+            in: 'header',
+            required: false,
+            schema: { type: 'string', example: 'bytes=0-1048575' },
+            description: 'Single byte range',
           },
         ],
         responses: {
           '200': {
-            description: 'Image file',
-            content: {
-              'image/jpeg': { schema: { type: 'string', format: 'binary' } },
-              'image/png': { schema: { type: 'string', format: 'binary' } },
-            },
+            description: 'The whole file',
+            content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
+          },
+          '206': {
+            description: 'Part of the file (Range request)',
+            content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
           },
           '401': ref401(),
-          '404': resp('Image not found'),
+          '404': resp('Document not found'),
+          '416': resp('Range outside the file'),
         },
       },
       delete: {
         tags: ['Photos'],
-        summary: "Delete an image from a person's folder",
-        description: 'Removes the image record and its files from disk.',
+        summary: "Delete a file from a person's document folder",
+        description: 'Removes the document entry. The file on disk is deleted once no other document in the account uses the same content.',
         security: sessionOrToken(),
-        parameters: [pathParam('id', 'Person ID'), pathParam('imageId', 'Image ID')],
+        parameters: [pathParam('id', 'Person ID'), pathParam('documentId', 'Document ID')],
         responses: {
           '200': refSuccess(),
           '401': ref401(),
