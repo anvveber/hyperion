@@ -1756,6 +1756,27 @@
         "url": "Website",
         "im": "Gebruikersnaam"
       }
+    },
+    "visits": {
+      "title": "Locatiegeschiedenis",
+      "description": "Plaatsen waar deze persoon is geweest, wanneer en waarom.",
+      "addVisit": "Bezoek vastleggen",
+      "date": "Datum",
+      "location": "Locatie",
+      "locationPlaceholder": "Waar diegene naartoe ging",
+      "motivation": "Reden",
+      "motivationPlaceholder": "Waarom (optioneel)",
+      "unknownDate": "Datum onbekend",
+      "add": "Toevoegen",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "edit": "Bewerken",
+      "delete": "Verwijderen",
+      "confirmDelete": "Dit bezoek verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "added": "Bezoek toegevoegd",
+      "saved": "Bezoek bijgewerkt",
+      "deleted": "Bezoek verwijderd",
+      "error": "Er ging iets mis. Probeer het opnieuw."
     }
   },
   "groups": {

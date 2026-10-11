@@ -1756,6 +1756,27 @@
         "url": "Sitio web",
         "im": "Usuario"
       }
+    },
+    "visits": {
+      "title": "Historial de lugares",
+      "description": "Lugares a los que fue esta persona, cuándo y por qué.",
+      "addVisit": "Registrar una visita",
+      "date": "Fecha",
+      "location": "Lugar",
+      "locationPlaceholder": "Adónde fue",
+      "motivation": "Motivo",
+      "motivationPlaceholder": "Por qué fue (opcional)",
+      "unknownDate": "Fecha desconocida",
+      "add": "Añadir",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "confirmDelete": "¿Eliminar esta visita? No se puede deshacer.",
+      "added": "Visita añadida",
+      "saved": "Visita actualizada",
+      "deleted": "Visita eliminada",
+      "error": "Algo salió mal. Inténtalo de nuevo."
     }
   },
   "groups": {

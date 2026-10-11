@@ -936,9 +936,10 @@ export async function mergePeople(
       }
     }
 
-    // (b2) Other names and field history move over as a whole
+    // (b2) Other names, field history and location history move over as a whole
     await tx.personAlias.updateMany({ where: { personId: sourceId }, data: { personId: targetId } });
     await tx.personFieldHistory.updateMany({ where: { personId: sourceId }, data: { personId: targetId } });
+    await tx.personVisit.updateMany({ where: { personId: sourceId }, data: { personId: targetId } });
 
     // (c) Transfer groups
     if (newGroupIds.length > 0) {

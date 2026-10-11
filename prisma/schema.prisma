@@ -131,6 +131,7 @@ model Person {
   audio              PersonAudio[]
   aliases            PersonAlias[]
   fieldHistory       PersonFieldHistory[]
+  visits             PersonVisit[]
 
   @@index([userId])
   @@index([relationshipToUserId])
@@ -780,6 +781,23 @@ model PersonFieldHistory {
 
   @@index([personId, field])
   @@map("person_field_history")
+}
+
+// PersonVisit - Location history: places a person went, when and why
+model PersonVisit {
+  id         String    @id @default(cuid())
+  personId   String
+  date       DateTime? // Calendar date of the visit (stored as UTC midnight), null when unknown
+  location   String
+  motivation String?   @db.Text // Why they went there
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, date])
+  @@map("person_visits")
 }
 
 // PersonLocation - Geographic locations (GEO property)

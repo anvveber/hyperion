@@ -481,6 +481,19 @@ export const POST = withAuth(async (request, session) => {
           });
         }
 
+        if (person.visits?.length) {
+          await prisma.personVisit.createMany({
+            data: person.visits
+              .filter((v) => v.location.trim().length > 0)
+              .map((v) => ({
+                personId,
+                date: parseImportDate(v.date),
+                location: v.location.trim().slice(0, 200),
+                motivation: v.motivation?.trim() || null,
+              })),
+          });
+        }
+
         if (person.locations?.length) {
           await prisma.personLocation.createMany({
             data: person.locations.map((l) => ({

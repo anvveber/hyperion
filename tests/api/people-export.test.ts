@@ -77,6 +77,7 @@ const basePerson = {
   imHandles: [],
   aliases: [],
   fieldHistory: [],
+  visits: [{ date: new Date('2025-03-12T00:00:00.000Z'), location: 'Lisbon', motivation: 'Wedding' }],
   locations: [],
   customFields: [],
   customFieldValues: [],
@@ -135,6 +136,7 @@ describe('GET /api/people/[id]/export', () => {
       },
     ]);
     expect(body.person.phoneNumbers).toEqual([{ type: 'mobile', number: '+44 123' }]);
+    expect(body.person.visits).toEqual([{ date: '2025-03-12', location: 'Lisbon', motivation: 'Wedding' }]);
     expect(body.person.createdAt).toBe('2024-01-01T00:00:00.000Z');
     expect(body.journalEntries.map((e: { id: string }) => e.id)).toEqual(['j-new', 'j-old']);
     expect(body.journalEntries[0].peopleIds).toEqual(['person-1']);

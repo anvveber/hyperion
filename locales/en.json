@@ -1756,6 +1756,27 @@
         "url": "Website",
         "im": "Handle"
       }
+    },
+    "visits": {
+      "title": "Location history",
+      "description": "Places this person went, when, and why.",
+      "addVisit": "Log a visit",
+      "date": "Date",
+      "location": "Location",
+      "locationPlaceholder": "Where they went",
+      "motivation": "Motivation",
+      "motivationPlaceholder": "Why they went (optional)",
+      "unknownDate": "Date unknown",
+      "add": "Add",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete this visit? This cannot be undone.",
+      "added": "Visit added",
+      "saved": "Visit updated",
+      "deleted": "Visit deleted",
+      "error": "Something went wrong. Please try again."
     }
   },
   "groups": {
