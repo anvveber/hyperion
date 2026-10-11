@@ -1,159 +1,104 @@
-# Nametag
+# hyperion
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
-> **⚠️ Active Development Notice**
->
-> Nametag is under active development and may introduce breaking changes between releases. Please read the [release notes](https://github.com/mattogodoy/nametag/releases) carefully before updating to ensure a smooth upgrade process.
+hyperion is a self-hosted personal relationships manager. It keeps track of the people in your life, how they are connected, and the details worth remembering: birthdays, contact info, notes, photos and recordings.
 
-Nametag is a personal relationships manager that helps you remember the people in your life and how they're connected. Track birthdays, contact information, how people are connected, and visualize your network as an interactive graph.
+It is a personal fork of [Nametag](https://github.com/mattogodoy/nametag) by Matto Godoy. It keeps everything Nametag does and adds the features listed below. Inside the app and in the docs folder the name "Nametag" still appears in places.
 
 ![Dashboard](docs/screenshots/dashboard-dark.png)
-_Dashboard with network overview and statistics_
 
-**[Try the hosted version →](https://nametag.one)**
+## What this fork adds
+
+- **Advanced search**: a Search page with separate fields for name, location, email, phone and words in notes. Filters combine, match partially, and ignore case and accents. Phone search ignores formatting.
+- **Admin-managed accounts**: the first account created on a fresh instance becomes the admin, and public signup closes after that. The admin adds, resets, promotes and deletes accounts in Settings > Users.
+- **Single-person JSON export**: download one person's full profile as JSON from the person's menu, next to the existing whole-account export.
+- **Image folder per person**: a gallery for each person, separate from the profile photo, with a full-size viewer.
+- **Audio folder per person**: upload and play MP3 recordings. Files named `YYMMDD_HHMM.mp3` are dated automatically.
+- **Handles and field history**: several messaging handles per platform with platform user IDs, other names (former names, other alphabets), and a history of old values (names, numbers, addresses, websites, handles) with editable dates.
+- **Calendar**: a month view of all important dates, with an `.ics` download for Google Calendar, Apple Calendar, Outlook or Thunderbird.
+- **Console-style UI**: a black-and-white theme with monospace labels and a new eye logo, in dark and light mode.
+- **Map fix**: cluster counts on the map are readable in dark mode.
+- **Android app**: a native app for your own server that runs without Google Play Services (GrapheneOS works). It lives in its own repository, [anvveber/hyperion_mobile](https://github.com/anvveber/hyperion_mobile), and the APK is on its [Releases page](https://github.com/anvveber/hyperion_mobile/releases).
 
 ## Screenshots
 
 <details>
 <summary>View screenshots</summary>
 
-![Dashboard dark theme](docs/screenshots/dashboard-dark.png)
-![Dashboard light theme](docs/screenshots/dashboard-light.png)
-_Main dashboard with a network graph of relationships_
+![Dashboard, light theme](docs/screenshots/dashboard-light.png)
+_Dashboard in the light theme_
 
 ---
 
-![People dark theme](docs/screenshots/people-dark.png)
-![People light theme](docs/screenshots/people-light.png)
-_People list page_
+![People list](docs/screenshots/people-dark.png)
+_People list_
 
 ---
 
-![Groups dark theme](docs/screenshots/groups-dark.png)
-![Groups light theme](docs/screenshots/groups-light.png)
-_Groups page_
+![Person with field history](docs/screenshots/person-history-dark.png)
+_A person with other names, previous values and handles_
 
 ---
 
-![Journal dark theme](docs/screenshots/journal-dark.png)
-![Journal light theme](docs/screenshots/journal-light.png)
-_Journal page_
+![Calendar](docs/screenshots/calendar-dark.png)
+_Calendar with .ics download_
 
 ---
 
-![Relationships dark theme](docs/screenshots/relationships-dark.png)
-![Relationships light theme](docs/screenshots/relationships-light.png)
-_Relationships page_
+![Audio folder](docs/screenshots/audio-folder.png)
+_Audio folder on a person's page_
 
 </details>
 
-## Features
+## Everything else (from Nametag)
 
-- Track people with flexible attributes (name, birthday, important dates, photos, and user-defined custom fields)
-- Map relationships between people with custom relationship types
-- Visualize your network with interactive force-directed graphs
-- Organize contacts into custom groups
-- Interactive map view with geocoded addresses and clustered markers
-- Journal for logging interactions and notes over time
-- Set reminders for important dates and staying in touch
-- CardDAV sync with Google Contacts, iCloud, Outlook, and Nextcloud
-- vCard and JSON import/export
-- Duplicate detection and contact merging
-- Global fuzzy search with accent-insensitive matching
+- People with flexible fields: names, birthdays, important dates, photos and custom fields
+- Relationships between people with custom relationship types, shown as interactive network graphs
+- Groups, a journal, and a map of geocoded addresses
+- Reminders for important dates and for staying in touch, sent by email, web push, ntfy or webhooks
+- CardDAV sync with Google Contacts, iCloud, Outlook and Nextcloud
+- vCard and JSON import and export
+- Duplicate detection and merging, bulk actions, and a trash with restore
+- Quick search with `Ctrl+K` / `Cmd+K` that tolerates typos
 - REST API with OpenAPI documentation and token authentication
-- OIDC / SSO authentication support
-- Installable as a PWA
-- Trash with soft-delete and restore
-- Bulk operations (delete, group assignment, relationships)
-- Messaging app quick links (WhatsApp, Signal, Telegram, and more)
-- Full dark and light theme support
-- Multiple languages (English, Spanish, Japanese, Norwegian, German, Chinese, Italian, Russian, Dutch)
-- Mobile-responsive design
-- Multi-platform Docker support (AMD64 and ARM64)
+- OIDC / SSO login
+- Installable as a PWA, works on phones
+- Dark and light themes
+- Languages: English, Spanish, German, French, Italian, Dutch, Norwegian, Russian, Japanese and Chinese
 
-## Hosted vs Self-Hosted
+## Running it
 
-We offer a hosted version at [nametag.one](https://nametag.one) with a generous free tier and affordable paid plans, which helps fund development. You can also self-host Nametag for free with unlimited contacts and complete data ownership.
-
-See the [installation guide](https://docs.nametag.one/self-hosting/installation/) in the docs to get started with self-hosting.
-
-## Quick Start (Self-Hosted)
+hyperion has no published Docker image, so you build it from this repository. You need Docker with the compose plugin.
 
 ```bash
-mkdir nametag && cd nametag
-# add a docker-compose.yml and .env file (see the installation guide)
+git clone https://github.com/anvveber/hyperion.git
+cd hyperion
+docker build -t hyperion .
+```
+
+Then:
+
+1. Copy `.env.example` to `.env` and fill it in (database password, `NEXTAUTH_SECRET`, `CRON_SECRET`, `REDIS_PASSWORD` and so on).
+2. In `docker-compose.yml`, change the app's `image:` line to `image: hyperion`.
+3. The compose file expects two Docker networks to exist already. Create them once, then start everything:
+
+```bash
+docker network create nametag-network
+docker network create proxy
 docker compose up -d
 ```
 
-Then visit `http://localhost:3000`. For the full installation guide, environment variables, email, OIDC, Redis, and reverse proxy setup, see the docs.
+Open `http://localhost:3000`. The first account you create becomes the admin. Database migrations run automatically when the container starts.
 
-**[Read the full docs →](https://docs.nametag.one)**
+To update later, run `git pull`, build the image again, and run `docker compose up -d`.
 
-## Contributing
+Documentation for configuration, email, OIDC, Redis, reverse proxies, backups and every feature is in [`docs/src/content/docs/`](docs/src/content/docs/).
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get involved, and the [development setup guide](https://docs.nametag.one/contributing/development/) for detailed instructions on running Nametag locally.
+## Development
 
-## Roadmap
-
-ℹ️ _Contributions to any of these items are very welcome! Items that require the most help will have the **[HELP NEEDED]** tag. If you want to contribute to an item that does not have a PR or Issue associated to it, please create it yoursef._
-
-### To do
-
-Future features and improvements, ordered by priority:
-
-- [ ] **[HELP NEEDED]** Mobile app (Native apps for Android and iOS are preferred)
-- [ ] Add support for SQLite databases
-- [ ] Add notification support [[Issue #6](https://github.com/mattogodoy/nametag/issues/6)]
-- [ ] Support multi-user groups [[Issue #37](https://github.com/mattogodoy/nametag/issues/37)]
-- [ ] Immich integration [[Issue #46](https://github.com/mattogodoy/nametag/issues/46)]
-- [ ] **[HELP NEEDED]** Additional language translations (Portuguese, Korean, etc.)
-
-### Done
-
-Features and improvements that have already been implemented:
-
-- [x] ~~UI/UX improvements and accessibility enhancements~~
-- [x] ~~Documentation improvements (API, deployment, functionality, development, etc)~~
-- [x] ~~SMTP support~~ [[Issue #4](https://github.com/mattogodoy/nametag/issues/4), [PR #21](https://github.com/mattogodoy/nametag/pull/21)]
-- [x] ~~Option to disable registration~~ [[Issue #9](https://github.com/mattogodoy/nametag/issues/9), [PR #17](https://github.com/mattogodoy/nametag/pull/17)]
-- [x] ~~ARM build for docker images~~ [[Issue #14](https://github.com/mattogodoy/nametag/issues/14), [PR #18](https://github.com/mattogodoy/nametag/pull/18)]
-- [x] ~~Improve development setup to make contributors' lives easier~~ [[PR #25](https://github.com/mattogodoy/nametag/pull/25)]
-- [x] ~~Implement CardDAV support~~ [[Issue #15](https://github.com/mattogodoy/nametag/issues/15), [PR #82](https://github.com/mattogodoy/nametag/pull/82)]
-- [x] ~~API for third-party integrations~~ [[Issue #29](https://github.com/mattogodoy/nametag/issues/29), [PR #70](https://github.com/mattogodoy/nametag/pull/70)]
-- [x] ~~Add photos to people~~ [[Issue #19](https://github.com/mattogodoy/nametag/issues/19), [PR #135](https://github.com/mattogodoy/nametag/pull/135)]
-- [x] ~~Add custom template titles for important dates~~ [[Issue #23](https://github.com/mattogodoy/nametag/issues/23), [PR #176](https://github.com/mattogodoy/nametag/pull/176)]
-- [x] ~~Add journaling capabilities~~ [[Issue #28](https://github.com/mattogodoy/nametag/issues/28), [PR #192](https://github.com/mattogodoy/nametag/pull/192)]
-- [x] ~~Implement OIDC~~ [[Issue #10](https://github.com/mattogodoy/nametag/issues/10)]
-- [x] ~~Add map to show people's locations~~ [[Issue #26](https://github.com/mattogodoy/nametag/issues/26), [PR #341](https://github.com/mattogodoy/nametag/pull/341)]
-- [x] ~~Full-text fuzzy search~~ [[PR #301](https://github.com/mattogodoy/nametag/pull/301)]
-- [x] ~~Configurable photo compression~~ [[PR #331](https://github.com/mattogodoy/nametag/pull/331)]
-- [x] ~~HEIC photo support~~ [[PR #357](https://github.com/mattogodoy/nametag/pull/357)]
-- [x] ~~Messaging app quick links~~ [[PR #375](https://github.com/mattogodoy/nametag/pull/375)]
-- [x] ~~PWA / installable app with offline support~~ [[PR #379](https://github.com/mattogodoy/nametag/pull/379)]
-- [x] ~~Duplicate detection and contact merging~~
-- [x] ~~Custom field templates~~
-- [x] ~~Trash with soft-delete and restore~~
-- [x] ~~Data import/export (JSON)~~
-- [x] ~~Bulk operations~~
-- [x] ~~Eastern name order support~~
+See [CONTRIBUTING.md](CONTRIBUTING.md) and the [development guide](docs/src/content/docs/contributing/development.md) for running hyperion locally.
 
 ## License
 
-Licensed under the [GNU Affero General Public License v3.0](LICENSE). This ensures that if you modify and deploy Nametag, you must make your source code available.
-
-## Support
-
-- **Hosted version**: For support with the hosted service, email support@nametag.one
-- **Self-hosting**: Open an issue on GitHub, or check the [docs](https://docs.nametag.one)
-- **Security issues**: See [SECURITY.md](SECURITY.md)
-
-## Support Development
-
-If you find Nametag useful and want to support its development, you can buy me a coffee! ☕
-
-<a href="https://www.buymeacoffee.com/mattogodoy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
----
-
-Built with care for people who care about people.
+Licensed under the [GNU Affero General Public License v3.0](LICENSE), like Nametag. If you modify and deploy it, you must make your source code available.
