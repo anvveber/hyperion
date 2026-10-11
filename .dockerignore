@@ -48,3 +48,6 @@ docs/
 
 # CI/CD
 .github
+
+# Android app (built separately by .github/workflows/android.yml)
+android

@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     // Generated docs site output (Astro/Starlight build).
     "docs/dist/**",
     "docs/.astro/**",
+    // Android app Gradle caches.
+    "android/.gradle/**",
   ]),
   // Global rules
   {

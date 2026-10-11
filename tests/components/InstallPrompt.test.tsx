@@ -93,6 +93,15 @@ describe('InstallPrompt banner', () => {
     expect(container.firstChild).toBeNull();
   });
 
+  it('renders nothing inside the hyperion Android app', () => {
+    setUserAgent(`${ANDROID_UA} HyperionAndroid/1.0.0`);
+
+    const { container } = render(<InstallPrompt />, { wrapper: Wrapper });
+    fireInstallPromptEvent();
+
+    expect(container.firstChild).toBeNull();
+  });
+
   it('appears once beforeinstallprompt fires', () => {
     render(<InstallPrompt />, { wrapper: Wrapper });
     fireInstallPromptEvent();
