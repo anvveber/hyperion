@@ -145,6 +145,7 @@ export default function PeopleListClient({
 }: PeopleListClientProps) {
   const t = useTranslations('people.bulk');
   const tPeople = useTranslations('people');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -248,10 +249,11 @@ export default function PeopleListClient({
     return params;
   };
 
-  const buildSortUrl = (col: string) => {
+  // Without an explicit order, clicking the current column flips it.
+  const buildSortUrl = (col: string, nextOrder?: 'asc' | 'desc') => {
     const params = buildFilterParams();
     params.set('sortBy', col);
-    params.set('order', sortBy === col && order === 'asc' ? 'desc' : 'asc');
+    params.set('order', nextOrder ?? (sortBy === col && order === 'asc' ? 'desc' : 'asc'));
     params.set('page', String(currentPage));
     return `/people?${params.toString()}`;
   };
@@ -259,6 +261,14 @@ export default function PeopleListClient({
   // Sort the combined column by whichever part the reader sees first, so the
   // list looks alphabetical in the order it is actually displayed.
   const fullNameSortKey = nameOrder === 'EASTERN' ? 'surname' : 'name';
+
+  // The sort choices on phones, where there are no column headers to click.
+  const mobileSortKeys = [
+    { key: fullNameSortKey, label: tt.fullName },
+    { key: 'relationship', label: tt.relationshipToUser },
+    { key: 'group', label: tt.groups },
+    { key: 'lastContact', label: tt.lastContact },
+  ];
 
   const buildPageUrl = (page: number) => {
     const params = buildFilterParams();
@@ -324,9 +334,136 @@ export default function PeopleListClient({
         </div>
       </div>
 
+      {/* Phones: one card per person. A table cannot fit a phone without
+          scrolling sideways and cutting names off, so below md the table is
+          hidden and each person gets a card whose name wraps instead. */}
+      <div className="md:hidden" data-testid="people-cards">
+        <div className="mb-3 flex items-center justify-between gap-3 text-xs font-medium text-muted uppercase tracking-wider">
+          <label className="flex items-center gap-2 min-h-11 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allPageSelected}
+              onChange={togglePage}
+              className="w-5 h-5 text-primary bg-surface-elevated border-border rounded focus:ring-primary"
+            />
+            {t('selectAll')}
+          </label>
+          <span className="flex items-center gap-1">
+            <select
+              value={mobileSortKeys.some(({ key }) => key === sortBy) ? sortBy : ''}
+              onChange={(e) => router.push(buildSortUrl(e.target.value, 'asc'))}
+              aria-label={tCommon('sort')}
+              className="max-w-[11rem] px-2 py-1.5 text-base sm:text-sm normal-case tracking-normal border border-border rounded-lg bg-surface-elevated text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
+            >
+              {!mobileSortKeys.some(({ key }) => key === sortBy) && <option value="">{tCommon('sort')}</option>}
+              {mobileSortKeys.map(({ key, label }) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
+            <Link
+              href={buildSortUrl(sortBy)}
+              className="inline-flex items-center justify-center min-h-11 min-w-11 text-base text-foreground hover:text-primary"
+              title={tCommon('sort')}
+              aria-label={`${tCommon('sort')}: ${order === 'asc' ? '\u2191' : '\u2193'}`}
+            >
+              {order === 'asc' ? '\u2191' : '\u2193'}
+            </Link>
+          </span>
+        </div>
+
+        <ul className="space-y-2">
+          {people.map((person) => {
+            const isOrphan = !person.relationshipToUser &&
+                             person.relationshipsFrom.length === 0 &&
+                             person.relationshipsTo.length === 0;
+            const isChecked = selectAllPages || selectedIds.has(person.id);
+            const fullDisplayName = formatCanonicalName(person, nameOrder);
+            // Unlike fullDisplayName (avatar initials, checkbox label) this also
+            // applies the user's name display format, so SHORT collapses it to
+            // a first name.
+            const shownName = formatCanonicalName(person, nameOrder, nameDisplayFormat);
+
+            return (
+              <li
+                key={person.id}
+                className={`flex items-start gap-3 rounded-lg border border-border px-3 py-3 ${isChecked ? 'bg-primary/5' : 'bg-surface'}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => togglePerson(person.id)}
+                  className="mt-2.5 w-5 h-5 shrink-0 text-primary bg-surface-elevated border-border rounded focus:ring-primary"
+                  aria-label={fullDisplayName}
+                />
+                <Link href={`/people/${person.id}`} className="flex min-w-0 flex-1 items-start gap-3">
+                  <span className="shrink-0">
+                    <PersonAvatar personId={person.id} name={fullDisplayName} photo={person.photo} size={40} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium text-foreground break-words">
+                      {shownName}
+                      {isOrphan && (
+                        <span className="ml-1.5 text-yellow-500" title={tt.orphanWarning} aria-label={tt.orphanWarning}>
+                          {'\u26a0\ufe0f'}
+                        </span>
+                      )}
+                    </span>
+                    {person.displayNameOverride && (
+                      <span className="mt-0.5 block text-xs text-muted break-words">{person.displayNameOverride}</span>
+                    )}
+                    {(person.relationshipToUser || person.groups.length > 0) && (
+                      <span className="mt-2 flex flex-wrap gap-1">
+                        {person.relationshipToUser && (
+                          <span
+                            className="inline-flex max-w-full items-center px-2 py-0.5 rounded text-xs font-medium break-words"
+                            style={{
+                              backgroundColor: person.relationshipToUser.color ? `${person.relationshipToUser.color}20` : 'var(--badge-bg)',
+                              color: person.relationshipToUser.color || 'var(--badge-text)',
+                            }}
+                          >
+                            {person.relationshipToUser.label}
+                          </span>
+                        )}
+                        {person.groups.map((pg) => (
+                          <span
+                            key={pg.groupId}
+                            className="inline-flex max-w-full items-center px-2 py-0.5 rounded text-xs font-medium break-words"
+                            style={{
+                              backgroundColor: pg.group.color ? `${pg.group.color}20` : 'var(--badge-bg)',
+                              color: pg.group.color || 'var(--badge-text)',
+                            }}
+                          >
+                            {pg.group.name}
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                    {person.lastContact && (
+                      <span className="mt-1.5 block text-xs text-muted">
+                        {tt.lastContact}: {formatDate(parseCalendarDate(person.lastContact), dateFormat)}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+                <Link
+                  href={`/people/${person.id}/edit`}
+                  className="shrink-0 -m-1 p-2.5 text-muted hover:text-foreground transition-colors"
+                  title={tc.edit}
+                  aria-label={tc.edit}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
       {/* Table */}
-      <div className="bg-surface shadow-sm rounded-lg overflow-hidden border border-border">
-        <div className="overflow-x-auto max-w-full">
+      <div className="md:bg-surface md:shadow-sm md:rounded-lg md:overflow-hidden md:border md:border-border">
+        <div className="hidden md:block overflow-x-auto max-w-full">
           <table className="min-w-full divide-y divide-border">
             <thead className="bg-surface-elevated">
               <tr>
@@ -341,22 +478,13 @@ export default function PeopleListClient({
                   />
                 </th>
                 <th className="w-[32px] py-3 px-2" />
-                {/* Narrow screens have no room for the separate name parts, so
-                    they get a single combined column instead (see the Name,
-                    Surname and Nickname headers below). */}
-                <th className="md:hidden px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                  <Link href={buildSortUrl(fullNameSortKey)} className="flex items-center gap-1 hover:text-foreground py-2 -my-2 min-h-11 sm:min-h-0">
-                    {tt.fullName}
-                    {sortBy === fullNameSortKey && <span className="text-primary">{order === 'asc' ? '\u2191' : '\u2193'}</span>}
-                  </Link>
-                </th>
-                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                   <Link href={buildSortUrl('name')} className="flex items-center gap-1 hover:text-foreground py-2 -my-2 min-h-11 sm:min-h-0">
                     {tc.name}
                     {sortBy === 'name' && <span className="text-primary">{order === 'asc' ? '\u2191' : '\u2193'}</span>}
                   </Link>
                 </th>
-                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                   <Link href={buildSortUrl('surname')} className="flex items-center gap-1 hover:text-foreground py-2 -my-2 min-h-11 sm:min-h-0">
                     {tt.surname}
                     {sortBy === 'surname' && <span className="text-primary">{order === 'asc' ? '\u2191' : '\u2193'}</span>}
@@ -398,10 +526,6 @@ export default function PeopleListClient({
                                  person.relationshipsTo.length === 0;
                 const isChecked = selectAllPages || selectedIds.has(person.id);
                 const fullDisplayName = formatCanonicalName(person, nameOrder);
-                // What the combined mobile column shows. Unlike fullDisplayName
-                // (avatar initials, checkbox label) this also applies the user's
-                // name display format, so SHORT collapses it to a first name.
-                const combinedName = formatCanonicalName(person, nameOrder, nameDisplayFormat);
 
                 return (
                   <tr key={person.id} className={`hover:bg-surface-elevated transition-colors ${isChecked ? 'bg-primary/5' : ''}`}>
@@ -422,16 +546,7 @@ export default function PeopleListClient({
                         size={32}
                       />
                     </td>
-                    <td className="md:hidden px-6 py-4 whitespace-nowrap">
-                      <NameCell
-                        href={`/people/${person.id}`}
-                        label={combinedName}
-                        isOrphan={isOrphan}
-                        orphanWarning={tt.orphanWarning}
-                        displayNameOverride={person.displayNameOverride}
-                      />
-                    </td>
-                    <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <NameCell
                         href={`/people/${person.id}`}
                         label={person.name}
@@ -440,7 +555,7 @@ export default function PeopleListClient({
                         displayNameOverride={person.displayNameOverride}
                       />
                     </td>
-                    <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                       {person.surname || '\u2014'}
                     </td>
                     <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-muted">
@@ -507,7 +622,7 @@ export default function PeopleListClient({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="bg-surface px-4 py-3 border-t border-border sm:px-6">
+          <div className="mt-3 md:mt-0 bg-surface px-4 py-3 border border-border rounded-lg md:rounded-none md:border-0 md:border-t sm:px-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 flex justify-between sm:hidden">
                 {currentPage > 1 ? (

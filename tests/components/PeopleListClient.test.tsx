@@ -63,6 +63,11 @@ function Wrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Phones get cards and wider screens get the table, and jsdom renders both,
+// so most queries are scoped to one of them.
+const inTable = () => within(screen.getByRole('table'));
+const inCards = () => within(screen.getByTestId('people-cards'));
+
 type PersonRow = React.ComponentProps<typeof PeopleListClient>['people'][0];
 
 function makePerson(overrides: Partial<PersonRow> = {}): PersonRow {
@@ -216,11 +221,11 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      const editLink = screen.getByTitle('Edit');
+      const editLink = inTable().getByTitle('Edit');
       expect(editLink).toBeInTheDocument();
       expect(editLink).toHaveAttribute('href', '/people/p-1/edit');
 
-      const viewLink = screen.getByTitle('View');
+      const viewLink = inTable().getByTitle('View');
       expect(viewLink).toBeInTheDocument();
       expect(viewLink).toHaveAttribute('href', '/people/p-1');
     });
@@ -242,7 +247,8 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Friend')).toBeInTheDocument();
+      expect(inTable().getByText('Friend')).toBeInTheDocument();
+      expect(inCards().getByText('Friend')).toBeInTheDocument();
     });
 
     it('renders indirect badge when person has no direct relationship', () => {
@@ -289,7 +295,8 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Family')).toBeInTheDocument();
+      expect(inTable().getByText('Family')).toBeInTheDocument();
+      expect(inCards().getByText('Family')).toBeInTheDocument();
     });
 
     it('shows orphan warning for isolated people', () => {
@@ -311,11 +318,10 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      // Orphan warning icon appears (⚠️) in whichever name column is visible
-      const mobileCell = screen.getByText('Alice Smith').closest('td')!;
-      const desktopCell = screen.getByText('Alice').closest('td')!;
-      expect(within(mobileCell).getByText('⚠️')).toBeInTheDocument();
+      // Orphan warning icon (⚠️) appears next to the name in both layouts
+      const desktopCell = inTable().getByText('Alice').closest('td')!;
       expect(within(desktopCell).getByText('⚠️')).toBeInTheDocument();
+      expect(inCards().getByLabelText('This person has no relationships')).toHaveTextContent('⚠️');
     });
 
     it('keeps the real name primary and shows display override as secondary text', () => {
@@ -337,17 +343,17 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      // Both name columns link the canonical name and keep the override secondary
-      const mobileCell = screen.getByRole('link', { name: 'Robert Johnson' }).closest('td')!;
-      const desktopCell = screen.getByRole('link', { name: 'Robert' }).closest('td')!;
-      expect(within(mobileCell).getByText('Dad')).toBeInTheDocument();
+      // Both layouts show the canonical name and keep the override secondary
+      const desktopCell = inTable().getByRole('link', { name: 'Robert' }).closest('td')!;
       expect(within(desktopCell).getByText('Dad')).toBeInTheDocument();
+      expect(inCards().getByText('Robert Johnson')).toBeInTheDocument();
+      expect(inCards().getByText('Dad')).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Dad' })).not.toBeInTheDocument();
     });
   });
 
-  describe('Mobile full name column', () => {
-    it('renders a full name column combining every name part', () => {
+  describe('Mobile cards', () => {
+    it('shows the full name combining every name part', () => {
       render(
         <Wrapper>
           <PeopleListClient
@@ -358,8 +364,7 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      expect(screen.getByText('Full Name')).toBeInTheDocument();
-      expect(screen.getByText('Alice Smith')).toBeInTheDocument();
+      expect(inCards().getByText('Alice Smith')).toBeInTheDocument();
     });
 
     it('links the full name to the person', () => {
@@ -373,10 +378,11 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      expect(screen.getByRole('link', { name: 'Alice Smith' })).toHaveAttribute(
+      expect(inCards().getByText('Alice Smith').closest('a')).toHaveAttribute(
         'href',
         '/people/p-1'
       );
+      expect(inCards().getByTitle('Edit')).toHaveAttribute('href', '/people/p-1/edit');
     });
 
     it('puts the surname first when the user picked Eastern name order', () => {
@@ -413,7 +419,7 @@ describe('PeopleListClient', () => {
       expect(screen.queryByText("Alice 'Ali' Smith")).not.toBeInTheDocument();
     });
 
-    it('sorts the combined column by first name in Western order', () => {
+    it('sorts by first name in Western order', () => {
       render(
         <Wrapper>
           <PeopleListClient
@@ -424,14 +430,12 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      const header = screen.getByText('Full Name').closest('th')!;
-      expect(within(header).getByRole('link')).toHaveAttribute(
-        'href',
-        expect.stringContaining('sortBy=name')
-      );
+      const sortSelect = inCards().getByRole('combobox', { name: 'Sort' });
+      expect(sortSelect).toHaveValue('name');
+      expect(within(sortSelect).getByRole('option', { name: 'Full Name' })).toHaveValue('name');
     });
 
-    it('sorts the combined column by surname in Eastern order, matching what is read first', () => {
+    it('sorts by surname in Eastern order, matching what is read first', () => {
       render(
         <Wrapper>
           <PeopleListClient
@@ -443,14 +447,11 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      const header = screen.getByText('Full Name').closest('th')!;
-      expect(within(header).getByRole('link')).toHaveAttribute(
-        'href',
-        expect.stringContaining('sortBy=surname')
-      );
+      const sortSelect = inCards().getByRole('combobox', { name: 'Sort' });
+      expect(within(sortSelect).getByRole('option', { name: 'Full Name' })).toHaveValue('surname');
     });
 
-    it('shows the full name column only below the md breakpoint', () => {
+    it('shows cards only below the md breakpoint and the table only from md up', () => {
       render(
         <Wrapper>
           <PeopleListClient
@@ -461,14 +462,11 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      const fullNameHeader = screen.getByText('Full Name').closest('th');
-      const fullNameCell = screen.getByText('Alice Smith').closest('td');
-
-      expect(fullNameHeader).toHaveClass('md:hidden');
-      expect(fullNameCell).toHaveClass('md:hidden');
+      expect(screen.getByTestId('people-cards')).toHaveClass('md:hidden');
+      expect(screen.getByRole('table').parentElement).toHaveClass('hidden', 'md:block');
     });
 
-    it('hides the first-name column below the md breakpoint so names are not duplicated', () => {
+    it('lets long names wrap instead of overflowing the screen', () => {
       render(
         <Wrapper>
           <PeopleListClient
@@ -479,11 +477,7 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      const nameHeader = screen.getByText('Name').closest('th');
-      const nameCell = screen.getByText('Alice').closest('td');
-
-      expect(nameHeader).toHaveClass('hidden', 'md:table-cell');
-      expect(nameCell).toHaveClass('hidden', 'md:table-cell');
+      expect(inCards().getByText('Alice Smith')).toHaveClass('break-words');
     });
   });
 
@@ -540,9 +534,9 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      // Header checkbox + 2 person checkboxes = 3 total
-      const checkboxes = screen.getAllByRole('checkbox');
-      expect(checkboxes.length).toBe(3);
+      // Header checkbox + 2 person checkboxes = 3 in each layout
+      expect(inTable().getAllByRole('checkbox').length).toBe(3);
+      expect(inCards().getAllByRole('checkbox').length).toBe(3);
     });
 
     it('renders a select-all header checkbox', () => {
@@ -552,8 +546,9 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      const headerCheckbox = screen.getAllByRole('checkbox')[0];
+      const headerCheckbox = inTable().getAllByRole('checkbox')[0];
       expect(headerCheckbox).toHaveAttribute('title', 'Select all');
+      expect(inCards().getByLabelText('Select all')).toBeInTheDocument();
     });
 
     it('selects a person when their checkbox is clicked', async () => {
@@ -722,12 +717,12 @@ describe('PeopleListClient', () => {
         </Wrapper>
       );
 
-      // Ascending arrow ↑ should appear on both name headers, since Western
-      // order sorts the combined mobile column by first name too
+      // Ascending arrow ↑ should appear on the name header and on the cards'
+      // sort direction toggle, which flips to descending when followed
       expect(within(screen.getByText('Name').closest('th')!).getByText('↑')).toBeInTheDocument();
-      expect(
-        within(screen.getByText('Full Name').closest('th')!).getByText('↑')
-      ).toBeInTheDocument();
+      const toggle = inCards().getByTitle('Sort');
+      expect(toggle).toHaveTextContent('↑');
+      expect(toggle).toHaveAttribute('href', expect.stringContaining('order=desc'));
     });
 
     it('shows descending indicator when order is desc', () => {
