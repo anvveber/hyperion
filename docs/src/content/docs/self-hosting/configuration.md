@@ -79,7 +79,7 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `SMTP_PASS` | SMTP password or app-specific password | Not set |
 | `SMTP_REQUIRE_TLS` | Require STARTTLS | `true` |
 | `SMTP_FROM` | Override the "from" address if your server rejects custom ones | Not set |
-| `PHOTO_STORAGE_PATH` | Custom path for photo storage | `/app/data/photos` |
+| `PHOTO_STORAGE_PATH` | Custom path for photo storage (also holds image folders and audio recordings) | `/app/data/photos` |
 | `PHOTO_SIZE` | Max photo dimensions in pixels (square, 64 to 4096). Smaller images keep their original size. | `256` |
 | `PHOTO_QUALITY` | JPEG quality for opaque photos, 1 to 100 | `80` |
 | `OIDC_ISSUER_URL` | OIDC provider issuer URL, enables SSO login | Not set |

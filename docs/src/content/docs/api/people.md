@@ -677,6 +677,68 @@ Removes the image and its files from disk.
 { "success": true }
 ```
 
+## Audio folder
+
+Each person has a folder of MP3 recordings.
+
+### List a person's recordings
+
+```
+GET /api/people/{id}/audio
+```
+
+Returns the recordings newest first by `recordedAt`. Recordings without a date come last, newest upload first.
+
+```bash
+curl https://your-instance.example.com/api/people/clx1/audio \
+  -H "Authorization: Bearer ntag_xxx"
+```
+
+```json
+{
+  "audio": [
+    { "id": "9b2e4f0a1c3d5e7f8a9b0c1d", "originalName": "241005_1430.mp3", "recordedAt": "2024-10-05T14:30:00.000Z", "size": 2412044, "createdAt": "2026-10-11T08:00:00.000Z" }
+  ]
+}
+```
+
+`recordedAt` is read from filenames that start with `YYMMDD_HHMM`. It holds the wall-clock time from the name stored as UTC, so `241005_1430.mp3` always reads back as 14:30. It is `null` for other names.
+
+### Add a recording
+
+```
+POST /api/people/{id}/audio
+```
+
+`multipart/form-data` with an `audio` field holding one MP3 file (up to 200 MB). The file is stored as uploaded. A person can hold up to 1000 recordings. Returns `201` with the new recording.
+
+```bash
+curl -X POST https://your-instance.example.com/api/people/clx1/audio \
+  -H "Authorization: Bearer ntag_xxx" \
+  -F "audio=@241005_1430.mp3"
+```
+
+### Get a recording
+
+```
+GET /api/people/{id}/audio/{audioId}
+GET /api/people/{id}/audio/{audioId}?download=1
+```
+
+Streams the file as `audio/mpeg`. A single `Range` header is honored with a `206` response so players can seek. Add `download=1` to receive it as an attachment named after the original file.
+
+### Delete a recording
+
+```
+DELETE /api/people/{id}/audio/{audioId}
+```
+
+Removes the recording and its file from disk.
+
+```json
+{ "success": true }
+```
+
 ### Get a person photo
 
 ```

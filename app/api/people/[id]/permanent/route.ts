@@ -3,6 +3,7 @@ import { apiResponse, handleApiError, withAuth } from '@/lib/api-utils';
 import { requireTrashedRecord } from '@/lib/api/trash-guards';
 import { deletePersonPhotos } from '@/lib/photo-storage';
 import { deletePersonImageDir } from '@/lib/person-image-storage';
+import { deletePersonAudioDir } from '@/lib/person-audio-storage';
 
 // DELETE /api/people/[id]/permanent - Permanently delete a trashed person
 export const DELETE = withAuth(async (_request, session, context) => {
@@ -18,9 +19,10 @@ export const DELETE = withAuth(async (_request, session, context) => {
     );
     if (!guard.ok) return guard.response;
 
-    // Delete photo files and the person's image folder (rows cascade)
+    // Delete photo files and the person's image and audio folders (rows cascade)
     await deletePersonPhotos(session.user.id, id);
     await deletePersonImageDir(session.user.id, id);
+    await deletePersonAudioDir(session.user.id, id);
 
     // Delete child records in FK order
     await prismaIncludingDeleted.journalEntryPerson.deleteMany({ where: { personId: id } });

@@ -1632,6 +1632,28 @@
       "uploadSuccess": "{count, plural, one {Afbeelding toegevoegd} other {# afbeeldingen toegevoegd}}",
       "deleteSuccess": "Afbeelding verwijderd",
       "deleteFailed": "Afbeelding kon niet worden verwijderd"
+    },
+    "audio": {
+      "title": "Audio",
+      "add": "Opnames toevoegen",
+      "uploading": "Uploaden {done}/{total}",
+      "loading": "Opnames laden...",
+      "empty": "Nog geen opnames. Voeg .mp3-bestanden toe met namen als 241005_1430.mp3, dan krijgen ze automatisch een datum.",
+      "unknownDate": "Geen datum in bestandsnaam",
+      "play": "{name} afspelen",
+      "closePlayer": "Speler voor {name} sluiten",
+      "download": "{name} downloaden",
+      "delete": "{name} verwijderen",
+      "confirmDelete": "Verwijderen",
+      "confirmDeleteTitle": "Deze opname verwijderen?",
+      "confirmDeleteDescription": "De opname wordt uit de map van deze persoon verwijderd. Dit kan niet ongedaan worden gemaakt.",
+      "cancel": "Annuleren",
+      "deleting": "Verwijderen...",
+      "loadFailed": "Opnames konden niet worden geladen",
+      "uploadFailed": "{count, plural, one {# bestand kon niet worden geüpload (alleen .mp3 wordt geaccepteerd)} other {# bestanden konden niet worden geüpload (alleen .mp3 wordt geaccepteerd)}}",
+      "uploadSuccess": "{count, plural, one {Opname toegevoegd} other {# opnames toegevoegd}}",
+      "deleteSuccess": "Opname verwijderd",
+      "deleteFailed": "De opname kon niet worden verwijderd"
     }
   },
   "groups": {

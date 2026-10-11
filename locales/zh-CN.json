@@ -1632,6 +1632,28 @@
       "uploadSuccess": "{count, plural, other {已添加 # 张图片}}",
       "deleteSuccess": "图片已删除",
       "deleteFailed": "无法删除图片"
+    },
+    "audio": {
+      "title": "音频",
+      "add": "添加录音",
+      "uploading": "正在上传 {done}/{total}",
+      "loading": "正在加载录音...",
+      "empty": "还没有录音。添加文件名形如 241005_1430.mp3 的 .mp3 文件，日期会自动识别。",
+      "unknownDate": "文件名中没有日期",
+      "play": "播放 {name}",
+      "closePlayer": "关闭 {name} 的播放器",
+      "download": "下载 {name}",
+      "delete": "删除 {name}",
+      "confirmDelete": "删除",
+      "confirmDeleteTitle": "删除这条录音？",
+      "confirmDeleteDescription": "录音将从此人的文件夹中移除。此操作无法撤销。",
+      "cancel": "取消",
+      "deleting": "正在删除...",
+      "loadFailed": "无法加载录音",
+      "uploadFailed": "{count, plural, other {# 个文件上传失败（仅支持 .mp3）}}",
+      "uploadSuccess": "{count, plural, one {已添加录音} other {已添加 # 条录音}}",
+      "deleteSuccess": "录音已删除",
+      "deleteFailed": "无法删除录音"
     }
   },
   "groups": {

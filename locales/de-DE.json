@@ -1632,6 +1632,28 @@
       "uploadSuccess": "{count, plural, one {Bild hinzugefügt} other {# Bilder hinzugefügt}}",
       "deleteSuccess": "Bild gelöscht",
       "deleteFailed": "Bild konnte nicht gelöscht werden"
+    },
+    "audio": {
+      "title": "Audio",
+      "add": "Aufnahmen hinzufügen",
+      "uploading": "Lade hoch {done}/{total}",
+      "loading": "Aufnahmen werden geladen...",
+      "empty": "Noch keine Aufnahmen. Füge .mp3-Dateien mit Namen wie 241005_1430.mp3 hinzu, dann werden sie automatisch datiert.",
+      "unknownDate": "Kein Datum im Dateinamen",
+      "play": "{name} abspielen",
+      "closePlayer": "Player für {name} schließen",
+      "download": "{name} herunterladen",
+      "delete": "{name} löschen",
+      "confirmDelete": "Löschen",
+      "confirmDeleteTitle": "Diese Aufnahme löschen?",
+      "confirmDeleteDescription": "Die Aufnahme wird aus dem Ordner dieser Person entfernt. Das kann nicht rückgängig gemacht werden.",
+      "cancel": "Abbrechen",
+      "deleting": "Wird gelöscht...",
+      "loadFailed": "Aufnahmen konnten nicht geladen werden",
+      "uploadFailed": "{count, plural, one {# Datei konnte nicht hochgeladen werden (nur .mp3 wird akzeptiert)} other {# Dateien konnten nicht hochgeladen werden (nur .mp3 wird akzeptiert)}}",
+      "uploadSuccess": "{count, plural, one {Aufnahme hinzugefügt} other {# Aufnahmen hinzugefügt}}",
+      "deleteSuccess": "Aufnahme gelöscht",
+      "deleteFailed": "Die Aufnahme konnte nicht gelöscht werden"
     }
   },
   "groups": {
