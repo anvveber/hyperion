@@ -2,7 +2,7 @@
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
-hyperion is a self-hosted personal relationships manager. It keeps track of the people in your life, how they are connected, and the details worth remembering: birthdays, contact info, notes, photos and recordings.
+hyperion is a self-hosted personal relationships manager. It keeps track of the people in your life, how they are connected, and the details worth remembering: birthdays, contact info, notes, places, documents and recordings.
 
 It is a personal fork of [Nametag](https://github.com/mattogodoy/nametag) by Matto Godoy. It keeps everything Nametag does and adds the features listed below. Inside the app and in the docs folder the name "Nametag" still appears in places.
 
@@ -16,7 +16,11 @@ It is a personal fork of [Nametag](https://github.com/mattogodoy/nametag) by Mat
 - **Document folder per person**: photos, PDFs, videos or any other file for each person, separate from the profile photo. Images get thumbnails, PDFs and videos open in the browser, and identical files are stored once.
 - **Audio folder per person**: upload and play MP3 recordings. Files named `YYMMDD_HHMM.mp3` are dated automatically.
 - **Handles and field history**: several messaging handles per platform with platform user IDs, other names (former names, other alphabets), and a history of old values (names, numbers, addresses, websites, handles) with editable dates.
+- **Location history**: a list of places each person went, with a date and the reason for the trip. It is separate from addresses and included in JSON export, import and duplicate merges.
+- **More custom field types**: date, link, multi-select and person (a link to another of your contacts). Date fields show up on the calendar and in the `.ics` file, and the people filter and advanced search understand all of them.
 - **Calendar**: a month view of all important dates, with an `.ics` download for Google Calendar, Apple Calendar, Outlook or Thunderbird.
+- **Trash retention you choose**: deleted items stay in the trash until you delete them by hand. Set `TRASH_RETENTION_DAYS` to a number of days to empty it automatically instead.
+- **People list on phones**: one card per person instead of a table that scrolled sideways, with a sort picker and select-all.
 - **Console-style UI**: a black-and-white theme with monospace labels and a new eye logo, in dark and light mode.
 - **Map fix**: cluster counts on the map are readable in dark mode.
 - **Android app**: a native app for your own server that runs without Google Play Services (GrapheneOS works). It lives in its own repository, [anvveber/hyperion_mobile](https://github.com/anvveber/hyperion_mobile), and the APK is on its [Releases page](https://github.com/anvveber/hyperion_mobile/releases).
