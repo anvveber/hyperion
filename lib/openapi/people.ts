@@ -1,6 +1,7 @@
 import {
   createPersonSchema, updatePersonSchema, deletePersonSchema,
   createImportantDateSchema, updateImportantDateSchema,
+  createFieldHistorySchema, updateFieldHistorySchema,
   mergePersonSchema,
 } from '../validations';
 import { zodBody, jsonBody, pathParam, jsonResponse, ref400, ref401, ref404, refMessage, refGraph, refSuccess, resp, sessionOrToken } from './helpers';
@@ -622,6 +623,85 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         responses: {
           '200': refSuccess(),
           '400': ref400(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
+
+    // Field history
+    '/api/people/{id}/history': {
+      get: {
+        tags: ['People'],
+        summary: 'List previous field values',
+        description: 'Returns previous values of name, nickname, organization, job title, phone numbers, emails, addresses, websites and IM handles. Values are kept automatically when they are changed or removed. Newest first.',
+        security: sessionOrToken(),
+        parameters: [
+          pathParam('id', 'Person ID'),
+          {
+            name: 'field',
+            in: 'query',
+            required: false,
+            description: 'Only return entries for this field',
+            schema: { type: 'string', enum: ['name', 'nickname', 'organization', 'jobTitle', 'phone', 'email', 'address', 'url', 'im'] },
+          },
+        ],
+        responses: {
+          '200': jsonResponse('Field history', {
+            type: 'object',
+            properties: {
+              history: { type: 'array', items: { $ref: '#/components/schemas/PersonFieldHistory' } },
+            },
+          }),
+          '400': ref400(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+      post: {
+        tags: ['People'],
+        summary: 'Add a previous field value',
+        description: 'Records a previous value by hand, for example an old address. Dates are calendar dates (YYYY-MM-DD).',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        requestBody: zodBody(createFieldHistorySchema),
+        responses: {
+          '201': jsonResponse('History entry created', {
+            type: 'object',
+            properties: { entry: { $ref: '#/components/schemas/PersonFieldHistory' } },
+          }),
+          '400': ref400(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
+    '/api/people/{id}/history/{historyId}': {
+      patch: {
+        tags: ['People'],
+        summary: 'Update a previous field value',
+        description: 'Corrects the value, label or valid-from / valid-to dates of a history entry. Send an empty string or null to clear a date.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID'), pathParam('historyId', 'History entry ID')],
+        requestBody: zodBody(updateFieldHistorySchema),
+        responses: {
+          '200': jsonResponse('History entry updated', {
+            type: 'object',
+            properties: { entry: { $ref: '#/components/schemas/PersonFieldHistory' } },
+          }),
+          '400': ref400(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+      delete: {
+        tags: ['People'],
+        summary: 'Delete a previous field value',
+        description: 'Permanently deletes a history entry.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID'), pathParam('historyId', 'History entry ID')],
+        responses: {
+          '200': refSuccess(),
           '401': ref401(),
           '404': ref404(),
         },

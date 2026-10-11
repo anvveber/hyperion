@@ -65,6 +65,7 @@
     "journal": "Journal",
     "createJournal": "Nouvelle entrée",
     "map": "Carte",
+    "calendar": "Calendrier",
     "advancedSearch": "Recherche"
   },
   "advancedSearch": {
@@ -73,7 +74,7 @@
     "fields": {
       "name": {
         "label": "Nom",
-        "placeholder": "Prénom, nom ou surnom"
+        "placeholder": "Prénom, nom, surnom ou autre nom"
       },
       "location": {
         "label": "Lieu",
@@ -87,6 +88,10 @@
         "label": "Téléphone",
         "placeholder": "N'importe quelle partie du numéro"
       },
+      "handle": {
+        "label": "Identifiant",
+        "placeholder": "Nom d'utilisateur ou ID de la plateforme"
+      },
       "keywords": {
         "label": "Mots-clés dans les notes",
         "placeholder": "Mots présents dans leurs notes"
@@ -96,7 +101,9 @@
     "clear": "Effacer",
     "resultCount": "{count, plural, =1 {1 personne trouvée} other {# personnes trouvées}}",
     "resultsTruncated": "Affichage des {shown} premiers résultats sur {total}. Ajoutez des filtres pour affiner.",
-    "noResults": "Aucune personne ne correspond à ces filtres."
+    "noResults": "Aucune personne ne correspond à ces filtres.",
+    "includePrevious": "Inclure les anciennes valeurs (anciens numéros, adresses, noms, identifiants)",
+    "matchedPrevious": "Correspond à une ancienne valeur"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1480,48 @@
           "github": "Profil GitHub",
           "custom": "Champ personnalisé"
         }
+      },
+      "sectionOtherNames": "Autres noms",
+      "sectionImHandles": "Identifiants de messagerie",
+      "aliases": {
+        "label": "Autres noms",
+        "add": "Ajouter",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "edit": "Modifier",
+        "remove": "Supprimer",
+        "typePlaceholder": "Type",
+        "namePlaceholder": "Nom",
+        "scriptPlaceholder": "Langue ou alphabet (facultatif)",
+        "noAliases": "Aucun autre nom pour l'instant",
+        "types": {
+          "nickname": "Surnom",
+          "formerName": "Ancien nom",
+          "otherScript": "Autre alphabet",
+          "other": "Autre"
+        }
+      },
+      "imHandles": {
+        "label": "Identifiants",
+        "add": "Ajouter",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "edit": "Modifier",
+        "remove": "Supprimer",
+        "typePlaceholder": "Plateforme",
+        "handlePlaceholder": "Nom d'utilisateur",
+        "platformIdPlaceholder": "ID utilisateur (facultatif)",
+        "platformIdShort": "ID",
+        "platformIdHelp": "Les noms d'utilisateur changent, pas les ID. Dans Discord, activez le mode développeur, faites un clic droit sur la personne et choisissez Copier l'identifiant.",
+        "noImHandles": "Aucun identifiant pour l'instant",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "Autre"
+        }
       }
     },
     "exportVcf": "Exporter en VCF",
@@ -1654,6 +1703,56 @@
       "uploadSuccess": "{count, plural, one {Enregistrement ajouté} other {# enregistrements ajoutés}}",
       "deleteSuccess": "Enregistrement supprimé",
       "deleteFailed": "Impossible de supprimer l'enregistrement"
+    },
+    "otherNames": "Autres noms",
+    "openProfile": "Ouvrir le profil",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "Anciennes valeurs",
+      "description": "Quand un nom, un numéro, une adresse, un site web ou un identifiant change, l'ancienne valeur est conservée ici avec ses dates. Vous pouvez aussi en ajouter une à la main.",
+      "view": {
+        "name": "Voir les anciens noms",
+        "nickname": "Voir les anciens surnoms",
+        "organization": "Voir les anciennes organisations",
+        "jobTitle": "Voir les anciens postes",
+        "phone": "Voir les anciens numéros",
+        "email": "Voir les anciennes adresses e-mail",
+        "address": "Voir les anciennes adresses",
+        "url": "Voir les anciens sites web",
+        "im": "Voir les anciens identifiants"
+      },
+      "hide": "Masquer les anciennes valeurs",
+      "from": "Du",
+      "to": "Au",
+      "period": "{from} au {to}",
+      "unknownDate": "inconnu",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "add": "Ajouter",
+      "addPrevious": "Ajouter une ancienne valeur",
+      "confirmDelete": "Supprimer cette ancienne valeur ? Cette action est irréversible.",
+      "deleted": "Ancienne valeur supprimée",
+      "saved": "Ancienne valeur mise à jour",
+      "added": "Ancienne valeur ajoutée",
+      "error": "Une erreur est survenue. Veuillez réessayer.",
+      "invalidRange": "La date de début doit précéder ou égaler la date de fin.",
+      "valuePlaceholder": "Ancienne valeur",
+      "typePlaceholder": "Libellé (facultatif)",
+      "fieldLabel": "Champ",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "Nom",
+        "nickname": "Surnom",
+        "organization": "Organisation",
+        "jobTitle": "Poste",
+        "phone": "Numéro de téléphone",
+        "email": "Adresse e-mail",
+        "address": "Adresse",
+        "url": "Site web",
+        "im": "Identifiant"
+      }
     }
   },
   "groups": {
@@ -1756,6 +1855,22 @@
     "directions": "Itinéraire",
     "webglUnavailable": "Votre navigateur ne peut pas afficher la carte car WebGL est indisponible ou désactivé. Activez l'accélération graphique ou WebGL dans votre navigateur, puis rechargez la page.",
     "colocatedTitle": "{count, plural, one {1 personne à cet endroit} other {# personnes à cet endroit}}"
+  },
+  "calendar": {
+    "title": "Calendrier",
+    "subtitle": "Anniversaires, fêtes et autres dates importantes des personnes de votre réseau.",
+    "downloadIcs": "Télécharger le .ics",
+    "empty": "Aucune date importante pour l'instant. Ajoutez-en sur la page d'une personne et elles apparaîtront ici.",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "today": "Aujourd'hui",
+    "more": "+{count} de plus",
+    "noDatesThisMonth": "Aucune date importante ce mois-ci.",
+    "yearsSince": "{count, plural, one {# an} other {# ans}}",
+    "ics": {
+      "calendarName": "Dates importantes",
+      "summary": "{title} : {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Types de relation",

@@ -46,6 +46,9 @@ vi.mock('@/lib/prisma', () => ({
     relationship: {
       create: mocks.relationshipCreate,
     },
+    personFieldHistory: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     importantDate: {
       count: mocks.importantDateCount,
       findMany: mocks.importantDateFindMany,

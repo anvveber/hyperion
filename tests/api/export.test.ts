@@ -75,6 +75,8 @@ describe('Export API', () => {
     addresses: [],
     urls: [],
     imHandles: [],
+    aliases: [],
+    fieldHistory: [],
     locations: [],
     customFields: [],
     customFieldValues: [],
@@ -139,6 +141,8 @@ describe('Export API', () => {
       ],
       urls: [{ type: 'homepage', url: 'https://johndoe.com' }],
       imHandles: [{ protocol: 'telegram', handle: '@johndoe' }],
+      aliases: [],
+      fieldHistory: [],
       locations: [{ type: 'home', latitude: 39.7817, longitude: -89.6501, label: 'Home' }],
       customFields: [{ key: 'X-HOBBY', value: 'Guitar', type: null }],
       customFieldValues: [

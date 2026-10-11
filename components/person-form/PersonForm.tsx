@@ -12,6 +12,8 @@ import {
   emailFieldConfig,
   addressFieldConfig,
   urlFieldConfig,
+  imHandleFieldConfig,
+  aliasFieldConfig,
 } from '../../lib/field-configs';
 import PhotoSection from './PhotoSection';
 import PersonalInfoSection from './PersonalInfoSection';
@@ -99,6 +101,18 @@ export interface PersonFormProps {
       id?: string;
       type: string;
       url: string;
+    }>;
+    imHandles?: Array<{
+      id?: string;
+      protocol: string;
+      handle: string;
+      platformId?: string | null;
+    }>;
+    aliases?: Array<{
+      id?: string;
+      type: string;
+      name: string;
+      script?: string | null;
     }>;
     // Only populated in edit mode; undefined on create
     customFieldValues?: Array<{
@@ -190,6 +204,8 @@ export default function PersonForm({
     setEmails,
     setAddresses,
     setUrls,
+    setImHandles,
+    setAliases,
     setCustomFieldValues,
   } = usePersonForm({
     person,
@@ -219,6 +235,8 @@ export default function PersonForm({
     emails,
     addresses,
     urls,
+    imHandles,
+    aliases,
     customFieldValues,
   } = state;
 
@@ -387,6 +405,8 @@ export default function PersonForm({
         emails,
         addresses,
         urls,
+        imHandles,
+        aliases,
         customFieldValues,
         ...(mode === 'create' && knownThroughId !== 'user'
           ? { connectedThroughId: knownThroughId }
@@ -531,6 +551,18 @@ export default function PersonForm({
         />
       </Section>
 
+      {/* Other Names Section */}
+      <Section>
+        <SectionHeader>{t('sectionOtherNames')}</SectionHeader>
+        <FieldManager
+          items={aliases}
+          onChange={setAliases}
+          fieldConfig={aliasFieldConfig}
+          label={t('aliases.label')}
+          emptyText={t('aliases.noAliases')}
+        />
+      </Section>
+
       {/* Work Information Section */}
       <Section>
         <SectionHeader>{t('sectionWorkInfo')}</SectionHeader>
@@ -591,6 +623,18 @@ export default function PersonForm({
           fieldConfig={urlFieldConfig}
           label={t('urls.label')}
           emptyText={t('urls.noUrls')}
+        />
+      </Section>
+
+      {/* Messaging Handles Section */}
+      <Section>
+        <SectionHeader>{t('sectionImHandles')}</SectionHeader>
+        <FieldManager
+          items={imHandles}
+          onChange={setImHandles}
+          fieldConfig={imHandleFieldConfig}
+          label={t('imHandles.label')}
+          emptyText={t('imHandles.noImHandles')}
         />
       </Section>
 

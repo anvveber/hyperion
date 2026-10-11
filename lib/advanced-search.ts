@@ -8,16 +8,24 @@ import { getCountryName } from '@/lib/countries';
  * Every filter is optional. Filters that are set must all match (AND).
  * Matching is case- and accent-insensitive and accepts partial values,
  * so "mad" finds "Madrid" and "gmail" finds "ana@gmail.com".
+ *
+ * Names also match other names (nicknames, former names, other spellings).
+ * With `previous` on, every filter also matches values kept in field history.
  */
 export interface AdvancedSearchFilters {
   name: string;
   location: string;
   email: string;
   phone: string;
+  handle: string;
   keywords: string;
+  /** Also match previous values from field history */
+  previous: boolean;
 }
 
-export const ADVANCED_SEARCH_FILTER_KEYS = ['name', 'location', 'email', 'phone', 'keywords'] as const;
+export const ADVANCED_SEARCH_FILTER_KEYS = ['name', 'location', 'email', 'phone', 'handle', 'keywords'] as const;
+
+type TextFilterKey = (typeof ADVANCED_SEARCH_FILTER_KEYS)[number];
 
 export const ADVANCED_SEARCH_MAX_RESULTS = 200;
 
@@ -41,6 +49,9 @@ export interface AdvancedSearchCandidate {
     postalCode: string | null;
     country: string | null;
   }[];
+  imHandles?: { protocol: string; handle: string; platformId: string | null }[];
+  aliases?: { name: string }[];
+  fieldHistory?: { field: string; value: string; data: unknown }[];
 }
 
 export interface AdvancedSearchResult {
@@ -55,6 +66,9 @@ export interface AdvancedSearchResult {
   emails: string[];
   phones: string[];
   locations: string[];
+  handles: string[];
+  /** True when at least one filter only matched a previous value */
+  matchedPrevious: boolean;
 }
 
 /** Read filters from URL search params, trimming whitespace. */
@@ -66,17 +80,44 @@ export function parseAdvancedSearchFilters(
     const first = Array.isArray(value) ? value[0] : value;
     return (first ?? '').trim();
   };
+  const previous = read('previous');
   return {
     name: read('name'),
     location: read('location'),
     email: read('email'),
     phone: read('phone'),
+    handle: read('handle'),
     keywords: read('keywords'),
+    previous: previous === '1' || previous === 'true' || previous === 'on',
   };
 }
 
 export function hasActiveFilters(filters: AdvancedSearchFilters): boolean {
-  return ADVANCED_SEARCH_FILTER_KEYS.some((key) => filters[key].length > 0);
+  return ADVANCED_SEARCH_FILTER_KEYS.some((key: TextFilterKey) => filters[key].length > 0);
+}
+
+/** How a filter matched: not at all, on a current value, or only on a previous one. */
+type MatchKind = 'none' | 'current' | 'previous';
+
+function previousValues(person: AdvancedSearchCandidate, fields: string[]): string[] {
+  return (person.fieldHistory ?? [])
+    .filter((entry) => fields.includes(entry.field))
+    .map((entry) => entry.value);
+}
+
+/** Platform ID kept in an IM history entry's data, if any. */
+function historyPlatformId(data: unknown): string | null {
+  if (data && typeof data === 'object' && 'platformId' in data) {
+    const value = data.platformId;
+    return typeof value === 'string' ? value : null;
+  }
+  return null;
+}
+
+function combine(current: boolean, previous: () => boolean, allowPrevious: boolean): MatchKind {
+  if (current) return 'current';
+  if (allowPrevious && previous()) return 'previous';
+  return 'none';
 }
 
 function includesNormalized(haystack: string | null | undefined, needle: string): boolean {
@@ -84,7 +125,11 @@ function includesNormalized(haystack: string | null | undefined, needle: string)
   return normalizeForSearch(haystack).includes(needle);
 }
 
-function matchesName(person: AdvancedSearchCandidate, query: string): boolean {
+function matchesNameValue(value: string, q: string): boolean {
+  return includesNormalized(value, q);
+}
+
+function matchesName(person: AdvancedSearchCandidate, query: string, allowPrevious: boolean): MatchKind {
   const q = normalizeForSearch(query);
   const fields = [
     person.name,
@@ -94,49 +139,89 @@ function matchesName(person: AdvancedSearchCandidate, query: string): boolean {
     person.nickname,
     person.displayNameOverride,
   ];
-  if (fields.some((field) => includesNormalized(field, q))) return true;
-  // Queries spanning several name parts, e.g. "ana garcia"
-  const joined = normalizeForSearch(fields.filter(Boolean).join(' '));
-  return joined.includes(q);
+  const current = () => {
+    if (fields.some((field) => includesNormalized(field, q))) return true;
+    if ((person.aliases ?? []).some((alias) => matchesNameValue(alias.name, q))) return true;
+    // Queries spanning several name parts, e.g. "ana garcia"
+    const joined = normalizeForSearch(fields.filter(Boolean).join(' '));
+    return joined.includes(q);
+  };
+  return combine(
+    current(),
+    () => previousValues(person, ['name', 'nickname']).some((value) => matchesNameValue(value, q)),
+    allowPrevious
+  );
 }
 
-function matchesLocation(person: AdvancedSearchCandidate, query: string): boolean {
-  const q = normalizeForSearch(query);
-  return person.addresses.some((address) => {
-    const countryName = getCountryName(address.country);
-    const parts = [
-      address.streetLine1,
-      address.streetLine2,
-      address.locality,
-      address.region,
-      address.postalCode,
-      countryName,
-    ];
-    if (parts.some((part) => includesNormalized(part, q))) return true;
-    // Country codes only match exactly, so "us" does not hit every address in "Russia"
-    if (address.country && normalizeForSearch(address.country) === q) return true;
-    // Queries spanning several parts, e.g. "berlin germany"
-    return normalizeForSearch(parts.filter(Boolean).join(' ')).includes(q);
-  });
+function matchesAddressParts(
+  address: AdvancedSearchCandidate['addresses'][number],
+  q: string
+): boolean {
+  const countryName = getCountryName(address.country);
+  const parts = [
+    address.streetLine1,
+    address.streetLine2,
+    address.locality,
+    address.region,
+    address.postalCode,
+    countryName,
+  ];
+  if (parts.some((part) => includesNormalized(part, q))) return true;
+  // Country codes only match exactly, so "us" does not hit every address in "Russia"
+  if (address.country && normalizeForSearch(address.country) === q) return true;
+  // Queries spanning several parts, e.g. "berlin germany"
+  return normalizeForSearch(parts.filter(Boolean).join(' ')).includes(q);
 }
 
-function matchesEmail(person: AdvancedSearchCandidate, query: string): boolean {
+function matchesLocation(person: AdvancedSearchCandidate, query: string, allowPrevious: boolean): MatchKind {
   const q = normalizeForSearch(query);
-  return person.emails.some((e) => includesNormalized(e.email, q));
+  return combine(
+    person.addresses.some((address) => matchesAddressParts(address, q)),
+    () => previousValues(person, ['address']).some((value) => includesNormalized(value, q)),
+    allowPrevious
+  );
+}
+
+function matchesEmail(person: AdvancedSearchCandidate, query: string, allowPrevious: boolean): MatchKind {
+  const q = normalizeForSearch(query);
+  return combine(
+    person.emails.some((e) => includesNormalized(e.email, q)),
+    () => previousValues(person, ['email']).some((value) => includesNormalized(value, q)),
+    allowPrevious
+  );
 }
 
 function digitsOnly(value: string): string {
   return value.replace(/\D/g, '');
 }
 
-function matchesPhone(person: AdvancedSearchCandidate, query: string): boolean {
+function matchesPhoneNumber(number: string, query: string): boolean {
   const queryDigits = digitsOnly(query);
-  const q = normalizeForSearch(query);
-  return person.phoneNumbers.some((p) => {
-    // Ignore formatting so "612345" finds "+34 612 345 678"
-    if (queryDigits.length > 0 && digitsOnly(p.number).includes(queryDigits)) return true;
-    return includesNormalized(p.number, q);
-  });
+  // Ignore formatting so "612345" finds "+34 612 345 678"
+  if (queryDigits.length > 0 && digitsOnly(number).includes(queryDigits)) return true;
+  return includesNormalized(number, normalizeForSearch(query));
+}
+
+function matchesPhone(person: AdvancedSearchCandidate, query: string, allowPrevious: boolean): MatchKind {
+  return combine(
+    person.phoneNumbers.some((p) => matchesPhoneNumber(p.number, query)),
+    () => previousValues(person, ['phone']).some((value) => matchesPhoneNumber(value, query)),
+    allowPrevious
+  );
+}
+
+/** Handles match by username or by platform ID (e.g. a Discord user ID). */
+function matchesHandle(person: AdvancedSearchCandidate, query: string, allowPrevious: boolean): MatchKind {
+  const q = normalizeForSearch(query.replace(/^@/, ''));
+  const matchesId = (id: string | null) => id !== null && id.trim() !== '' && id.includes(query.trim());
+  return combine(
+    (person.imHandles ?? []).some((im) => includesNormalized(im.handle, q) || matchesId(im.platformId)),
+    () =>
+      (person.fieldHistory ?? [])
+        .filter((entry) => entry.field === 'im')
+        .some((entry) => includesNormalized(entry.value, q) || matchesId(historyPlatformId(entry.data))),
+    allowPrevious
+  );
 }
 
 function matchesKeywords(person: AdvancedSearchCandidate, query: string): boolean {
@@ -159,16 +244,20 @@ export function filterAdvancedSearch(
 ): AdvancedSearchResult[] {
   if (!hasActiveFilters(filters)) return [];
 
-  return people
-    .filter((person) => {
-      if (filters.name && !matchesName(person, filters.name)) return false;
-      if (filters.location && !matchesLocation(person, filters.location)) return false;
-      if (filters.email && !matchesEmail(person, filters.email)) return false;
-      if (filters.phone && !matchesPhone(person, filters.phone)) return false;
-      if (filters.keywords && !matchesKeywords(person, filters.keywords)) return false;
-      return true;
-    })
-    .map((person) => ({
+  const allowPrevious = filters.previous;
+  const results: AdvancedSearchResult[] = [];
+
+  for (const person of people) {
+    const kinds: MatchKind[] = [];
+    if (filters.name) kinds.push(matchesName(person, filters.name, allowPrevious));
+    if (filters.location) kinds.push(matchesLocation(person, filters.location, allowPrevious));
+    if (filters.email) kinds.push(matchesEmail(person, filters.email, allowPrevious));
+    if (filters.phone) kinds.push(matchesPhone(person, filters.phone, allowPrevious));
+    if (filters.handle) kinds.push(matchesHandle(person, filters.handle, allowPrevious));
+    if (filters.keywords) kinds.push(matchesKeywords(person, filters.keywords) ? 'current' : 'none');
+    if (kinds.includes('none')) continue;
+
+    results.push({
       id: person.id,
       name: person.name,
       surname: person.surname,
@@ -180,7 +269,12 @@ export function filterAdvancedSearch(
       emails: person.emails.map((e) => e.email),
       phones: person.phoneNumbers.map((p) => p.number),
       locations: person.addresses.map(formatAddress).filter((loc) => loc.length > 0),
-    }));
+      handles: (person.imHandles ?? []).map((im) => `${im.protocol}: ${im.handle}`),
+      matchedPrevious: kinds.includes('previous'),
+    });
+  }
+
+  return results;
 }
 
 /**
@@ -217,6 +311,11 @@ export async function advancedSearchPeople(
           country: true,
         },
       },
+      imHandles: { select: { protocol: true, handle: true, platformId: true } },
+      aliases: { select: { name: true } },
+      fieldHistory: filters.previous
+        ? { select: { field: true, value: true, data: true } }
+        : false,
     },
     orderBy: [{ name: 'asc' }, { surname: 'asc' }],
   });

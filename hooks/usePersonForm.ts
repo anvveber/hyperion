@@ -46,6 +46,20 @@ export interface UrlItem {
   url: string;
 }
 
+export interface ImHandleItem {
+  id?: string;
+  protocol: string;
+  handle: string;
+  platformId?: string | null;
+}
+
+export interface AliasItem {
+  id?: string;
+  type: string;
+  name: string;
+  script?: string | null;
+}
+
 export interface FormData {
   name: string;
   surname: string;
@@ -85,6 +99,8 @@ export interface PersonFormState {
   emails: EmailItem[];
   addresses: AddressItem[];
   urls: UrlItem[];
+  imHandles: ImHandleItem[];
+  aliases: AliasItem[];
   customFieldValues: CustomFieldValueInput[];
 }
 
@@ -107,6 +123,8 @@ type PersonFormAction =
   | { type: 'SET_EMAILS'; payload: EmailItem[] }
   | { type: 'SET_ADDRESSES'; payload: AddressItem[] }
   | { type: 'SET_URLS'; payload: UrlItem[] }
+  | { type: 'SET_IM_HANDLES'; payload: ImHandleItem[] }
+  | { type: 'SET_ALIASES'; payload: AliasItem[] }
   | { type: 'SET_CUSTOM_FIELD_VALUES'; payload: CustomFieldValueInput[] }
   | { type: 'RESET'; payload: PersonFormState };
 
@@ -148,6 +166,10 @@ function reducer(state: PersonFormState, action: PersonFormAction): PersonFormSt
       return { ...state, addresses: action.payload };
     case 'SET_URLS':
       return { ...state, urls: action.payload };
+    case 'SET_IM_HANDLES':
+      return { ...state, imHandles: action.payload };
+    case 'SET_ALIASES':
+      return { ...state, aliases: action.payload };
     case 'SET_CUSTOM_FIELD_VALUES':
       return { ...state, customFieldValues: action.payload };
     case 'RESET':
@@ -203,6 +225,8 @@ interface PersonProp {
     country?: string | null;
   }>;
   urls?: Array<{ id?: string; type: string; url: string }>;
+  imHandles?: Array<{ id?: string; protocol: string; handle: string; platformId?: string | null }>;
+  aliases?: Array<{ id?: string; type: string; name: string; script?: string | null }>;
   customFieldValues?: Array<{ templateId: string; value: string }>;
 }
 
@@ -225,6 +249,8 @@ function getDataFingerprint(state: PersonFormState): string {
     emails: state.emails,
     addresses: state.addresses,
     urls: state.urls,
+    imHandles: state.imHandles,
+    aliases: state.aliases,
     customFieldValues: state.customFieldValues,
   });
 }
@@ -335,6 +361,20 @@ function buildInitialState(params: {
         type: u.type,
         url: u.url,
       })) || [],
+    imHandles:
+      person?.imHandles?.map((im) => ({
+        id: im.id,
+        protocol: im.protocol,
+        handle: im.handle,
+        platformId: im.platformId ?? '',
+      })) || [],
+    aliases:
+      person?.aliases?.map((a) => ({
+        id: a.id,
+        type: a.type,
+        name: a.name,
+        script: a.script ?? '',
+      })) || [],
     customFieldValues:
       person?.customFieldValues?.map((v) => ({
         templateId: v.templateId,
@@ -444,6 +484,14 @@ export function usePersonForm(params: {
     (val: UrlItem[]) => dispatch({ type: 'SET_URLS', payload: val }),
     []
   );
+  const setImHandles = useCallback(
+    (val: ImHandleItem[]) => dispatch({ type: 'SET_IM_HANDLES', payload: val }),
+    []
+  );
+  const setAliases = useCallback(
+    (val: AliasItem[]) => dispatch({ type: 'SET_ALIASES', payload: val }),
+    []
+  );
   const setCustomFieldValues = useCallback(
     (val: CustomFieldValueInput[]) =>
       dispatch({ type: 'SET_CUSTOM_FIELD_VALUES', payload: val }),
@@ -476,6 +524,8 @@ export function usePersonForm(params: {
     setEmails,
     setAddresses,
     setUrls,
+    setImHandles,
+    setAliases,
     setCustomFieldValues,
     reset,
   };

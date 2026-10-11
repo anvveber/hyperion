@@ -65,6 +65,7 @@
     "journal": "Journal",
     "createJournal": "New entry",
     "map": "Map",
+    "calendar": "Calendar",
     "advancedSearch": "Search"
   },
   "advancedSearch": {
@@ -73,7 +74,7 @@
     "fields": {
       "name": {
         "label": "Name",
-        "placeholder": "First name, surname, or nickname"
+        "placeholder": "First name, surname, nickname, or other name"
       },
       "location": {
         "label": "Location",
@@ -87,6 +88,10 @@
         "label": "Phone",
         "placeholder": "Any part of the number"
       },
+      "handle": {
+        "label": "Handle",
+        "placeholder": "Username or platform ID"
+      },
       "keywords": {
         "label": "Keywords in notes",
         "placeholder": "Words that appear in their notes"
@@ -96,7 +101,9 @@
     "clear": "Clear",
     "resultCount": "{count, plural, =1 {1 person found} other {# people found}}",
     "resultsTruncated": "Showing the first {shown} of {total} matches. Add more filters to narrow it down.",
-    "noResults": "No people match these filters."
+    "noResults": "No people match these filters.",
+    "includePrevious": "Also match previous values (old numbers, addresses, names, handles)",
+    "matchedPrevious": "Matched a previous value"
   },
   "notifications": {
     "push": {
@@ -1473,6 +1480,48 @@
           "github": "GitHub Profile",
           "custom": "Custom Field"
         }
+      },
+      "sectionOtherNames": "Other names",
+      "sectionImHandles": "Messaging handles",
+      "aliases": {
+        "label": "Other names",
+        "add": "Add",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "remove": "Remove",
+        "typePlaceholder": "Type",
+        "namePlaceholder": "Name",
+        "scriptPlaceholder": "Language or alphabet (optional)",
+        "noAliases": "No other names added yet",
+        "types": {
+          "nickname": "Nickname",
+          "formerName": "Former name",
+          "otherScript": "Other alphabet",
+          "other": "Other"
+        }
+      },
+      "imHandles": {
+        "label": "Handles",
+        "add": "Add",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "remove": "Remove",
+        "typePlaceholder": "Platform",
+        "handlePlaceholder": "Username",
+        "platformIdPlaceholder": "User ID (optional)",
+        "platformIdShort": "ID",
+        "platformIdHelp": "Usernames can change, user IDs do not. In Discord, turn on Developer Mode, then right-click the person and choose Copy User ID.",
+        "noImHandles": "No handles added yet",
+        "types": {
+          "discord": "Discord",
+          "telegram": "Telegram",
+          "signal": "Signal",
+          "whatsapp": "WhatsApp",
+          "skype": "Skype",
+          "other": "Other"
+        }
       }
     },
     "exportVcf": "Export VCF",
@@ -1654,6 +1703,56 @@
       "uploadSuccess": "{count, plural, one {Recording added} other {# recordings added}}",
       "deleteSuccess": "Recording deleted",
       "deleteFailed": "Could not delete the recording"
+    },
+    "otherNames": "Other names",
+    "openProfile": "Open profile",
+    "platformIdValue": "ID {id}",
+    "history": {
+      "title": "Previous values",
+      "description": "When a name, number, address, website or handle changes, the old value is kept here with its dates. You can also add one by hand.",
+      "view": {
+        "name": "View previous names",
+        "nickname": "View previous nicknames",
+        "organization": "View previous organizations",
+        "jobTitle": "View previous job titles",
+        "phone": "View previous phone numbers",
+        "email": "View previous email addresses",
+        "address": "View previous addresses",
+        "url": "View previous websites",
+        "im": "View previous handles"
+      },
+      "hide": "Hide previous values",
+      "from": "From",
+      "to": "To",
+      "period": "{from} to {to}",
+      "unknownDate": "unknown",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "add": "Add",
+      "addPrevious": "Add a previous value",
+      "confirmDelete": "Delete this previous value? This cannot be undone.",
+      "deleted": "Previous value deleted",
+      "saved": "Previous value updated",
+      "added": "Previous value added",
+      "error": "Something went wrong. Please try again.",
+      "invalidRange": "The start date must be on or before the end date.",
+      "valuePlaceholder": "Previous value",
+      "typePlaceholder": "Label (optional)",
+      "fieldLabel": "Field",
+      "platformId": "ID {id}",
+      "fields": {
+        "name": "Name",
+        "nickname": "Nickname",
+        "organization": "Organization",
+        "jobTitle": "Job title",
+        "phone": "Phone number",
+        "email": "Email address",
+        "address": "Address",
+        "url": "Website",
+        "im": "Handle"
+      }
     }
   },
   "groups": {
@@ -1756,6 +1855,22 @@
     "directions": "Directions",
     "webglUnavailable": "Your browser cannot display the map because WebGL is unavailable or disabled. Enable graphics acceleration or WebGL in your browser and reload the page.",
     "colocatedTitle": "{count, plural, one {1 person at this location} other {# people at this location}}"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Birthdays, anniversaries and other important dates of the people in your network.",
+    "downloadIcs": "Download .ics",
+    "empty": "No important dates yet. Add them on a person's page and they will show up here.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today",
+    "more": "+{count} more",
+    "noDatesThisMonth": "No important dates this month.",
+    "yearsSince": "{count, plural, one {# year} other {# years}}",
+    "ics": {
+      "calendarName": "Important dates",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Relationship Types",

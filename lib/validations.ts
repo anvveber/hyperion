@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PREDEFINED_DATE_TYPES } from './important-date-types';
+import { HISTORY_FIELDS } from './field-history-fields';
 
 // ============================================
 // Common schemas
@@ -114,8 +115,21 @@ const urlSchema = z.object({
 
 const imHandleSchema = z.object({
   id: z.string().optional(),
-  protocol: z.enum(['skype', 'whatsapp', 'telegram', 'signal', 'other']),
+  // Predefined platforms are discord, telegram, signal, whatsapp, skype and other,
+  // but any platform name is accepted (CardDAV imports bring their own).
+  protocol: z.string().trim().min(1, 'Platform is required').max(50),
   handle: z.string().min(1, 'Handle is required').max(200),
+  platformId: z.string().trim().max(100).nullable().optional()
+    .describe('Stable account ID on the platform, e.g. a Discord numeric user ID'),
+});
+
+const aliasSchema = z.object({
+  id: z.string().optional(),
+  type: z.string().trim().min(1, 'Type is required').max(50)
+    .describe('nickname, formerName, otherScript, other, or any custom label'),
+  name: z.string().trim().min(1, 'Name is required').max(200),
+  script: z.string().trim().max(100).nullable().optional()
+    .describe('Language or alphabet of this spelling, e.g. Cyrillic'),
 });
 
 const locationSchema = z.object({
@@ -232,9 +246,35 @@ export const createPersonSchema = z.object({
   locations: z.array(locationSchema).optional(),
   customFields: z.array(customFieldSchema).optional(),
   customFieldValues: customFieldValuesArraySchema,
+  aliases: z.array(aliasSchema).max(100).optional()
+    .describe('Other names: extra nicknames, former names, spellings in other alphabets'),
 });
 
 export const updatePersonSchema = createPersonSchema.partial();
+
+// Previous values of a field (field history). Dates are calendar dates.
+const optionalHistoryDate = z.preprocess(
+  (val) => (val === '' ? null : val),
+  z.iso.date({ error: 'Invalid date' }).nullable().optional(),
+);
+
+export const createFieldHistorySchema = z.object({
+  field: z.enum(HISTORY_FIELDS),
+  type: z.string().trim().max(50).nullable().optional(),
+  value: z.string().trim().min(1, 'Value is required').max(500),
+  validFrom: optionalHistoryDate,
+  validTo: optionalHistoryDate,
+}).refine(
+  (data) => !data.validFrom || !data.validTo || data.validFrom <= data.validTo,
+  { message: 'Valid from must be on or before valid to', path: ['validTo'] }
+);
+
+export const updateFieldHistorySchema = z.object({
+  type: z.string().trim().max(50).nullable().optional(),
+  value: z.string().trim().min(1, 'Value is required').max(500).optional(),
+  validFrom: optionalHistoryDate,
+  validTo: optionalHistoryDate,
+});
 
 export const deletePersonSchema = z.object({
   deleteOrphans: z.boolean().optional()
@@ -550,6 +590,20 @@ export const importDataSchema = z.object({
     imHandles: z.array(z.object({
       protocol: z.string(),
       handle: z.string(),
+      platformId: z.string().nullable().optional(),
+    })).optional(),
+    aliases: z.array(z.object({
+      type: z.string(),
+      name: z.string(),
+      script: z.string().nullable().optional(),
+    })).optional(),
+    fieldHistory: z.array(z.object({
+      field: z.string(),
+      type: z.string().nullable().optional(),
+      value: z.string(),
+      data: z.record(z.string(), z.unknown()).nullable().optional(),
+      validFrom: z.string().nullable().optional(),
+      validTo: z.string().nullable().optional(),
     })).optional(),
     locations: z.array(z.object({
       type: z.string(),

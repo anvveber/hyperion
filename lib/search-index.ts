@@ -17,6 +17,8 @@ export interface SearchDocument {
   addresses: string;
   urls: string;
   imHandles: string;
+  /** Other names: extra nicknames, former names, other spellings */
+  aliases?: string;
   groups: string;
   customFields: string;
   photo: string | null;
@@ -37,7 +39,7 @@ export interface PersonSearchResult {
 const INDEXED_FIELDS = [
   'name', 'surname', 'middleName', 'secondLastName', 'nickname', 'displayNameOverride',
   'organization', 'jobTitle', 'notes',
-  'phones', 'emails', 'addresses', 'urls', 'imHandles',
+  'phones', 'emails', 'addresses', 'urls', 'imHandles', 'aliases',
   'groups', 'customFields',
 ];
 
