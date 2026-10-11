@@ -56,7 +56,7 @@ export default function UserMenu({ userEmail, userName, userNickname, userPhoto 
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-surface rounded-lg shadow-lg py-1 z-50 border border-border">
+        <div className="absolute right-0 mt-2 w-48 hy-glass-pop rounded-lg shadow-lg py-1 z-50 border">
           <AccountMenuItems onNavigate={() => setIsOpen(false)} />
         </div>
       )}

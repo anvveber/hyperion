@@ -227,21 +227,16 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
   };
 
   return (
-    <nav className="hy-shell sticky top-[var(--banner-h)] z-40">
-      {/* Status banner across the very top of every signed-in page */}
-      <div className="hy-banner fixed top-0 inset-x-0 z-50 h-[var(--banner-h)] flex items-center justify-center px-4 font-mono text-[0.625rem] font-semibold uppercase tracking-[0.24em] select-none">
-        <span className="truncate">{tNav('classification')}</span>
-      </div>
-
+    <nav className="hy-shell sticky top-0 z-40">
       {/*
-       * The navbar: translucent, so the page pattern shows through as content
+       * The navbar: frosted glass, so the page shows through blurred as content
        * scrolls beneath it. The sticky positioning sits on the outer <nav>,
        * whose containing block is the whole page; on this inner element it
        * would only stick within the nav itself. Top row holds the
        * mark, where you are, search and the account; the tab strip below it
        * holds the sections on wide screens.
        */}
-      <div className="hy-navbar border-b border-border pt-[env(safe-area-inset-top)]">
+      <div className="hy-glass border-b pt-[env(safe-area-inset-top)]">
         <div className="px-4 sm:px-6">
           <div className="relative flex items-center justify-between h-14">
             <div className={`items-center gap-4 min-w-0 z-10 ${mobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
@@ -352,7 +347,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
             role="dialog"
             aria-modal="true"
             aria-label={tNav('menuLabel')}
-            className="md:hidden fixed top-0 right-0 bottom-0 w-[90%] max-w-md bg-surface shadow-xl z-50 transform transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]"
+            className="md:hidden fixed top-0 right-0 bottom-0 w-[90%] max-w-md hy-glass-pop shadow-xl z-50 transform transition-transform duration-300 ease-in-out pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]"
           >
             <div className="h-full flex flex-col">
               {/* Menu header: who is signed in, plus the close button */}

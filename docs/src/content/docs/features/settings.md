@@ -21,7 +21,7 @@ Your name, surname, nickname, email address, and profile photo. Photo uploads su
 
 ### Layout
 
-Every signed-in page has the same frame. A strip across the top marks the app as personal records. Under it, a translucent navbar stays attached to the top of the window as you scroll: the top row holds the logo, the current section, search and your account menu, and on wide screens a row of tabs below it holds the sections. A status bar along the bottom of wide screens shows whether the app is online, who is signed in, the date, and the time locally and in UTC. Behind the content is a faint grid pattern. On phones the tabs and status bar are hidden and the menu button opens the sections instead.
+Every signed-in page has the same frame. A frosted-glass navbar stays attached to the top of the window as you scroll, with the page showing through it blurred: the top row holds the logo, the current section, search and your account menu, and on wide screens a row of tabs below it holds the sections. A status bar along the bottom of wide screens shows whether the app is online, who is signed in, the date, and the time locally and in UTC. Behind the content is a faint grid pattern, which panels let through slightly. On phones the tabs and status bar are hidden and the menu button opens the sections instead.
 
 ### Graph mode
 

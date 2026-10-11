@@ -57,7 +57,7 @@ export default function StatusBar({ operator }: StatusBarProps) {
     <div
       role="status"
       aria-live="off"
-      className="hidden md:flex fixed bottom-0 inset-x-0 z-30 h-[var(--statusbar-h)] items-center justify-between gap-6 px-4 hy-navbar border-t border-border font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-muted tabular-nums"
+      className="hidden md:flex fixed bottom-0 inset-x-0 z-30 h-[var(--statusbar-h)] items-center justify-between gap-6 px-4 hy-glass border-t border-border font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-muted tabular-nums"
     >
       <div className="flex items-center gap-5 min-w-0">
         <span className="flex items-center gap-2">
