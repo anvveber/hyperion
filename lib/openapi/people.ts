@@ -858,5 +858,106 @@ export function peoplePaths(): Record<string, Record<string, unknown>> {
         },
       },
     },
+
+    // Audio folder (person-specific)
+    '/api/people/{id}/audio': {
+      get: {
+        tags: ['Photos'],
+        summary: "List a person's audio recordings",
+        description:
+          "Returns the recordings in a person's audio folder, newest recording first. Files without a date in their name come last.",
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        responses: {
+          '200': jsonResponse('Recording list', {
+            type: 'object',
+            properties: {
+              audio: { type: 'array', items: { $ref: '#/components/schemas/PersonAudio' } },
+            },
+            required: ['audio'],
+          }),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+      post: {
+        tags: ['Photos'],
+        summary: "Add a recording to a person's audio folder",
+        description:
+          'Upload one MP3 file (up to 200MB). The file is stored as is. When its name starts with YYMMDD_HHMM ' +
+          '(for example `241005_1430.mp3`), that date and time is saved as `recordedAt`. A person can hold up to 1000 recordings.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID')],
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  audio: { type: 'string', format: 'binary', description: 'MP3 file' },
+                },
+                required: ['audio'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': jsonResponse('Recording added', {
+            type: 'object',
+            properties: { audio: { $ref: '#/components/schemas/PersonAudio' } },
+            required: ['audio'],
+          }),
+          '400': resp('Validation error, not an MP3 file or folder full'),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
+    '/api/people/{id}/audio/{audioId}': {
+      get: {
+        tags: ['Photos'],
+        summary: 'Get a recording',
+        description:
+          'Streams the stored MP3. Supports single `Range` requests so players can seek. Pass `download=1` to get it as an attachment.',
+        security: sessionOrToken(),
+        parameters: [
+          pathParam('id', 'Person ID'),
+          pathParam('audioId', 'Recording ID'),
+          {
+            name: 'download',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['1'] },
+            description: 'Send the file as a download instead of inline',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Audio file',
+            content: { 'audio/mpeg': { schema: { type: 'string', format: 'binary' } } },
+          },
+          '206': {
+            description: 'Requested byte range of the audio file',
+            content: { 'audio/mpeg': { schema: { type: 'string', format: 'binary' } } },
+          },
+          '401': ref401(),
+          '404': resp('Recording not found'),
+          '416': resp('Requested range lies outside the file'),
+        },
+      },
+      delete: {
+        tags: ['Photos'],
+        summary: "Delete a recording from a person's audio folder",
+        description: 'Removes the recording and its file from disk.',
+        security: sessionOrToken(),
+        parameters: [pathParam('id', 'Person ID'), pathParam('audioId', 'Recording ID')],
+        responses: {
+          '200': refSuccess(),
+          '401': ref401(),
+          '404': ref404(),
+        },
+      },
+    },
   };
 }

@@ -128,6 +128,7 @@ model Person {
   dismissalsAsB      DuplicateDismissal[]   @relation("DismissalPersonB")
   journalEntries     JournalEntryPerson[]
   images             PersonImage[]
+  audio              PersonAudio[]
   aliases            PersonAlias[]
   fieldHistory       PersonFieldHistory[]
 
@@ -709,6 +710,23 @@ model PersonImage {
 
   @@index([personId, createdAt])
   @@map("person_images")
+}
+
+// PersonAudio - Audio recordings in a person's audio folder (files live on disk)
+model PersonAudio {
+  id           String    @id @default(cuid())
+  personId     String
+  filename     String    // Stored file, e.g. "{id}.mp3"
+  originalName String    // Filename as uploaded, e.g. "241005_1430.mp3"
+  recordedAt   DateTime? // Wall-clock time read from a YYMMDD_HHMM filename, stored as UTC
+  size         Int       // Bytes of the stored file
+  createdAt    DateTime  @default(now())
+
+  // Relations
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, recordedAt])
+  @@map("person_audio")
 }
 
 // PersonIM - Instant messaging handles

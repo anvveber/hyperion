@@ -19,9 +19,10 @@ const nextConfig: NextConfig = {
 
   // Next 16's default proxyClientMaxBodySize is 10MB. Bodies larger than the
   // limit are silently truncated, which breaks multipart parsing for photo
-  // uploads from high-resolution sources. Raise to match our 50MB upload cap.
+  // and audio uploads. Raise to match the largest upload cap (200MB for audio
+  // recordings; each route still enforces its own limit).
   experimental: {
-    proxyClientMaxBodySize: '50mb',
+    proxyClientMaxBodySize: '200mb',
   },
 
   // Logging configuration

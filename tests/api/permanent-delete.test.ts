@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   journalEntryPersonDeleteMany: vi.fn(),
   deletePersonPhotos: vi.fn(),
   deletePersonImageDir: vi.fn(),
+  deletePersonAudioDir: vi.fn(),
   // Group mocks
   groupFindFirst: vi.fn(),
   groupDelete: vi.fn(),
@@ -87,6 +88,10 @@ vi.mock('../../lib/person-image-storage', () => ({
   deletePersonImageDir: mocks.deletePersonImageDir,
 }));
 
+vi.mock('../../lib/person-audio-storage', () => ({
+  deletePersonAudioDir: mocks.deletePersonAudioDir,
+}));
+
 vi.mock('../../lib/auth', () => ({
   auth: vi.fn(() =>
     Promise.resolve({
@@ -139,6 +144,7 @@ describe('Permanent delete API', () => {
       });
       mocks.deletePersonPhotos.mockResolvedValue(undefined);
       mocks.deletePersonImageDir.mockResolvedValue(undefined);
+      mocks.deletePersonAudioDir.mockResolvedValue(undefined);
       mocks.personGroupDeleteMany.mockResolvedValue({ count: 0 });
       mocks.importantDateDeleteMany.mockResolvedValue({ count: 0 });
       mocks.relationshipDeleteMany.mockResolvedValue({ count: 0 });
@@ -164,6 +170,7 @@ describe('Permanent delete API', () => {
       expect(body.success).toBe(true);
       expect(mocks.deletePersonPhotos).toHaveBeenCalledWith('user-123', 'p1');
       expect(mocks.deletePersonImageDir).toHaveBeenCalledWith('user-123', 'p1');
+      expect(mocks.deletePersonAudioDir).toHaveBeenCalledWith('user-123', 'p1');
       expect(mocks.personDelete).toHaveBeenCalledWith({ where: { id: 'p1' } });
     });
   });

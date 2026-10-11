@@ -396,6 +396,21 @@ export function sharedSchemas(): Record<string, unknown> {
       },
       required: ['id', 'width', 'height', 'size', 'createdAt'],
     },
+    PersonAudio: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        originalName: { type: 'string', description: 'Filename as uploaded' },
+        recordedAt: {
+          type: ['string', 'null'],
+          format: 'date-time',
+          description: 'Recording time read from a YYMMDD_HHMM filename. The wall-clock time is stored as UTC. Null when the name has no date.',
+        },
+        size: { type: 'integer', description: 'Stored file size in bytes' },
+        createdAt: { type: 'string', format: 'date-time' },
+      },
+      required: ['id', 'originalName', 'recordedAt', 'size', 'createdAt'],
+    },
     PersonIM: {
       type: 'object',
       properties: {
