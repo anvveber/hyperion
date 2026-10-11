@@ -65,6 +65,7 @@
     "journal": "Dagboek",
     "createJournal": "Nieuwe invoer",
     "map": "Kaart",
+    "calendar": "Kalender",
     "advancedSearch": "Zoeken"
   },
   "advancedSearch": {
@@ -1832,6 +1833,22 @@
     "directions": "Routebeschrijving",
     "webglUnavailable": "Uw browser kan de kaart niet weergeven omdat WebGL niet beschikbaar of uitgeschakeld is. Schakel grafische versnelling of WebGL in uw browser in en laad de pagina opnieuw.",
     "colocatedTitle": "{count, plural, one {1 persoon op deze locatie} other {# personen op deze locatie}}"
+  },
+  "calendar": {
+    "title": "Kalender",
+    "subtitle": "Verjaardagen, jubilea en andere belangrijke datums van de mensen in je netwerk.",
+    "downloadIcs": ".ics downloaden",
+    "empty": "Nog geen belangrijke datums. Voeg ze toe op de pagina van een persoon, dan verschijnen ze hier.",
+    "previousMonth": "Vorige maand",
+    "nextMonth": "Volgende maand",
+    "today": "Vandaag",
+    "more": "+{count} meer",
+    "noDatesThisMonth": "Geen belangrijke datums deze maand.",
+    "yearsSince": "{count, plural, one {# jaar} other {# jaar}}",
+    "ics": {
+      "calendarName": "Belangrijke datums",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Relatietypen",

@@ -65,6 +65,7 @@
     "journal": "Tagebuch",
     "createJournal": "Neuer Eintrag",
     "map": "Karte",
+    "calendar": "Kalender",
     "advancedSearch": "Suche"
   },
   "advancedSearch": {
@@ -1832,6 +1833,22 @@
     "directions": "Route",
     "webglUnavailable": "Dein Browser kann die Karte nicht anzeigen, weil WebGL nicht verfügbar oder deaktiviert ist. Aktiviere die Grafikbeschleunigung oder WebGL in deinem Browser und lade die Seite neu.",
     "colocatedTitle": "{count, plural, one {1 Person an diesem Standort} other {# Personen an diesem Standort}}"
+  },
+  "calendar": {
+    "title": "Kalender",
+    "subtitle": "Geburtstage, Jahrestage und andere wichtige Daten der Menschen in deinem Netzwerk.",
+    "downloadIcs": ".ics herunterladen",
+    "empty": "Noch keine wichtigen Daten. Füge sie auf der Seite einer Person hinzu, dann erscheinen sie hier.",
+    "previousMonth": "Vorheriger Monat",
+    "nextMonth": "Nächster Monat",
+    "today": "Heute",
+    "more": "+{count} weitere",
+    "noDatesThisMonth": "Keine wichtigen Daten in diesem Monat.",
+    "yearsSince": "{count, plural, one {# Jahr} other {# Jahre}}",
+    "ics": {
+      "calendarName": "Wichtige Daten",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Beziehungsarten",

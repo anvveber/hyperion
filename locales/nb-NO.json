@@ -65,6 +65,7 @@
     "journal": "Journal",
     "createJournal": "Ny oppføring",
     "map": "Kart",
+    "calendar": "Kalender",
     "advancedSearch": "Søk"
   },
   "advancedSearch": {
@@ -1832,6 +1833,22 @@
     "directions": "Veibeskrivelse",
     "webglUnavailable": "Nettleseren din kan ikke vise kartet fordi WebGL er utilgjengelig eller deaktivert. Aktiver grafikkakselerasjon eller WebGL i nettleseren din og last inn siden på nytt.",
     "colocatedTitle": "{count, plural, one {1 person på dette stedet} other {# personer på dette stedet}}"
+  },
+  "calendar": {
+    "title": "Kalender",
+    "subtitle": "Bursdager, jubileer og andre viktige datoer for menneskene i nettverket ditt.",
+    "downloadIcs": "Last ned .ics",
+    "empty": "Ingen viktige datoer ennå. Legg dem til på en persons side, så dukker de opp her.",
+    "previousMonth": "Forrige måned",
+    "nextMonth": "Neste måned",
+    "today": "I dag",
+    "more": "+{count} til",
+    "noDatesThisMonth": "Ingen viktige datoer denne måneden.",
+    "yearsSince": "{count, plural, one {# år} other {# år}}",
+    "ics": {
+      "calendarName": "Viktige datoer",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Relasjonstyper",

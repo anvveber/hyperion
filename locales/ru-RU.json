@@ -65,6 +65,7 @@
     "journal": "Журнал",
     "createJournal": "Новая запись",
     "map": "Карта",
+    "calendar": "Календарь",
     "advancedSearch": "Поиск"
   },
   "advancedSearch": {
@@ -1832,6 +1833,22 @@
     "directions": "Маршрут",
     "webglUnavailable": "Ваш браузер не может отобразить карту, потому что WebGL недоступен или отключён. Включите ускорение графики или WebGL в браузере и перезагрузите страницу.",
     "colocatedTitle": "{count, plural, one {# человек в этом месте} few {# человека в этом месте} many {# человек в этом месте} other {# человек в этом месте}}"
+  },
+  "calendar": {
+    "title": "Календарь",
+    "subtitle": "Дни рождения, годовщины и другие важные даты людей из вашей сети.",
+    "downloadIcs": "Скачать .ics",
+    "empty": "Важных дат пока нет. Добавьте их на странице человека, и они появятся здесь.",
+    "previousMonth": "Предыдущий месяц",
+    "nextMonth": "Следующий месяц",
+    "today": "Сегодня",
+    "more": "ещё {count}",
+    "noDatesThisMonth": "В этом месяце важных дат нет.",
+    "yearsSince": "{count, plural, one {# год} few {# года} many {# лет} other {# года}}",
+    "ics": {
+      "calendarName": "Важные даты",
+      "summary": "{title}: {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Типы связей",

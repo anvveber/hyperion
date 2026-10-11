@@ -65,6 +65,7 @@
     "journal": "日记",
     "createJournal": "新条目",
     "map": "地图",
+    "calendar": "日历",
     "advancedSearch": "搜索"
   },
   "advancedSearch": {
@@ -1832,6 +1833,22 @@
     "directions": "路线",
     "webglUnavailable": "您的浏览器无法显示地图，因为 WebGL 不可用或已被禁用。请在浏览器中启用图形加速或 WebGL，然后重新加载页面。",
     "colocatedTitle": "{count, plural, other {此位置有#人}}"
+  },
+  "calendar": {
+    "title": "日历",
+    "subtitle": "你的人脉中每个人的生日、纪念日和其他重要日期。",
+    "downloadIcs": "下载 .ics",
+    "empty": "还没有重要日期。在联系人页面添加后，会显示在这里。",
+    "previousMonth": "上个月",
+    "nextMonth": "下个月",
+    "today": "今天",
+    "more": "还有 {count} 个",
+    "noDatesThisMonth": "本月没有重要日期。",
+    "yearsSince": "{count, plural, other {# 年}}",
+    "ics": {
+      "calendarName": "重要日期",
+      "summary": "{title}：{name}"
+    }
   },
   "relationshipTypes": {
     "title": "关系类型",

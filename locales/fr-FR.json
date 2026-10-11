@@ -65,6 +65,7 @@
     "journal": "Journal",
     "createJournal": "Nouvelle entrée",
     "map": "Carte",
+    "calendar": "Calendrier",
     "advancedSearch": "Recherche"
   },
   "advancedSearch": {
@@ -1832,6 +1833,22 @@
     "directions": "Itinéraire",
     "webglUnavailable": "Votre navigateur ne peut pas afficher la carte car WebGL est indisponible ou désactivé. Activez l'accélération graphique ou WebGL dans votre navigateur, puis rechargez la page.",
     "colocatedTitle": "{count, plural, one {1 personne à cet endroit} other {# personnes à cet endroit}}"
+  },
+  "calendar": {
+    "title": "Calendrier",
+    "subtitle": "Anniversaires, fêtes et autres dates importantes des personnes de votre réseau.",
+    "downloadIcs": "Télécharger le .ics",
+    "empty": "Aucune date importante pour l'instant. Ajoutez-en sur la page d'une personne et elles apparaîtront ici.",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "today": "Aujourd'hui",
+    "more": "+{count} de plus",
+    "noDatesThisMonth": "Aucune date importante ce mois-ci.",
+    "yearsSince": "{count, plural, one {# an} other {# ans}}",
+    "ics": {
+      "calendarName": "Dates importantes",
+      "summary": "{title} : {name}"
+    }
   },
   "relationshipTypes": {
     "title": "Types de relation",
