@@ -92,6 +92,10 @@
         "label": "Usuario",
         "placeholder": "Nombre de usuario o ID de la plataforma"
       },
+      "customFields": {
+        "label": "Campos personalizados",
+        "placeholder": "Cualquier valor de campo o el nombre de una persona vinculada"
+      },
       "keywords": {
         "label": "Palabras clave en las notas",
         "placeholder": "Palabras que aparecen en sus notas"
@@ -953,6 +957,10 @@
       "typeNumber": "Número",
       "typeBoolean": "Sí / No",
       "typeSelect": "Selección única",
+      "typeMultiSelect": "Selección múltiple",
+      "typeDate": "Fecha",
+      "typeUrl": "Enlace",
+      "typePerson": "Persona",
       "typeLockedNotice": "El tipo no se puede cambiar después de la creación.",
       "optionsLabel": "Opciones",
       "optionPlaceholder": "Opción",
@@ -986,7 +994,10 @@
       "booleanNo": "No",
       "booleanNotSet": "Sin definir",
       "selectEmpty": "-",
-      "valueOutOfOptions": "Este valor ya no está en las opciones del campo."
+      "valueOutOfOptions": "Este valor ya no está en las opciones del campo.",
+      "personPlaceholder": "Buscar una persona...",
+      "clearPerson": "Quitar",
+      "linkedPersonMissing": "La persona vinculada ya no existe"
     },
     "filter": {
       "moreFilters": "Más filtros",

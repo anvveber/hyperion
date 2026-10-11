@@ -92,6 +92,10 @@
         "label": "Handle",
         "placeholder": "Username or platform ID"
       },
+      "customFields": {
+        "label": "Custom fields",
+        "placeholder": "Any custom field value, or a linked person's name"
+      },
       "keywords": {
         "label": "Keywords in notes",
         "placeholder": "Words that appear in their notes"
@@ -953,6 +957,10 @@
       "typeNumber": "Number",
       "typeBoolean": "Yes / No",
       "typeSelect": "Single-select",
+      "typeMultiSelect": "Multi-select",
+      "typeDate": "Date",
+      "typeUrl": "Link",
+      "typePerson": "Person",
       "typeLockedNotice": "Type can't be changed after creation.",
       "optionsLabel": "Options",
       "optionPlaceholder": "Option",
@@ -986,7 +994,10 @@
       "booleanNo": "No",
       "booleanNotSet": "Not set",
       "selectEmpty": "-",
-      "valueOutOfOptions": "This value is no longer in the field's options."
+      "valueOutOfOptions": "This value is no longer in the field's options.",
+      "personPlaceholder": "Search for a person...",
+      "clearPerson": "Clear",
+      "linkedPersonMissing": "Linked person no longer exists"
     },
     "filter": {
       "moreFilters": "More filters",

@@ -26,6 +26,7 @@ import PersonAudioFolder from '@/components/PersonAudioFolder';
 import PersonVisits from '@/components/PersonVisits';
 import MessagingLinks from '@/components/MessagingLinks';
 import { customFieldValuesInclude } from '@/lib/prisma-queries';
+import { isIsoDate, isWebUrl, parseMultiSelectValue } from '@/lib/customFields/values';
 import FieldHistoryList, { AddFieldHistoryForm, type FieldHistoryEntry } from '@/components/FieldHistoryList';
 import { isHistoryField, type HistoryField } from '@/lib/field-history-fields';
 
@@ -871,12 +872,41 @@ export default async function PersonDetailsPage({
                   </h3>
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {person.customFieldValues.map((v) => {
-                      const display =
-                        v.template.type === 'BOOLEAN'
-                          ? v.value === 'true'
-                            ? tCf('booleanYes')
-                            : tCf('booleanNo')
-                          : v.value;
+                      let display: React.ReactNode = v.value;
+                      switch (v.template.type) {
+                        case 'BOOLEAN':
+                          display = v.value === 'true' ? tCf('booleanYes') : tCf('booleanNo');
+                          break;
+                        case 'DATE':
+                          display = isIsoDate(v.value) ? formatDate(v.value, dateFormat as DateFormat) : v.value;
+                          break;
+                        case 'URL':
+                          display = isWebUrl(v.value) ? (
+                            <a
+                              href={v.value}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline break-all"
+                            >
+                              {v.value}
+                            </a>
+                          ) : v.value;
+                          break;
+                        case 'MULTI_SELECT':
+                          display = (parseMultiSelectValue(v.value) ?? []).join(', ');
+                          break;
+                        case 'PERSON': {
+                          const linked = allPeople.find((p) => p.id === v.value);
+                          display = linked ? (
+                            <Link href={`/people/${linked.id}`} className="text-primary hover:underline">
+                              {formatGraphName(linked, nameOrder, nameDisplayFormat)}
+                            </Link>
+                          ) : (
+                            <span className="text-muted">{tCf('linkedPersonMissing')}</span>
+                          );
+                          break;
+                        }
+                      }
                       return (
                         <div key={v.id}>
                           <dt className="text-xs text-muted-foreground">{v.template.name}</dt>

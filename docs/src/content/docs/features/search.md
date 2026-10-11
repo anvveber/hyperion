@@ -39,7 +39,7 @@ Click any result to go straight to that person's detail page.
 - **Fuzzy tolerance**: 0.2
 - **Combine mode**: AND (all search words must match)
 - **Prefix matching**: enabled, so results appear as you type
-- **Indexed fields**: name, surname, middle name, second last name, nickname, display name override, other names, organization, job title, notes, phones, emails, addresses, URLs, IM handles and platform user IDs, groups, custom fields
+- **Indexed fields**: name, surname, middle name, second last name, nickname, display name override, other names, organization, job title, notes, phones, emails, addresses, URLs, IM handles and platform user IDs, groups, custom fields (Multi-select fields by their options, Person fields by the linked person's name)
 
 ## Advanced search
 
@@ -50,6 +50,7 @@ When you need more than a name, open **Search** in the main navigation (or go to
 - **Email**: any part of an email address
 - **Phone**: any part of a phone number. Spaces, dashes, and parentheses are ignored, so "612345" finds "+34 612 345 678"
 - **Handle**: any part of a messaging username, or a platform user ID such as a Discord ID. A leading `@` is ignored
+- **Custom fields**: any part of any [custom field](/features/custom-fields/) value. Multi-select fields match any of their selected options, and Person fields match the linked person's name
 - **Keywords in notes**: words that appear in the person's notes. Every word you type must appear, in any order
 
 Tick **Also match previous values** to search the [field history](/features/people/#field-history) too: old phone numbers, emails, addresses, names, nicknames and handles. People found only through an old value are marked "Matched a previous value".

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { customFieldTemplateUpdateSchema, validateRequest } from '@/lib/validations';
 import { apiResponse, handleApiError, parseRequestBody, withAuth } from '@/lib/api-utils';
 import { sanitizeName } from '@/lib/sanitize';
+import { parseMultiSelectValue, usesOptions } from '@/lib/customFields/values';
 
 /**
  * Detects an unambiguous option rename by set-difference.
@@ -90,9 +91,9 @@ export const PUT = withAuth(async (request, session, context) => {
       updateData.options = options;
     }
 
-    // Detect an unambiguous option rename for SELECT templates and cascade it.
+    // Detect an unambiguous option rename for select templates and cascade it.
     const rename =
-      options !== undefined && existing.type === 'SELECT'
+      options !== undefined && usesOptions(existing.type)
         ? detectOptionRename(existing.options, options)
         : null;
 
@@ -110,10 +111,29 @@ export const PUT = withAuth(async (request, session, context) => {
           data: updateData,
         });
 
-        await tx.personCustomFieldValue.updateMany({
-          where: { templateId: id, value: rename.from },
-          data: { value: rename.to },
-        });
+        if (existing.type === 'MULTI_SELECT') {
+          // Values are JSON lists, so rewrite each list that holds the old option
+          const rows = await tx.personCustomFieldValue.findMany({
+            where: { templateId: id },
+            select: { id: true, value: true },
+          });
+          for (const row of rows) {
+            const selected = parseMultiSelectValue(row.value);
+            if (!selected || !selected.includes(rename.from)) continue;
+            const next = Array.from(
+              new Set(selected.map((v) => (v === rename.from ? rename.to : v)))
+            );
+            await tx.personCustomFieldValue.update({
+              where: { id: row.id },
+              data: { value: JSON.stringify(next) },
+            });
+          }
+        } else {
+          await tx.personCustomFieldValue.updateMany({
+            where: { templateId: id, value: rename.from },
+            data: { value: rename.to },
+          });
+        }
       });
 
       // Reload with _count after transaction

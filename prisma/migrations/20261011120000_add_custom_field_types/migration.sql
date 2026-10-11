@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "CustomFieldType" ADD VALUE 'DATE';
+ALTER TYPE "CustomFieldType" ADD VALUE 'URL';
+ALTER TYPE "CustomFieldType" ADD VALUE 'MULTI_SELECT';
+ALTER TYPE "CustomFieldType" ADD VALUE 'PERSON';

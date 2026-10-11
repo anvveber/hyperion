@@ -3,12 +3,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   importantDateFindMany: vi.fn(),
   userFindUnique: vi.fn(),
+  customFieldValueFindMany: vi.fn(),
 }));
 
 vi.mock('../../lib/prisma', () => ({
   prisma: {
     importantDate: { findMany: mocks.importantDateFindMany },
     user: { findUnique: mocks.userFindUnique },
+    personCustomFieldValue: { findMany: mocks.customFieldValueFindMany },
   },
 }));
 
@@ -35,6 +37,7 @@ describe('GET /api/calendar/ics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.userFindUnique.mockResolvedValue({ nameOrder: 'WESTERN', nameDisplayFormat: 'FULL' });
+    mocks.customFieldValueFindMany.mockResolvedValue([]);
   });
 
   it('returns the user\'s important dates as an .ics attachment', async () => {
@@ -78,6 +81,42 @@ describe('GET /api/calendar/ics', () => {
     expect(mocks.importantDateFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { deletedAt: null, person: { userId: 'user-123', deletedAt: null } },
+      })
+    );
+  });
+
+  it('adds DATE custom fields as one-time events', async () => {
+    mocks.importantDateFindMany.mockResolvedValue([]);
+    mocks.customFieldValueFindMany.mockResolvedValue([
+      {
+        id: 'cfv-1',
+        value: '2023-09-14',
+        template: { name: 'First met' },
+        person: { id: 'person-1', name: 'Anna', surname: 'Smith', nickname: null, displayNameOverride: null },
+      },
+      {
+        id: 'cfv-2',
+        value: 'not a date',
+        template: { name: 'Broken' },
+        person: { id: 'person-2', name: 'Ben', surname: null, nickname: null, displayNameOverride: null },
+      },
+    ]);
+
+    const response = await GET(new Request('http://localhost/api/calendar/ics'));
+    const body = await response.text();
+
+    expect(body).toContain('SUMMARY:First met: Anna Smith');
+    expect(body).toContain('DTSTART;VALUE=DATE:20230914');
+    expect(body).toContain('UID:important-date-custom-field-cfv-1@nametag');
+    expect(body).not.toContain('RRULE');
+    expect(body).not.toContain('Broken');
+
+    expect(mocks.customFieldValueFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          template: { userId: 'user-123', type: 'DATE', deletedAt: null },
+          person: { userId: 'user-123', deletedAt: null },
+        },
       })
     );
   });

@@ -5,7 +5,7 @@ sidebar:
   order: 7
 ---
 
-The Calendar page shows the [important dates](/features/important-dates/) of everyone in your network on a month grid: birthdays, anniversaries, name days, memorials and your own custom dates. Open it from **Calendar** in the main navigation.
+The Calendar page shows the [important dates](/features/important-dates/) of everyone in your network on a month grid: birthdays, anniversaries, name days, memorials and your own custom dates. [Date custom fields](/features/custom-fields/) show up too, as one-time events titled with the field's name. Open it from **Calendar** in the main navigation.
 
 ## Browsing months
 
@@ -24,6 +24,7 @@ How dates repeat:
 - **Birthdays, anniversaries, name days and memorials** repeat every year
 - **Dates without a known year** repeat every year
 - **Custom dates** follow their reminder: a recurring reminder (for example every 6 months) sets how often the event repeats, a one-time reminder makes it a single event, and a date with no reminder repeats every year
+- **Date custom fields** are single events on the date they hold
 
 The file is a snapshot. When you add or change dates in Nametag, download it again and import it over the old one: every event keeps the same identifier between downloads, so calendar apps that honour it update the existing events instead of adding duplicates. Dates you deleted in Nametag are not removed from your calendar automatically; delete them there by hand.
 

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { customFieldValueToText } from '@/lib/customFields/values';
 import { apiResponse, withAuth } from '@/lib/api-utils';
 
 export const GET = withAuth(async (_request, session) => {
@@ -40,11 +41,17 @@ export const GET = withAuth(async (_request, session) => {
       },
       customFields: { select: { key: true, value: true } },
       customFieldValues: {
-        include: { template: { select: { name: true } } },
+        where: { template: { deletedAt: null } },
+        include: { template: { select: { name: true, type: true } } },
       },
     },
     orderBy: { name: 'asc' },
   });
+
+  // PERSON custom fields are indexed by the linked person's name
+  const nameById = new Map(
+    people.map((p) => [p.id, [p.name, p.surname, p.nickname].filter(Boolean).join(' ')])
+  );
 
   const indexData = people.map((person) => ({
     id: person.id,
@@ -73,7 +80,10 @@ export const GET = withAuth(async (_request, session) => {
     groups: person.groups.map((pg) => pg.group.name).join(' '),
     customFields: [
       ...person.customFields.map((cf) => `${cf.key} ${cf.value}`),
-      ...person.customFieldValues.map((cfv) => `${cfv.template.name} ${cfv.value}`),
+      ...person.customFieldValues.map(
+        (cfv) =>
+          `${cfv.template.name} ${customFieldValueToText(cfv.template.type, cfv.value, (id) => nameById.get(id) ?? null)}`
+      ),
     ].join(' '),
   }));
 

@@ -141,6 +141,39 @@ describe('Custom Field Templates API', () => {
       );
     });
 
+    it('returns 400 for a MULTI_SELECT template without options', async () => {
+      const request = new Request('http://localhost/api/custom-field-templates', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Diet', type: 'MULTI_SELECT', options: [] }),
+        headers: { 'content-type': 'application/json' },
+      });
+
+      const response = await POST(request);
+
+      expect(response.status).toBe(400);
+      expect(mocks.templateCreate).not.toHaveBeenCalled();
+    });
+
+    it('drops options sent for a type that does not use them', async () => {
+      mocks.templateFindFirst.mockResolvedValue(null);
+      mocks.templateCreate.mockResolvedValue({ id: 'tpl-new' });
+
+      const request = new Request('http://localhost/api/custom-field-templates', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Best friend', type: 'PERSON', options: ['stray'] }),
+        headers: { 'content-type': 'application/json' },
+      });
+
+      const response = await POST(request);
+
+      expect(response.status).toBe(201);
+      expect(mocks.templateCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ type: 'PERSON', options: [] }),
+        })
+      );
+    });
+
     it('returns 403 when tier limit is reached', async () => {
       mockCanCreateResource.mockResolvedValue({
         allowed: false,
@@ -358,6 +391,52 @@ describe('Custom Field Templates API', () => {
           where: expect.objectContaining({ value: 'omnivore' }),
         })
       );
+    });
+
+    it('renames an option inside MULTI_SELECT value lists', async () => {
+      const existing = {
+        id: 'tpl-1',
+        userId: 'user-123',
+        name: 'Diet',
+        slug: 'diet',
+        type: 'MULTI_SELECT',
+        options: ['vegan', 'gluten free'],
+        order: 0,
+        deletedAt: null,
+      };
+      const valueFindMany = vi.fn().mockResolvedValue([
+        { id: 'v1', value: '["vegan","gluten free"]' },
+        { id: 'v2', value: '["gluten free"]' },
+      ]);
+      const valueUpdate = vi.fn().mockResolvedValue({});
+
+      mocks.templateFindFirst.mockResolvedValue(existing);
+      mocks.transaction.mockImplementation(
+        async (fn: (tx: unknown) => Promise<unknown>) =>
+          fn({
+            customFieldTemplate: { update: mocks.templateUpdate },
+            personCustomFieldValue: {
+              updateMany: mocks.personCustomFieldValueUpdateMany,
+              findMany: valueFindMany,
+              update: valueUpdate,
+            },
+          })
+      );
+
+      const request = new Request('http://localhost/api/custom-field-templates/tpl-1', {
+        method: 'PUT',
+        body: JSON.stringify({ options: ['plant-based', 'gluten free'] }),
+        headers: { 'content-type': 'application/json' },
+      });
+      const response = await PUT(request, { params: Promise.resolve({ id: 'tpl-1' }) });
+
+      expect(response.status).toBe(200);
+      expect(valueUpdate).toHaveBeenCalledTimes(1);
+      expect(valueUpdate).toHaveBeenCalledWith({
+        where: { id: 'v1' },
+        data: { value: '["plant-based","gluten free"]' },
+      });
+      expect(mocks.personCustomFieldValueUpdateMany).not.toHaveBeenCalled();
     });
 
     it('rename + add in same request does not cascade (ambiguous — 1 removed, 2 added)', async () => {

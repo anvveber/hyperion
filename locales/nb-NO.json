@@ -92,6 +92,10 @@
         "label": "Brukernavn",
         "placeholder": "Brukernavn eller plattform-ID"
       },
+      "customFields": {
+        "label": "Egendefinerte felt",
+        "placeholder": "En hvilken som helst feltverdi, eller navnet på en koblet person"
+      },
       "keywords": {
         "label": "Nøkkelord i notater",
         "placeholder": "Ord som står i notatene deres"
@@ -953,6 +957,10 @@
       "typeNumber": "Tall",
       "typeBoolean": "Ja / Nei",
       "typeSelect": "Enkeltvalg",
+      "typeMultiSelect": "Flervalg",
+      "typeDate": "Dato",
+      "typeUrl": "Lenke",
+      "typePerson": "Person",
       "typeLockedNotice": "Typen kan ikke endres etter opprettelse.",
       "optionsLabel": "Alternativer",
       "optionPlaceholder": "Alternativ",
@@ -986,7 +994,10 @@
       "booleanNo": "Nei",
       "booleanNotSet": "Ikke angitt",
       "selectEmpty": "-",
-      "valueOutOfOptions": "Denne verdien er ikke lenger blant feltets alternativer."
+      "valueOutOfOptions": "Denne verdien er ikke lenger blant feltets alternativer.",
+      "personPlaceholder": "Søk etter en person...",
+      "clearPerson": "Fjern",
+      "linkedPersonMissing": "Den koblede personen finnes ikke lenger"
     },
     "filter": {
       "moreFilters": "Flere filtre",

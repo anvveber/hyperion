@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { normalizeForSearch } from '@/lib/search';
 import { getCountryName } from '@/lib/countries';
+import { customFieldValueToText } from '@/lib/customFields/values';
 
 /**
  * Field-specific contact search used by the /search page.
@@ -18,12 +19,14 @@ export interface AdvancedSearchFilters {
   email: string;
   phone: string;
   handle: string;
+  /** Any custom field value (linked people match by name) */
+  customFields: string;
   keywords: string;
   /** Also match previous values from field history */
   previous: boolean;
 }
 
-export const ADVANCED_SEARCH_FILTER_KEYS = ['name', 'location', 'email', 'phone', 'handle', 'keywords'] as const;
+export const ADVANCED_SEARCH_FILTER_KEYS = ['name', 'location', 'email', 'phone', 'handle', 'customFields', 'keywords'] as const;
 
 type TextFilterKey = (typeof ADVANCED_SEARCH_FILTER_KEYS)[number];
 
@@ -52,6 +55,8 @@ export interface AdvancedSearchCandidate {
   imHandles?: { protocol: string; handle: string; platformId: string | null }[];
   aliases?: { name: string }[];
   fieldHistory?: { field: string; value: string; data: unknown }[];
+  /** Custom field values already turned into plain text (see customFieldValueToText) */
+  customFieldTexts?: string[];
 }
 
 export interface AdvancedSearchResult {
@@ -87,6 +92,7 @@ export function parseAdvancedSearchFilters(
     email: read('email'),
     phone: read('phone'),
     handle: read('handle'),
+    customFields: read('customFields'),
     keywords: read('keywords'),
     previous: previous === '1' || previous === 'true' || previous === 'on',
   };
@@ -224,6 +230,11 @@ function matchesHandle(person: AdvancedSearchCandidate, query: string, allowPrev
   );
 }
 
+function matchesCustomFields(person: AdvancedSearchCandidate, query: string): boolean {
+  const q = normalizeForSearch(query);
+  return (person.customFieldTexts ?? []).some((text) => includesNormalized(text, q));
+}
+
 function matchesKeywords(person: AdvancedSearchCandidate, query: string): boolean {
   if (!person.notes) return false;
   const notes = normalizeForSearch(person.notes);
@@ -254,6 +265,7 @@ export function filterAdvancedSearch(
     if (filters.email) kinds.push(matchesEmail(person, filters.email, allowPrevious));
     if (filters.phone) kinds.push(matchesPhone(person, filters.phone, allowPrevious));
     if (filters.handle) kinds.push(matchesHandle(person, filters.handle, allowPrevious));
+    if (filters.customFields) kinds.push(matchesCustomFields(person, filters.customFields) ? 'current' : 'none');
     if (filters.keywords) kinds.push(matchesKeywords(person, filters.keywords) ? 'current' : 'none');
     if (kinds.includes('none')) continue;
 
@@ -316,10 +328,25 @@ export async function advancedSearchPeople(
       fieldHistory: filters.previous
         ? { select: { field: true, value: true, data: true } }
         : false,
+      customFieldValues: {
+        where: { template: { deletedAt: null } },
+        select: { value: true, template: { select: { type: true } } },
+      },
     },
     orderBy: [{ name: 'asc' }, { surname: 'asc' }],
   });
 
-  const matches = filterAdvancedSearch(people, filters);
+  // Linked people (PERSON fields) are searched by their name
+  const nameById = new Map(
+    people.map((p) => [p.id, [p.name, p.surname, p.nickname].filter(Boolean).join(' ')])
+  );
+  const candidates: AdvancedSearchCandidate[] = people.map(({ customFieldValues, ...person }) => ({
+    ...person,
+    customFieldTexts: (customFieldValues ?? []).map((v) =>
+      customFieldValueToText(v.template.type, v.value, (id) => nameById.get(id) ?? null)
+    ),
+  }));
+
+  const matches = filterAdvancedSearch(candidates, filters);
   return { results: matches.slice(0, ADVANCED_SEARCH_MAX_RESULTS), total: matches.length };
 }

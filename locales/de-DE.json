@@ -92,6 +92,10 @@
         "label": "Benutzername",
         "placeholder": "Benutzername oder Plattform-ID"
       },
+      "customFields": {
+        "label": "Benutzerdefinierte Felder",
+        "placeholder": "Beliebiger Feldwert oder Name einer verknüpften Person"
+      },
       "keywords": {
         "label": "Stichwörter in Notizen",
         "placeholder": "Wörter, die in ihren Notizen vorkommen"
@@ -953,6 +957,10 @@
       "typeNumber": "Zahl",
       "typeBoolean": "Ja / Nein",
       "typeSelect": "Einzelauswahl",
+      "typeMultiSelect": "Mehrfachauswahl",
+      "typeDate": "Datum",
+      "typeUrl": "Link",
+      "typePerson": "Person",
       "typeLockedNotice": "Der Typ kann nach der Erstellung nicht geändert werden.",
       "optionsLabel": "Optionen",
       "optionPlaceholder": "Option",
@@ -986,7 +994,10 @@
       "booleanNo": "Nein",
       "booleanNotSet": "Nicht gesetzt",
       "selectEmpty": "-",
-      "valueOutOfOptions": "Dieser Wert ist nicht mehr in den Optionen des Felds."
+      "valueOutOfOptions": "Dieser Wert ist nicht mehr in den Optionen des Felds.",
+      "personPlaceholder": "Person suchen...",
+      "clearPerson": "Entfernen",
+      "linkedPersonMissing": "Die verknüpfte Person existiert nicht mehr"
     },
     "filter": {
       "moreFilters": "Weitere Filter",

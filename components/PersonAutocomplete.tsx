@@ -23,6 +23,8 @@ interface PersonAutocompleteProps {
   highlightPersonId?: string;
   nameOrder?: 'WESTERN' | 'EASTERN';
   nameDisplayFormat?: NameDisplayFormat;
+  /** id for the text input, so a <label htmlFor> can point at it */
+  inputId?: string;
 }
 
 export default function PersonAutocomplete({
@@ -35,6 +37,7 @@ export default function PersonAutocomplete({
   highlightPersonId,
   nameOrder,
   nameDisplayFormat,
+  inputId,
 }: PersonAutocompleteProps) {
   const t = useTranslations('people');
   const [searchTerm, setSearchTerm] = useState('');
@@ -142,6 +145,7 @@ export default function PersonAutocomplete({
     <div ref={wrapperRef} className="relative">
       <input
         ref={inputRef}
+        id={inputId}
         type="text"
         value={displayValue}
         onChange={handleInputChange}

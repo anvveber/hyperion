@@ -1369,8 +1369,10 @@ describe('mergePeople', () => {
 
     await mergePeople(PERSON_ID, SOURCE_ID, USER_ID);
 
-    // updateMany must NOT have been called (no values to transfer)
-    expect(mocks.mockTxClient.personCustomFieldValue.updateMany).not.toHaveBeenCalled();
+    // No values are moved over (the only updateMany re-points PERSON links)
+    expect(mocks.mockTxClient.personCustomFieldValue.updateMany).not.toHaveBeenCalledWith(
+      expect.objectContaining({ data: { personId: PERSON_ID } })
+    );
     // Cleanup must still run
     expect(mocks.mockTxClient.personCustomFieldValue.deleteMany).toHaveBeenCalledWith({
       where: { personId: SOURCE_ID },
@@ -1381,10 +1383,25 @@ describe('mergePeople', () => {
     // Default makePersonForMerge has empty customFieldValues
     await mergePeople(PERSON_ID, SOURCE_ID, USER_ID);
 
-    expect(mocks.mockTxClient.personCustomFieldValue.updateMany).not.toHaveBeenCalled();
+    expect(mocks.mockTxClient.personCustomFieldValue.updateMany).not.toHaveBeenCalledWith(
+      expect.objectContaining({ data: { personId: PERSON_ID } })
+    );
     // Cleanup still runs (deleteMany with empty result is fine)
     expect(mocks.mockTxClient.personCustomFieldValue.deleteMany).toHaveBeenCalledWith({
       where: { personId: SOURCE_ID },
+    });
+  });
+
+  it('re-points PERSON custom fields that linked to the source at the target', async () => {
+    await mergePeople(PERSON_ID, SOURCE_ID, USER_ID);
+
+    expect(mocks.mockTxClient.personCustomFieldValue.updateMany).toHaveBeenCalledWith({
+      where: { value: SOURCE_ID, template: { userId: USER_ID, type: 'PERSON' } },
+      data: { value: PERSON_ID },
+    });
+    // A link the target would hold to itself is dropped
+    expect(mocks.mockTxClient.personCustomFieldValue.deleteMany).toHaveBeenCalledWith({
+      where: { personId: PERSON_ID, value: PERSON_ID, template: { type: 'PERSON' } },
     });
   });
 });

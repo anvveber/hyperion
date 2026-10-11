@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { CustomFieldType } from '@prisma/client';
 import { TemplateWithCount } from './CustomFieldsManager';
+import { usesOptions } from '@/lib/customFields/values';
 
 interface CustomFieldTemplateFormProps {
   mode: 'create' | 'edit';
@@ -12,13 +13,26 @@ interface CustomFieldTemplateFormProps {
   onCancel: () => void;
 }
 
-const FIELD_TYPES: CustomFieldType[] = ['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT'];
+const FIELD_TYPES: CustomFieldType[] = [
+  'TEXT',
+  'NUMBER',
+  'BOOLEAN',
+  'DATE',
+  'URL',
+  'SELECT',
+  'MULTI_SELECT',
+  'PERSON',
+];
 
-const TYPE_LABEL_KEYS: Record<CustomFieldType, string> = {
+export const TYPE_LABEL_KEYS: Record<CustomFieldType, string> = {
   TEXT: 'typeText',
   NUMBER: 'typeNumber',
   BOOLEAN: 'typeBoolean',
   SELECT: 'typeSelect',
+  DATE: 'typeDate',
+  URL: 'typeUrl',
+  MULTI_SELECT: 'typeMultiSelect',
+  PERSON: 'typePerson',
 };
 
 export default function CustomFieldTemplateForm({
@@ -39,7 +53,7 @@ export default function CustomFieldTemplateForm({
   const [error, setError] = useState<string | null>(null);
 
   const isEdit = mode === 'edit';
-  const showOptions = type === 'SELECT';
+  const showOptions = usesOptions(type);
 
   const handleOptionChange = (idx: number, value: string) => {
     const next = [...options];
@@ -61,7 +75,7 @@ export default function CustomFieldTemplateForm({
     setError(null);
 
     const payload =
-      type === 'SELECT'
+      usesOptions(type)
         ? { name, type, options: options.filter((o) => o.trim() !== '') }
         : { name, type, options: [] };
 
@@ -144,7 +158,7 @@ export default function CustomFieldTemplateForm({
         </div>
       </div>
 
-      {/* Options (SELECT only) */}
+      {/* Options (select types only) */}
       {showOptions && (
         <div>
           <span className="block text-sm font-medium text-foreground mb-2">

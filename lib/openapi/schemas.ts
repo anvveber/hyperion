@@ -113,8 +113,8 @@ export function sharedSchemas(): Record<string, unknown> {
         userId: { type: 'string' },
         name: { type: 'string', example: 'Dietary restriction' },
         slug: { type: 'string', example: 'dietary-restriction', description: 'Stable, immutable, derived from name at create time' },
-        type: { type: 'string', enum: ['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT'] },
-        options: { type: 'array', items: { type: 'string' }, description: 'Only meaningful when type=SELECT' },
+        type: { type: 'string', enum: ['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'DATE', 'URL', 'MULTI_SELECT', 'PERSON'] },
+        options: { type: 'array', items: { type: 'string' }, description: 'Only meaningful when type is SELECT or MULTI_SELECT' },
         order: { type: 'integer', description: 'Display order' },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },
@@ -498,7 +498,11 @@ export function sharedSchemas(): Record<string, unknown> {
         id: { type: 'string', description: 'CUID identifier' },
         personId: { type: 'string', description: 'CUID identifier' },
         templateId: { type: 'string', description: 'CUID identifier of the CustomFieldTemplate' },
-        value: { type: 'string', description: 'Raw string value; semantics depend on template type' },
+        value: {
+          type: 'string',
+          description:
+            'Raw string value; semantics depend on template type. DATE is YYYY-MM-DD, URL is an absolute http(s) URL, MULTI_SELECT is a JSON array of options (e.g. ["a","b"]), PERSON is the id of another non-deleted person owned by the user',
+        },
         template: {
           oneOf: [
             { $ref: '#/components/schemas/CustomFieldTemplate' },

@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   validateRawValue,
   isEmptyRawValue,
+  parseMultiSelectValue,
+  serializeMultiSelectValue,
+  customFieldValueToText,
 } from '../../lib/customFields/values';
 
 describe('isEmptyRawValue', () => {
@@ -101,5 +104,76 @@ describe('customFieldTemplateUpdateSchema', () => {
 
   it('accepts partial updates', () => {
     expect(customFieldTemplateUpdateSchema.safeParse({ name: 'New' }).success).toBe(true);
+  });
+});
+
+describe('validateRawValue for the newer types', () => {
+  it('accepts real YYYY-MM-DD dates for DATE', () => {
+    expect(validateRawValue('DATE', '2024-02-29', [])).toEqual({ ok: true });
+    expect(validateRawValue('DATE', '1999-12-31', [])).toEqual({ ok: true });
+  });
+
+  it('rejects malformed or impossible dates for DATE', () => {
+    for (const raw of ['2023-02-29', '2024-13-01', '31/12/2024', '2024-1-1', '2024-01-01T00:00:00Z']) {
+      expect(validateRawValue('DATE', raw, [])).toEqual({ ok: false, error: 'NOT_A_DATE' });
+    }
+  });
+
+  it('accepts http and https URLs for URL', () => {
+    expect(validateRawValue('URL', 'https://example.com/a?b=c', [])).toEqual({ ok: true });
+    expect(validateRawValue('URL', 'http://localhost:3000', [])).toEqual({ ok: true });
+  });
+
+  it('rejects other schemes and non-URLs for URL', () => {
+    for (const raw of ['javascript:alert(1)', 'ftp://example.com', 'example.com', 'https://exa mple.com']) {
+      expect(validateRawValue('URL', raw, [])).toEqual({ ok: false, error: 'NOT_A_URL' });
+    }
+  });
+
+  it('accepts a JSON list of known options for MULTI_SELECT', () => {
+    expect(validateRawValue('MULTI_SELECT', '["a","c"]', ['a', 'b', 'c'])).toEqual({ ok: true });
+  });
+
+  it('rejects unknown options for MULTI_SELECT', () => {
+    expect(validateRawValue('MULTI_SELECT', '["a","z"]', ['a', 'b'])).toEqual({
+      ok: false,
+      error: 'NOT_IN_OPTIONS',
+    });
+  });
+
+  it('rejects non-lists, empty lists and duplicates for MULTI_SELECT', () => {
+    for (const raw of ['a', '"a"', '[]', '["a","a"]', '[1]', '{"a":1}']) {
+      expect(validateRawValue('MULTI_SELECT', raw, ['a'])).toEqual({ ok: false, error: 'NOT_A_LIST' });
+    }
+  });
+
+  it('accepts id-shaped strings for PERSON and rejects anything else', () => {
+    expect(validateRawValue('PERSON', 'cmabc123xyz', [])).toEqual({ ok: true });
+    expect(validateRawValue('PERSON', 'not an id', [])).toEqual({ ok: false, error: 'NOT_A_PERSON' });
+  });
+
+  it('treats an empty list as an empty value', () => {
+    expect(isEmptyRawValue('[]')).toBe(true);
+  });
+});
+
+describe('multi-select helpers', () => {
+  it('parses JSON lists of strings and rejects anything else', () => {
+    expect(parseMultiSelectValue('["a","b"]')).toEqual(['a', 'b']);
+    expect(parseMultiSelectValue('[1]')).toBeNull();
+    expect(parseMultiSelectValue('nope')).toBeNull();
+  });
+
+  it('serializes in option order, without duplicates, keeping stale values last', () => {
+    expect(serializeMultiSelectValue(['c', 'a', 'a', 'old'], ['a', 'b', 'c'])).toBe('["a","c","old"]');
+  });
+});
+
+describe('customFieldValueToText', () => {
+  it('joins multi-select options and resolves linked people', () => {
+    expect(customFieldValueToText('MULTI_SELECT', '["a","b"]')).toBe('a, b');
+    expect(customFieldValueToText('PERSON', 'p1', (id) => (id === 'p1' ? 'Ana' : null))).toBe('Ana');
+    expect(customFieldValueToText('PERSON', 'gone', () => null)).toBe('');
+    expect(customFieldValueToText('DATE', '2024-05-31')).toBe('2024-05-31');
   });
 });

@@ -92,6 +92,10 @@
         "label": "ユーザー名",
         "placeholder": "ユーザー名またはプラットフォームID"
       },
+      "customFields": {
+        "label": "カスタムフィールド",
+        "placeholder": "任意のフィールド値、またはリンク先の人物の名前"
+      },
       "keywords": {
         "label": "メモ内のキーワード",
         "placeholder": "メモに含まれる単語"
@@ -953,6 +957,10 @@
       "typeNumber": "数値",
       "typeBoolean": "はい / いいえ",
       "typeSelect": "単一選択",
+      "typeMultiSelect": "複数選択",
+      "typeDate": "日付",
+      "typeUrl": "リンク",
+      "typePerson": "人物",
       "typeLockedNotice": "作成後はタイプを変更できません。",
       "optionsLabel": "選択肢",
       "optionPlaceholder": "選択肢",
@@ -986,7 +994,10 @@
       "booleanNo": "いいえ",
       "booleanNotSet": "未設定",
       "selectEmpty": "-",
-      "valueOutOfOptions": "この値はフィールドの選択肢に含まれていません。"
+      "valueOutOfOptions": "この値はフィールドの選択肢に含まれていません。",
+      "personPlaceholder": "人物を検索...",
+      "clearPerson": "解除",
+      "linkedPersonMissing": "リンク先の人物は存在しません"
     },
     "filter": {
       "moreFilters": "詳細フィルター",

@@ -3,14 +3,28 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { CustomFieldTemplate } from '@prisma/client';
+import PersonAutocomplete from '@/components/PersonAutocomplete';
+import { formatGraphName, type NameDisplayFormat } from '@/lib/nameUtils';
+import type { LinkablePerson } from './CustomFieldsSection';
 
 interface Props {
   templates: CustomFieldTemplate[];
   current: { slug: string; value: string } | null;
   onChange: (cf: string) => void; // pass empty string to clear
+  /** People a PERSON field filter can pick from */
+  people?: LinkablePerson[];
+  nameOrder?: 'WESTERN' | 'EASTERN';
+  nameDisplayFormat?: NameDisplayFormat;
 }
 
-export default function CustomFieldFilter({ templates, current, onChange }: Props) {
+export default function CustomFieldFilter({
+  templates,
+  current,
+  onChange,
+  people = [],
+  nameOrder,
+  nameDisplayFormat,
+}: Props) {
   const t = useTranslations('customFields');
   const tPerson = useTranslations('customFields.person');
   const [pickingTemplate, setPickingTemplate] = useState<CustomFieldTemplate | null>(null);
@@ -21,12 +35,15 @@ export default function CustomFieldFilter({ templates, current, onChange }: Prop
   if (current) {
     const tpl = templates.find((tt) => tt.slug === current.slug);
     if (tpl) {
-      const displayValue =
-        tpl.type === 'BOOLEAN'
-          ? current.value === 'true'
-            ? tPerson('booleanYes')
-            : tPerson('booleanNo')
-          : current.value;
+      let displayValue = current.value;
+      if (tpl.type === 'BOOLEAN') {
+        displayValue = current.value === 'true' ? tPerson('booleanYes') : tPerson('booleanNo');
+      } else if (tpl.type === 'PERSON') {
+        const linked = people.find((p) => p.id === current.value);
+        displayValue = linked
+          ? formatGraphName(linked, nameOrder, nameDisplayFormat)
+          : tPerson('linkedPersonMissing');
+      }
       return (
         <button
           type="button"
@@ -60,6 +77,9 @@ export default function CustomFieldFilter({ templates, current, onChange }: Prop
     return (
       <CustomFieldValuePicker
         template={pickingTemplate}
+        people={people}
+        nameOrder={nameOrder}
+        nameDisplayFormat={nameDisplayFormat}
         onApply={(value) => {
           if (value) {
             onChange(`${pickingTemplate.slug}:${value}`);
@@ -91,11 +111,21 @@ export default function CustomFieldFilter({ templates, current, onChange }: Prop
 
 interface ValuePickerProps {
   template: CustomFieldTemplate;
+  people: LinkablePerson[];
+  nameOrder?: 'WESTERN' | 'EASTERN';
+  nameDisplayFormat?: NameDisplayFormat;
   onApply: (value: string) => void;
   onCancel: () => void;
 }
 
-function CustomFieldValuePicker({ template, onApply, onCancel }: ValuePickerProps) {
+function CustomFieldValuePicker({
+  template,
+  people,
+  nameOrder,
+  nameDisplayFormat,
+  onApply,
+  onCancel,
+}: ValuePickerProps) {
   const t = useTranslations('customFields');
   const tPerson = useTranslations('customFields.person');
   const [draft, setDraft] = useState('');
@@ -141,7 +171,44 @@ function CustomFieldValuePicker({ template, onApply, onCancel }: ValuePickerProp
         </select>
       );
       break;
+    case 'DATE':
+      input = (
+        <input
+          type="date"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          aria-label={template.name}
+          className={inputClass}
+        />
+      );
+      break;
+    case 'URL':
+      input = (
+        <input
+          type="url"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={template.name}
+          className={inputClass}
+        />
+      );
+      break;
+    case 'PERSON':
+      input = (
+        <div className="min-w-[12rem]">
+          <PersonAutocomplete
+            people={people}
+            value={draft}
+            onChange={(personId) => setDraft(personId)}
+            placeholder={template.name}
+            nameOrder={nameOrder}
+            nameDisplayFormat={nameDisplayFormat}
+          />
+        </div>
+      );
+      break;
     case 'SELECT':
+    case 'MULTI_SELECT':
       input = (
         <select
           value={draft}
