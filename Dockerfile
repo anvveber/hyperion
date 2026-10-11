@@ -2,7 +2,7 @@
 # Multi-stage build for optimized production image
 
 # Stage 1: Dependencies (for build)
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm ci
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Copy dependencies from deps stage
@@ -44,7 +44,7 @@ RUN npm run build
 RUN npx esbuild prisma/seed.production.ts --platform=node --format=cjs --outfile=prisma/seed.production.js --bundle --external:@prisma/client --external:pg --minify
 
 # Stage 3: Runner
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 # Install tzdata so the TZ env var can resolve non-UTC zones
@@ -74,9 +74,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/locales ./locales
 
 # Install Prisma CLI for migrations (as root before switching users)
-# Note: We only install prisma (not @prisma/client which is already in standalone)
+# Note: We only install prisma (not @prisma/client which is already in standalone).
+# Keep this version in step with "prisma" in package.json.
 RUN --mount=type=cache,target=/root/.npm \
-    npm install prisma@7.0.1
+    npm install prisma@7.10.0
 
 # Copy Prisma generated client from builder (already built)
 COPY --from=builder /app/node_modules/.prisma/ ./node_modules/.prisma/

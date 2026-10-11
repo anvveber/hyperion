@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
 import { apiResponse, handleApiError, parseRequestBody, withAuth } from '@/lib/api-utils';
 import { logger } from '@/lib/logger';
+import { deleteUserFiles } from '@/lib/person-files';
 
 export const DELETE = withAuth(async (request, session) => {
   try {
@@ -51,6 +52,7 @@ export const DELETE = withAuth(async (request, session) => {
     await prisma.user.delete({
       where: { id: session.user.id },
     });
+    await deleteUserFiles(session.user.id);
 
     logger.info({ userId: session.user.id }, 'Account deleted');
 

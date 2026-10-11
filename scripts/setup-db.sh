@@ -31,7 +31,7 @@ else
     echo ""
     echo "Please ensure you're in one of these environments:"
     echo "  1. Dev Container (VS Code with Remote Containers extension)"
-    echo "  2. Local development (Node.js 20+ installed, run 'npm install' first)"
+    echo "  2. Local development (Node.js 24+ installed, run 'npm install' first)"
     echo "  3. Docker Compose (run 'docker-compose up -d' first)"
     exit 1
 fi

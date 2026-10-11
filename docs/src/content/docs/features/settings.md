@@ -68,7 +68,7 @@ Only admins see this section. It lists every account on the instance and lets an
 
 - **Export data**: download your data as JSON or vCard. See [Import & Export](/features/import-export/).
 - **Import data**: upload a JSON or vCard file. See [Import & Export](/features/import-export/).
-- **Delete account**: permanently removes your account and data. This requires typing "DELETE" to confirm and entering your password, a deliberate double check before something irreversible happens. The only admin can't delete their account while other accounts exist; make someone else an admin first.
+- **Delete account**: permanently removes your account and data, including the photos, documents and audio files stored for your people. This requires typing "DELETE" to confirm and entering your password, a deliberate double check before something irreversible happens. The only admin can't delete their account while other accounts exist; make someone else an admin first.
 
 ## Billing
 
