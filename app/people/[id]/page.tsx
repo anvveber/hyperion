@@ -25,6 +25,7 @@ import JournalSection from '@/components/JournalSection';
 import PersonDocumentFolder from '@/components/PersonDocumentFolder';
 import PersonAudioFolder from '@/components/PersonAudioFolder';
 import PersonVisits from '@/components/PersonVisits';
+import PersonLocation from '@/components/family/PersonLocation';
 import MessagingLinks from '@/components/MessagingLinks';
 import { customFieldValuesInclude } from '@/lib/prisma-queries';
 import { isIsoDate, isWebUrl, parseMultiSelectValue } from '@/lib/customFields/values';
@@ -1011,6 +1012,9 @@ export default async function PersonDetailsPage({
                     {t('graphHelp')}
                   </p>
                 </div>
+
+                {/* Shared location (family members only) */}
+                <PersonLocation personId={person.id} />
 
                 {/* Document folder */}
                 <PersonDocumentFolder personId={person.id} />

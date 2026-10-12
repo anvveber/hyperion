@@ -16,6 +16,7 @@ import { calendarPaths } from './calendar';
 import { notificationsPaths } from './notifications';
 import { adminPaths } from './admin';
 import { recordingsLibraryPaths } from './recordingsLibrary';
+import { familyPaths } from './family';
 import { jsonResponse, ref400, ref401, ref404, refSuccess, pathParam, jsonBody, resp, sessionOrToken } from './helpers';
 
 // OpenAPI 3.1.0 specification generator for the Nametag API.
@@ -72,6 +73,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
       { name: 'Photos', description: 'Person and user photo management' },
       { name: 'Map', description: 'Map markers and address geocoding' },
       { name: 'Calendar', description: 'Important dates as an iCalendar (.ics) download' },
+      { name: 'Family', description: 'Family location sharing through an OwnTracks Recorder' },
       { name: 'Notifications', description: 'Reminder delivery channels: email and browser push' },
       { name: 'Cron', description: 'Background jobs authenticated via CRON_SECRET bearer token' },
       { name: 'System', description: 'Health checks and system endpoints' },
@@ -120,6 +122,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
       ...notificationsPaths(),
       ...adminPaths(),
       ...recordingsLibraryPaths(),
+      ...familyPaths(),
 
       // Photos (non-person-specific)
       '/api/photos/{personId}': {

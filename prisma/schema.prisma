@@ -66,6 +66,9 @@ model User {
 
   journalEntries        JournalEntry[]
 
+  // Family location sharing: the family member this account shares as, if any
+  familyMember          FamilyMember?
+
   @@unique([provider, providerAccountId])
   @@map("users")
 }
@@ -131,6 +134,10 @@ model Person {
   audio              PersonAudio[]
   aliases            PersonAlias[]
   fieldHistory       PersonFieldHistory[]
+
+  // Family location sharing: shown on this record when the viewer is sharing too
+  familyMemberId     String?
+  familyMember       FamilyMember?          @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
   visits             PersonVisit[]
 
   @@index([userId])
@@ -1124,4 +1131,24 @@ model NotificationEndpoint {
   @@unique([userId, url])
   @@index([userId, enabled])
   @@map("notification_endpoints")
+}
+
+// Someone who shares their location through the OwnTracks Recorder. Instance
+// wide, managed by admins. A member may have a hyperion account (userId) or
+// not (someone who only runs the OwnTracks app). Positions are never stored
+// here: they are read from the Recorder when a page asks for them.
+model FamilyMember {
+  id             String   @id @default(cuid())
+  name           String
+  recorderUser   String   // OwnTracks user, as the Recorder knows it (lowercase)
+  recorderDevice String   // OwnTracks device
+  userId         String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  people  Person[]
+
+  @@unique([recorderUser, recorderDevice])
+  @@map("family_members")
 }

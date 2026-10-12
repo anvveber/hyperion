@@ -56,6 +56,12 @@ const navIcons: Record<string, React.ReactNode> = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
     </svg>
   ),
+  family: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s-6.75-5.53-6.75-11.25a6.75 6.75 0 1113.5 0C18.75 15.47 12 21 12 21z" />
+      <circle cx="12" cy="9.75" r="2.25" />
+    </svg>
+  ),
   advancedSearch: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -86,13 +92,70 @@ const viewItems: NavItem[] = [
   { href: '/search', labelKey: 'advancedSearch' },
 ];
 
-const navItems: NavItem[] = [...recordItems, ...viewItems];
+const familyItem: NavItem = { href: '/family', labelKey: 'family' };
+
+/**
+ * Whether to show the Family tab: location sharing is configured and this
+ * account shares its own location. Cached for the browser session so the
+ * nav doesn't ask on every page.
+ */
+const FAMILY_TAB_KEY = 'hyperion.familyTab';
+
+function readCachedFamilyTab(): boolean {
+  try {
+    return typeof window !== 'undefined' && sessionStorage.getItem(FAMILY_TAB_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function useFamilyTab(): boolean {
+  // Start from the cached answer (false on the server), then confirm once.
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    let cachedKnown = false;
+    try {
+      cachedKnown = sessionStorage.getItem(FAMILY_TAB_KEY) !== null;
+    } catch {
+      // storage unavailable; ask the server
+    }
+    const apply = (visible: boolean) => {
+      if (!cancelled) setShow(visible);
+    };
+    if (cachedKnown) {
+      queueMicrotask(() => apply(readCachedFamilyTab()));
+      return () => {
+        cancelled = true;
+      };
+    }
+    fetch('/api/family?summary=1')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { canView?: boolean } | null) => {
+        const visible = Boolean(data?.canView);
+        apply(visible);
+        try {
+          sessionStorage.setItem(FAMILY_TAB_KEY, visible ? '1' : '0');
+        } catch {
+          // ignore
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return show;
+}
 
 export default function Navigation({ userEmail, userName, userNickname, userPhoto, currentPath }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
+  const showFamily = useFamilyTab();
+  const views = showFamily ? [familyItem, ...viewItems] : viewItems;
+  const allItems = [...recordItems, ...views];
 
   const displayName = formatUserDisplayName({ nickname: userNickname, name: userName, email: userEmail });
 
@@ -200,7 +263,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
     return currentPath === href || currentPath.startsWith(`${href}/`);
   };
 
-  const activeItem = navItems.find((item) => isActive(item.href));
+  const activeItem = allItems.find((item) => isActive(item.href));
   const sectionLabel = activeItem
     ? tNav(activeItem.labelKey)
     : currentPath?.startsWith('/settings')
@@ -325,7 +388,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
           <div className="flex items-stretch px-3 overflow-x-auto">
             <ul className="flex items-stretch">{recordItems.map(renderTab)}</ul>
             <div aria-hidden="true" className="my-2.5 mx-2 w-px bg-border shrink-0" />
-            <ul className="flex items-stretch">{viewItems.map(renderTab)}</ul>
+            <ul className="flex items-stretch">{views.map(renderTab)}</ul>
           </div>
         </div>
       </div>
@@ -374,7 +437,7 @@ export default function Navigation({ userEmail, userName, userNickname, userPhot
               {/* Mobile nav items */}
               <nav className="flex-1 overflow-y-auto p-4">
                 <div className="space-y-1">
-                  {navItems.map((item) => (
+                  {allItems.map((item) => (
                     <div key={item.href}>
                       {item.createHref ? (
                         <div className={`flex items-center rounded-lg overflow-hidden border ${

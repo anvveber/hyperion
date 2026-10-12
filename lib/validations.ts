@@ -493,6 +493,33 @@ export const adminUpdateUserSchema = z
     message: 'Provide a role or a password',
   });
 
+// Family location sharing. Recorder user and device names: letters, digits,
+// dot, underscore and dash, as the OwnTracks apps allow; the Recorder
+// lowercases them, so they are lowercased here too.
+const recorderNameSchema = z
+  .string()
+  .trim()
+  .min(1, 'Required')
+  .max(64)
+  .regex(/^[A-Za-z0-9._-]+$/, 'Use letters, digits, dot, underscore or dash')
+  .transform((v) => v.toLowerCase());
+
+export const familyMemberSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(100),
+  recorderUser: recorderNameSchema,
+  recorderDevice: recorderNameSchema,
+  userId: z.string().min(1).nullable().optional(),
+});
+
+export const familyMemberUpdateSchema = familyMemberSchema.partial().refine(
+  (data) => Object.keys(data).length > 0,
+  { message: 'Nothing to update' }
+);
+
+export const personFamilyMemberSchema = z.object({
+  familyMemberId: z.string().min(1).nullable(),
+});
+
 export const updateThemeSchema = z.object({
   theme: z.enum(['LIGHT', 'DARK']),
 });

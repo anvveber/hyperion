@@ -74,7 +74,8 @@
       "operator": "Operator",
       "local": "Lokaal",
       "utc": "UTC"
-    }
+    },
+    "family": "Familie"
   },
   "advancedSearch": {
     "title": "Uitgebreid zoeken",
@@ -944,6 +945,32 @@
       "geocodingLabel": "Adressen automatisch lokaliseren",
       "success": "Kaartinstellingen opgeslagen",
       "error": "Kon de kaartinstellingen niet opslaan"
+    },
+    "family": {
+      "title": "Familie",
+      "description": "Wie de locatie deelt en bij welk account elke telefoon hoort",
+      "notConfigured": "Locatie delen staat uit. Stel LOCATION_RECORDER_URL in op het adres van je OwnTracks Recorder om het aan te zetten.",
+      "loadFailed": "Kon familieleden niet laden.",
+      "saveFailed": "Kon de wijziging niet opslaan.",
+      "added": "Familielid toegevoegd",
+      "saved": "Opgeslagen",
+      "removed": "Familielid verwijderd",
+      "confirmRemove": "{name} verwijderen? Die positie wordt dan niet meer getoond.",
+      "membersTitle": "Leden",
+      "loading": "Laden...",
+      "empty": "Nog geen familieleden.",
+      "recorderIdentity": "Recorder: {user} / {device}",
+      "account": "Account",
+      "noAccount": "Geen account",
+      "remove": "Verwijderen",
+      "addTitle": "Familielid toevoegen",
+      "addHint": "Gebruik dezelfde gebruikers- en apparaatnamen als in de locatie-app van de telefoon.",
+      "name": "Naam",
+      "recorderUser": "Recorder-gebruiker",
+      "recorderDevice": "Apparaat",
+      "saving": "Opslaan...",
+      "add": "Toevoegen",
+      "mutualNote": "Delen is wederzijds: een hier gekoppeld account ziet de positie van alle leden, en alleen gekoppelde accounts zien posities."
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "{count, plural, one {Nog # afbeelding niet getoond} other {Nog # afbeeldingen niet getoond}}",
       "downloadWithTranscripts": "Profiel downloaden als PDF met transcripties",
       "transcripts": "Transcripties"
+    },
+    "location": {
+      "title": "Locatie",
+      "openFamily": "Familiekaart",
+      "recorderUnreachable": "De locatieserver is nu niet bereikbaar.",
+      "noPositionYet": "{name} heeft nog geen positie gedeeld.",
+      "mapLabel": "Laatst gedeelde positie van {name}",
+      "updated": "bijgewerkt {time}",
+      "accuracy": "±{meters} m",
+      "battery": "batterij {level}%",
+      "linkedTo": "Gedeeld door {name}",
+      "unlink": "Ontkoppelen",
+      "notLinked": "Koppel deze persoon aan een familielid dat de locatie deelt om die hier te zien.",
+      "chooseMember": "Kies een familielid",
+      "link": "Koppelen",
+      "linked": "Locatie gekoppeld",
+      "unlinked": "Locatie ontkoppeld",
+      "saveFailed": "Kon de wijziging niet opslaan."
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "Niet nu",
       "unsupported": "Je browser kan de app misschien installeren via het eigen menu. Zoek naar «Zet op beginscherm», «Installeren» of «Voeg toe aan Dock»."
     }
+  },
+  "family": {
+    "title": "Familie",
+    "loading": "Posities laden...",
+    "loadFailed": "Kon de posities van de familie niet laden.",
+    "notConfigured": "Locatie delen is niet ingesteld op deze server.",
+    "notSharing": "Je deelt je locatie niet.",
+    "notSharingWhy": "Posities zijn wederzijds: alleen wie de eigen locatie deelt, ziet die van de anderen. Vraag de beheerder om je als familielid toe te voegen.",
+    "manage": "Familieleden beheren",
+    "description": "Laatste positie die elk familielid heeft gedeeld. Posities worden elke minuut vernieuwd.",
+    "recorderUnreachable": "De locatieserver is nu niet bereikbaar. Er kunnen posities ontbreken.",
+    "mapLabel": "Kaart van familieleden",
+    "noPositions": "Nog niemand heeft een positie gedeeld.",
+    "members": "Leden",
+    "you": "jij",
+    "battery": "batterij {level}%",
+    "noPositionYet": "Nog geen positie gedeeld",
+    "privacyNote": "Alleen de laatste positie wordt getoond. Er wordt geen bewegingsgeschiedenis bewaard. Iedereen kan op elk moment stoppen met delen via de eigen telefoon."
   }
 }

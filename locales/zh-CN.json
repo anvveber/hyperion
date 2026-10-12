@@ -74,7 +74,8 @@
       "operator": "操作员",
       "local": "本地",
       "utc": "UTC"
-    }
+    },
+    "family": "家人"
   },
   "advancedSearch": {
     "title": "高级搜索",
@@ -944,6 +945,32 @@
       "geocodingLabel": "自动定位地址",
       "success": "地图设置已保存",
       "error": "无法保存地图设置"
+    },
+    "family": {
+      "title": "家人",
+      "description": "谁在共享位置，以及每部手机属于哪个账户",
+      "notConfigured": "位置共享已关闭。将 LOCATION_RECORDER_URL 设置为 OwnTracks Recorder 的地址即可开启。",
+      "loadFailed": "无法加载家庭成员。",
+      "saveFailed": "无法保存更改。",
+      "added": "已添加家庭成员",
+      "saved": "已保存",
+      "removed": "已移除家庭成员",
+      "confirmRemove": "移除 {name}？其位置将不再显示。",
+      "membersTitle": "成员",
+      "loading": "正在加载...",
+      "empty": "还没有家庭成员。",
+      "recorderIdentity": "Recorder：{user} / {device}",
+      "account": "账户",
+      "noAccount": "无账户",
+      "remove": "移除",
+      "addTitle": "添加家庭成员",
+      "addHint": "使用与手机定位应用中相同的用户名和设备名。",
+      "name": "姓名",
+      "recorderUser": "Recorder 用户",
+      "recorderDevice": "设备",
+      "saving": "正在保存...",
+      "add": "添加",
+      "mutualNote": "共享是相互的：在此关联的账户可以看到所有成员的位置，且只有关联的账户才能看到位置。"
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "另有 {count} 张图片未显示",
       "downloadWithTranscripts": "下载含转写文本的 PDF 资料",
       "transcripts": "转写文本"
+    },
+    "location": {
+      "title": "位置",
+      "openFamily": "家人地图",
+      "recorderUnreachable": "目前无法连接位置服务器。",
+      "noPositionYet": "{name} 尚未共享位置。",
+      "mapLabel": "{name} 最后共享的位置",
+      "updated": "更新于{time}",
+      "accuracy": "±{meters} 米",
+      "battery": "电量 {level}%",
+      "linkedTo": "共享者：{name}",
+      "unlink": "取消关联",
+      "notLinked": "将此人与正在共享位置的家庭成员关联后，即可在此看到其位置。",
+      "chooseMember": "选择家庭成员",
+      "link": "关联",
+      "linked": "已关联位置",
+      "unlinked": "已取消关联位置",
+      "saveFailed": "无法保存更改。"
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "暂不",
       "unsupported": "你的浏览器可能支持从自身菜单安装。请查找“添加到主屏幕”“安装”或“添加到程序坞”。"
     }
+  },
+  "family": {
+    "title": "家人",
+    "loading": "正在加载位置...",
+    "loadFailed": "无法加载家人的位置。",
+    "notConfigured": "此服务器尚未设置位置共享。",
+    "notSharing": "你没有共享自己的位置。",
+    "notSharingWhy": "位置是相互共享的：只有共享自己位置的人才能看到其他人的位置。请让管理员把你添加为家庭成员。",
+    "manage": "管理家庭成员",
+    "description": "每位家庭成员最后共享的位置。每分钟刷新一次。",
+    "recorderUnreachable": "目前无法连接位置服务器，部分位置可能缺失。",
+    "mapLabel": "家庭成员地图",
+    "noPositions": "还没有人共享位置。",
+    "members": "成员",
+    "you": "你",
+    "battery": "电量 {level}%",
+    "noPositionYet": "尚未共享位置",
+    "privacyNote": "只显示最后的位置，不保存任何移动记录。任何人都可以随时在自己的手机上停止共享。"
   }
 }

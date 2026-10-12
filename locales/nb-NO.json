@@ -74,7 +74,8 @@
       "operator": "Operatør",
       "local": "Lokal",
       "utc": "UTC"
-    }
+    },
+    "family": "Familie"
   },
   "advancedSearch": {
     "title": "Avansert søk",
@@ -944,6 +945,32 @@
       "geocodingLabel": "Lokaliser adresser automatisk",
       "success": "Kartinnstillinger lagret",
       "error": "Kunne ikke lagre kartinnstillingene"
+    },
+    "family": {
+      "title": "Familie",
+      "description": "Hvem som deler posisjonen sin, og hvilken konto hver telefon tilhører",
+      "notConfigured": "Posisjonsdeling er av. Sett LOCATION_RECORDER_URL til adressen til OwnTracks Recorder for å slå det på.",
+      "loadFailed": "Kunne ikke laste familiemedlemmer.",
+      "saveFailed": "Kunne ikke lagre endringen.",
+      "added": "Familiemedlem lagt til",
+      "saved": "Lagret",
+      "removed": "Familiemedlem fjernet",
+      "confirmRemove": "Fjerne {name}? Posisjonen vises ikke lenger.",
+      "membersTitle": "Medlemmer",
+      "loading": "Laster...",
+      "empty": "Ingen familiemedlemmer ennå.",
+      "recorderIdentity": "Recorder: {user} / {device}",
+      "account": "Konto",
+      "noAccount": "Ingen konto",
+      "remove": "Fjern",
+      "addTitle": "Legg til et familiemedlem",
+      "addHint": "Bruk de samme bruker- og enhetsnavnene som er satt i posisjonsappen på telefonen.",
+      "name": "Navn",
+      "recorderUser": "Recorder-bruker",
+      "recorderDevice": "Enhet",
+      "saving": "Lagrer...",
+      "add": "Legg til",
+      "mutualNote": "Deling er gjensidig: en konto som er koblet her ser alle medlemmenes posisjon, og bare koblede kontoer kan se posisjoner."
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "{count, plural, one {# bilde til vises ikke} other {# bilder til vises ikke}}",
       "downloadWithTranscripts": "Last ned profilen som PDF med transkripsjoner",
       "transcripts": "Transkripsjoner"
+    },
+    "location": {
+      "title": "Posisjon",
+      "openFamily": "Familiekart",
+      "recorderUnreachable": "Posisjonsserveren kan ikke nås akkurat nå.",
+      "noPositionYet": "{name} har ikke delt en posisjon ennå.",
+      "mapLabel": "Siste delte posisjon for {name}",
+      "updated": "oppdatert {time}",
+      "accuracy": "±{meters} m",
+      "battery": "batteri {level} %",
+      "linkedTo": "Delt av {name}",
+      "unlink": "Koble fra",
+      "notLinked": "Koble denne personen til et familiemedlem som deler posisjonen sin for å se den her.",
+      "chooseMember": "Velg et familiemedlem",
+      "link": "Koble",
+      "linked": "Posisjon koblet",
+      "unlinked": "Posisjon koblet fra",
+      "saveFailed": "Kunne ikke lagre endringen."
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "Ikke nå",
       "unsupported": "Nettleseren din kan kanskje installere appen fra sin egen meny. Se etter Legg til på Hjem-skjerm, Installer eller Legg til i Dock."
     }
+  },
+  "family": {
+    "title": "Familie",
+    "loading": "Laster posisjoner...",
+    "loadFailed": "Kunne ikke laste familiens posisjoner.",
+    "notConfigured": "Posisjonsdeling er ikke satt opp på denne serveren.",
+    "notSharing": "Du deler ikke posisjonen din.",
+    "notSharingWhy": "Posisjoner er gjensidige: bare de som deler sin egen posisjon kan se de andres. Be administratoren legge deg til som familiemedlem.",
+    "manage": "Administrer familiemedlemmer",
+    "description": "Siste posisjon hvert familiemedlem har delt. Posisjonene oppdateres hvert minutt.",
+    "recorderUnreachable": "Posisjonsserveren kan ikke nås akkurat nå. Noen posisjoner kan mangle.",
+    "mapLabel": "Kart over familiemedlemmer",
+    "noPositions": "Ingen har delt en posisjon ennå.",
+    "members": "Medlemmer",
+    "you": "deg",
+    "battery": "batteri {level} %",
+    "noPositionYet": "Ingen posisjon delt ennå",
+    "privacyNote": "Bare den siste posisjonen vises. Ingen bevegelseshistorikk lagres. Alle kan slutte å dele når som helst fra sin egen telefon."
   }
 }

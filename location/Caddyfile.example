@@ -1,0 +1,30 @@
+# Copy to location/Caddyfile and fill in one line per phone.
+# Hash each password with:
+#   docker run --rm caddy:2-alpine caddy hash-password --plaintext 'the-password'
+#
+# Point your reverse proxy or tunnel at recorder-proxy:8084, over HTTPS.
+
+{
+	admin off
+	auto_https off
+}
+
+:8084 {
+	@pub path /pub
+	handle @pub {
+		basic_auth {
+			mum $2a$14$replace-with-hash
+			dad $2a$14$replace-with-hash
+			nonna $2a$14$replace-with-hash
+		}
+		# The Recorder files the position under this user. Setting it from the
+		# login means a phone cannot report as someone else.
+		request_header X-Limit-U {http.auth.user.id}
+		reverse_proxy recorder:8083
+	}
+
+	# Nothing else of the Recorder is reachable from outside.
+	handle {
+		respond 404
+	}
+}

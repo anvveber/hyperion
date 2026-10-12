@@ -74,7 +74,8 @@
       "operator": "Operatore",
       "local": "Locale",
       "utc": "UTC"
-    }
+    },
+    "family": "Famiglia"
   },
   "advancedSearch": {
     "title": "Ricerca avanzata",
@@ -944,6 +945,32 @@
       "geocodingLabel": "Localizza automaticamente gli indirizzi",
       "success": "Impostazioni della mappa salvate",
       "error": "Impossibile salvare le impostazioni della mappa"
+    },
+    "family": {
+      "title": "Famiglia",
+      "description": "Chi condivide la propria posizione e a quale account appartiene ogni telefono",
+      "notConfigured": "La condivisione della posizione è disattivata. Imposta LOCATION_RECORDER_URL con l'indirizzo del tuo OwnTracks Recorder per attivarla.",
+      "loadFailed": "Impossibile caricare i membri della famiglia.",
+      "saveFailed": "Impossibile salvare la modifica.",
+      "added": "Membro della famiglia aggiunto",
+      "saved": "Salvato",
+      "removed": "Membro della famiglia rimosso",
+      "confirmRemove": "Rimuovere {name}? La sua posizione non verrà più mostrata.",
+      "membersTitle": "Membri",
+      "loading": "Caricamento...",
+      "empty": "Ancora nessun membro della famiglia.",
+      "recorderIdentity": "Recorder: {user} / {device}",
+      "account": "Account",
+      "noAccount": "Nessun account",
+      "remove": "Rimuovi",
+      "addTitle": "Aggiungi un membro della famiglia",
+      "addHint": "Usa gli stessi nomi utente e dispositivo impostati nell'app di localizzazione del telefono.",
+      "name": "Nome",
+      "recorderUser": "Utente Recorder",
+      "recorderDevice": "Dispositivo",
+      "saving": "Salvataggio...",
+      "add": "Aggiungi",
+      "mutualNote": "La condivisione è reciproca: un account collegato qui vede la posizione di tutti i membri, e solo gli account collegati possono vedere le posizioni."
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "{count, plural, one {# altra immagine non mostrata} other {altre # immagini non mostrate}}",
       "downloadWithTranscripts": "Scarica il profilo in PDF con le trascrizioni",
       "transcripts": "Trascrizioni"
+    },
+    "location": {
+      "title": "Posizione",
+      "openFamily": "Mappa della famiglia",
+      "recorderUnreachable": "Il server delle posizioni non è raggiungibile in questo momento.",
+      "noPositionYet": "{name} non ha ancora condiviso una posizione.",
+      "mapLabel": "Ultima posizione condivisa da {name}",
+      "updated": "aggiornata {time}",
+      "accuracy": "±{meters} m",
+      "battery": "batteria {level}%",
+      "linkedTo": "Condivisa da {name}",
+      "unlink": "Scollega",
+      "notLinked": "Collega questa persona a un membro della famiglia che condivide la posizione per vederla qui.",
+      "chooseMember": "Scegli un membro della famiglia",
+      "link": "Collega",
+      "linked": "Posizione collegata",
+      "unlinked": "Posizione scollegata",
+      "saveFailed": "Impossibile salvare la modifica."
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "Non ora",
       "unsupported": "Il tuo browser potrebbe consentire l'installazione dal suo menu. Cerca «Aggiungi a Home», «Installa» o «Aggiungi al Dock»."
     }
+  },
+  "family": {
+    "title": "Famiglia",
+    "loading": "Caricamento delle posizioni...",
+    "loadFailed": "Impossibile caricare le posizioni della famiglia.",
+    "notConfigured": "La condivisione della posizione non è configurata su questo server.",
+    "notSharing": "Non stai condividendo la tua posizione.",
+    "notSharingWhy": "Le posizioni sono reciproche: solo chi condivide la propria posizione può vedere quella degli altri. Chiedi all'amministratore di aggiungerti come membro della famiglia.",
+    "manage": "Gestisci i membri della famiglia",
+    "description": "Ultima posizione condivisa da ogni membro della famiglia. Le posizioni si aggiornano ogni minuto.",
+    "recorderUnreachable": "Il server delle posizioni non è raggiungibile in questo momento. Alcune posizioni potrebbero mancare.",
+    "mapLabel": "Mappa dei membri della famiglia",
+    "noPositions": "Nessuno ha ancora condiviso una posizione.",
+    "members": "Membri",
+    "you": "tu",
+    "battery": "batteria {level}%",
+    "noPositionYet": "Nessuna posizione condivisa",
+    "privacyNote": "Viene mostrata solo l'ultima posizione. Nessuno storico degli spostamenti viene conservato. Chiunque può smettere di condividere in qualsiasi momento dal proprio telefono."
   }
 }
