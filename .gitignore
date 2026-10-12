@@ -77,3 +77,6 @@ docs/.astro
 # `git add -A` sweeps 47 MB of videos and screenshots into a commit.
 playwright-report
 test-results
+
+# Family location proxy credentials
+/location/Caddyfile

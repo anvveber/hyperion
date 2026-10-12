@@ -74,7 +74,8 @@
       "operator": "Bediener",
       "local": "Lokal",
       "utc": "UTC"
-    }
+    },
+    "family": "Familie"
   },
   "advancedSearch": {
     "title": "Erweiterte Suche",
@@ -944,6 +945,32 @@
       "geocodingLabel": "Adressen automatisch lokalisieren",
       "success": "Karteneinstellungen gespeichert",
       "error": "Karteneinstellungen konnten nicht gespeichert werden"
+    },
+    "family": {
+      "title": "Familie",
+      "description": "Wer den Standort teilt und zu welchem Konto jedes Telefon gehört",
+      "notConfigured": "Standortfreigabe ist aus. Setze LOCATION_RECORDER_URL auf die Adresse deines OwnTracks Recorders, um sie einzuschalten.",
+      "loadFailed": "Familienmitglieder konnten nicht geladen werden.",
+      "saveFailed": "Die Änderung konnte nicht gespeichert werden.",
+      "added": "Familienmitglied hinzugefügt",
+      "saved": "Gespeichert",
+      "removed": "Familienmitglied entfernt",
+      "confirmRemove": "{name} entfernen? Die Position wird dann nicht mehr angezeigt.",
+      "membersTitle": "Mitglieder",
+      "loading": "Wird geladen...",
+      "empty": "Noch keine Familienmitglieder.",
+      "recorderIdentity": "Recorder: {user} / {device}",
+      "account": "Konto",
+      "noAccount": "Kein Konto",
+      "remove": "Entfernen",
+      "addTitle": "Familienmitglied hinzufügen",
+      "addHint": "Verwende dieselben Benutzer- und Gerätenamen wie in der Standort-App des Telefons.",
+      "name": "Name",
+      "recorderUser": "Recorder-Benutzer",
+      "recorderDevice": "Gerät",
+      "saving": "Wird gespeichert...",
+      "add": "Hinzufügen",
+      "mutualNote": "Teilen ist gegenseitig: Ein hier verknüpftes Konto sieht die Position aller Mitglieder, und nur verknüpfte Konten sehen Positionen."
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "{count, plural, one {# weiteres Bild nicht gezeigt} other {# weitere Bilder nicht gezeigt}}",
       "downloadWithTranscripts": "Profil als PDF mit Transkripten herunterladen",
       "transcripts": "Transkripte"
+    },
+    "location": {
+      "title": "Standort",
+      "openFamily": "Familienkarte",
+      "recorderUnreachable": "Der Standortserver ist gerade nicht erreichbar.",
+      "noPositionYet": "{name} hat noch keine Position geteilt.",
+      "mapLabel": "Letzte geteilte Position von {name}",
+      "updated": "aktualisiert {time}",
+      "accuracy": "±{meters} m",
+      "battery": "Akku {level} %",
+      "linkedTo": "Geteilt von {name}",
+      "unlink": "Trennen",
+      "notLinked": "Verknüpfe diese Person mit einem Familienmitglied, das seinen Standort teilt, um ihn hier zu sehen.",
+      "chooseMember": "Familienmitglied wählen",
+      "link": "Verknüpfen",
+      "linked": "Standort verknüpft",
+      "unlinked": "Standort getrennt",
+      "saveFailed": "Die Änderung konnte nicht gespeichert werden."
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "Jetzt nicht",
       "unsupported": "Dein Browser kann die App möglicherweise über sein eigenes Menü installieren. Suche nach «Zum Home-Bildschirm», «Installieren» oder «Zum Dock hinzufügen»."
     }
+  },
+  "family": {
+    "title": "Familie",
+    "loading": "Positionen werden geladen...",
+    "loadFailed": "Familienpositionen konnten nicht geladen werden.",
+    "notConfigured": "Standortfreigabe ist auf diesem Server nicht eingerichtet.",
+    "notSharing": "Du teilst deinen Standort nicht.",
+    "notSharingWhy": "Positionen sind gegenseitig: Nur wer den eigenen Standort teilt, sieht die anderen. Bitte den Administrator, dich als Familienmitglied hinzuzufügen.",
+    "manage": "Familienmitglieder verwalten",
+    "description": "Letzte geteilte Position jedes Familienmitglieds. Die Positionen werden jede Minute aktualisiert.",
+    "recorderUnreachable": "Der Standortserver ist gerade nicht erreichbar. Positionen können fehlen.",
+    "mapLabel": "Karte der Familienmitglieder",
+    "noPositions": "Noch niemand hat eine Position geteilt.",
+    "members": "Mitglieder",
+    "you": "du",
+    "battery": "Akku {level} %",
+    "noPositionYet": "Noch keine Position geteilt",
+    "privacyNote": "Es wird nur die letzte Position angezeigt. Es wird kein Bewegungsverlauf gespeichert. Jeder kann das Teilen jederzeit am eigenen Telefon beenden."
   }
 }

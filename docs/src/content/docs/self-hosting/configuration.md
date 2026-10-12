@@ -87,6 +87,7 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `RECORDINGS_ARCHIVE_DIR` | Where the MP3 files are, if not `{RECORDINGS_LIBRARY_PATH}/archive` | `{library}/archive` |
 | `RECORDINGS_TEXT_DIR` | Where the whisper.cpp JSON transcripts are, if not `{RECORDINGS_LIBRARY_PATH}/text` | `{library}/text` |
 | `RECORDINGS_INDEX_DB` | The SQLite FTS5 search index, if not `{RECORDINGS_LIBRARY_PATH}/index.db` | `{library}/index.db` |
+| `LOCATION_RECORDER_URL` | Address of the OwnTracks Recorder the family's phones report to, as the app reaches it (for example `http://recorder:8083`). Turns on family location sharing. See [Family locations](/features/family-locations/) | Not set |
 | `TRASH_RETENTION_DAYS` | How many days deleted items stay in the trash before the `purge-deleted` job removes them for good, or `never` to keep them until a user deletes them by hand | `never` |
 | `OIDC_ISSUER_URL` | OIDC provider issuer URL, enables SSO login | Not set |
 | `OIDC_CLIENT_ID` | OIDC client ID registered with your provider | Not set |

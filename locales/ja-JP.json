@@ -74,7 +74,8 @@
       "operator": "オペレーター",
       "local": "現地",
       "utc": "UTC"
-    }
+    },
+    "family": "家族"
   },
   "advancedSearch": {
     "title": "詳細検索",
@@ -944,6 +945,32 @@
       "geocodingLabel": "住所を自動的に位置特定する",
       "success": "マップ設定を保存しました",
       "error": "マップ設定を保存できませんでした"
+    },
+    "family": {
+      "title": "家族",
+      "description": "位置情報を共有する人と、各電話がどのアカウントに属するか",
+      "notConfigured": "位置情報の共有はオフです。有効にするには LOCATION_RECORDER_URL に OwnTracks Recorder のアドレスを設定してください。",
+      "loadFailed": "家族メンバーを読み込めませんでした。",
+      "saveFailed": "変更を保存できませんでした。",
+      "added": "家族メンバーを追加しました",
+      "saved": "保存しました",
+      "removed": "家族メンバーを削除しました",
+      "confirmRemove": "{name} を削除しますか？位置は表示されなくなります。",
+      "membersTitle": "メンバー",
+      "loading": "読み込み中...",
+      "empty": "家族メンバーはまだいません。",
+      "recorderIdentity": "Recorder: {user} / {device}",
+      "account": "アカウント",
+      "noAccount": "アカウントなし",
+      "remove": "削除",
+      "addTitle": "家族メンバーを追加",
+      "addHint": "電話の位置情報アプリに設定したものと同じユーザー名とデバイス名を使ってください。",
+      "name": "名前",
+      "recorderUser": "Recorder ユーザー",
+      "recorderDevice": "デバイス",
+      "saving": "保存中...",
+      "add": "追加",
+      "mutualNote": "共有は相互です。ここでリンクされたアカウントは全メンバーの位置を見られ、リンクされたアカウントだけが位置を見られます。"
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "表示されていない画像が他に {count} 件あります",
       "downloadWithTranscripts": "文字起こし付きでプロフィールをPDFでダウンロード",
       "transcripts": "文字起こし"
+    },
+    "location": {
+      "title": "位置",
+      "openFamily": "家族の地図",
+      "recorderUnreachable": "現在、位置情報サーバーに接続できません。",
+      "noPositionYet": "{name} はまだ位置を共有していません。",
+      "mapLabel": "{name} が最後に共有した位置",
+      "updated": "{time}に更新",
+      "accuracy": "±{meters} m",
+      "battery": "バッテリー {level}%",
+      "linkedTo": "共有者: {name}",
+      "unlink": "リンク解除",
+      "notLinked": "位置を共有している家族メンバーとこの人をリンクすると、ここに表示されます。",
+      "chooseMember": "家族メンバーを選択",
+      "link": "リンク",
+      "linked": "位置をリンクしました",
+      "unlinked": "位置のリンクを解除しました",
+      "saveFailed": "変更を保存できませんでした。"
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "後で",
       "unsupported": "ブラウザのメニューからインストールできる場合があります。「ホーム画面に追加」「インストール」「Dock に追加」を探してください。"
     }
+  },
+  "family": {
+    "title": "家族",
+    "loading": "位置情報を読み込み中...",
+    "loadFailed": "家族の位置情報を読み込めませんでした。",
+    "notConfigured": "このサーバーでは位置情報の共有が設定されていません。",
+    "notSharing": "あなたは位置情報を共有していません。",
+    "notSharingWhy": "位置情報は相互共有です。自分の位置情報を共有している人だけが他の人の位置を見られます。管理者に家族メンバーとして追加してもらってください。",
+    "manage": "家族メンバーを管理",
+    "description": "各家族メンバーが最後に共有した位置です。1分ごとに更新されます。",
+    "recorderUnreachable": "現在、位置情報サーバーに接続できません。一部の位置が表示されない場合があります。",
+    "mapLabel": "家族メンバーの地図",
+    "noPositions": "まだ誰も位置を共有していません。",
+    "members": "メンバー",
+    "you": "あなた",
+    "battery": "バッテリー {level}%",
+    "noPositionYet": "まだ位置が共有されていません",
+    "privacyNote": "表示されるのは最後の位置だけです。移動履歴は保存されません。誰でも自分の電話からいつでも共有を停止できます。"
   }
 }

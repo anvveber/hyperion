@@ -88,6 +88,18 @@ const allSettingsNavItems = [
     ),
   },
   {
+    href: '/settings/family',
+    labelKey: 'settings.family.title',
+    descriptionKey: 'settings.family.description',
+    adminOnly: true,
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 21s-6.75-5.53-6.75-11.25a6.75 6.75 0 1113.5 0C18.75 15.47 12 21 12 21z" />
+        <circle cx="12" cy="9.75" r="2.25" strokeWidth={2} />
+      </svg>
+    ),
+  },
+  {
     href: '/settings/users',
     labelKey: 'settings.users.title',
     descriptionKey: 'settings.users.description',

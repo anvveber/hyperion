@@ -32,6 +32,7 @@ describe('vCard Second Last Name Handling', () => {
     contactReminderIntervalUnit: null,
     lastContactReminderSent: null,
     cardDavSyncEnabled: true,
+    familyMemberId: null,
     displayNameOverride: null,
     createdAt: new Date(),
     updatedAt: new Date(),

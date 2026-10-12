@@ -74,7 +74,8 @@
       "operator": "Operator",
       "local": "Local",
       "utc": "UTC"
-    }
+    },
+    "family": "Family"
   },
   "advancedSearch": {
     "title": "Advanced search",
@@ -944,6 +945,32 @@
       "geocodingLabel": "Locate addresses automatically",
       "success": "Map settings saved",
       "error": "Could not save map settings"
+    },
+    "family": {
+      "title": "Family",
+      "description": "Who shares their location, and which account each phone belongs to",
+      "notConfigured": "Location sharing is off. Set LOCATION_RECORDER_URL to the address of your OwnTracks Recorder to turn it on.",
+      "loadFailed": "Could not load family members.",
+      "saveFailed": "Could not save the change.",
+      "added": "Family member added",
+      "saved": "Saved",
+      "removed": "Family member removed",
+      "confirmRemove": "Remove {name}? Their position will no longer be shown.",
+      "membersTitle": "Members",
+      "loading": "Loading...",
+      "empty": "No family members yet.",
+      "recorderIdentity": "Recorder: {user} / {device}",
+      "account": "Account",
+      "noAccount": "No account",
+      "remove": "Remove",
+      "addTitle": "Add a family member",
+      "addHint": "Use the same user and device names that are set in the phone's location app.",
+      "name": "Name",
+      "recorderUser": "Recorder user",
+      "recorderDevice": "Device",
+      "saving": "Saving...",
+      "add": "Add",
+      "mutualNote": "Sharing is mutual: an account linked here can see every member's position, and only linked accounts can see positions."
     }
   },
   "customFields": {
@@ -1848,6 +1875,24 @@
       "moreImages": "{count, plural, one {# more image not shown} other {# more images not shown}}",
       "downloadWithTranscripts": "Download profile as PDF with transcripts",
       "transcripts": "Transcripts"
+    },
+    "location": {
+      "title": "Location",
+      "openFamily": "Family map",
+      "recorderUnreachable": "The location server cannot be reached right now.",
+      "noPositionYet": "{name} has not shared a position yet.",
+      "mapLabel": "Last shared position of {name}",
+      "updated": "updated {time}",
+      "accuracy": "±{meters} m",
+      "battery": "battery {level}%",
+      "linkedTo": "Shared by {name}",
+      "unlink": "Unlink",
+      "notLinked": "Link this person to a family member who shares their location to see it here.",
+      "chooseMember": "Choose a family member",
+      "link": "Link",
+      "linked": "Location linked",
+      "unlinked": "Location unlinked",
+      "saveFailed": "Could not save the change."
     }
   },
   "groups": {
@@ -2488,5 +2533,23 @@
       "dismiss": "Not now",
       "unsupported": "Your browser may be able to install this from its own menu. Look for Add to Home Screen, Install, or Add to Dock."
     }
+  },
+  "family": {
+    "title": "Family",
+    "loading": "Loading positions...",
+    "loadFailed": "Could not load family positions.",
+    "notConfigured": "Location sharing is not set up on this server.",
+    "notSharing": "You are not sharing your location.",
+    "notSharingWhy": "Positions are mutual: only people who share their own location can see the others. Ask the administrator to add you as a family member.",
+    "manage": "Manage family members",
+    "description": "Last position each family member shared. Positions refresh every minute.",
+    "recorderUnreachable": "The location server cannot be reached right now. Positions may be missing.",
+    "mapLabel": "Map of family members",
+    "noPositions": "Nobody has shared a position yet.",
+    "members": "Members",
+    "you": "you",
+    "battery": "battery {level}%",
+    "noPositionYet": "No position shared yet",
+    "privacyNote": "Only the last position is shown. No movement history is kept. Anyone can stop sharing at any time from their phone."
   }
 }
