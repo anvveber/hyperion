@@ -2010,7 +2010,12 @@
     "viewContact": "Vis kontakt",
     "directions": "Veibeskrivelse",
     "webglUnavailable": "Nettleseren din kan ikke vise kartet fordi WebGL er utilgjengelig eller deaktivert. Aktiver grafikkakselerasjon eller WebGL i nettleseren din og last inn siden på nytt.",
-    "colocatedTitle": "{count, plural, one {1 person på dette stedet} other {# personer på dette stedet}}"
+    "colocatedTitle": "{count, plural, one {1 person på dette stedet} other {# personer på dette stedet}}",
+    "baseMap": {
+      "label": "Bakgrunnskart",
+      "map": "Kart",
+      "satellite": "Satellitt"
+    }
   },
   "calendar": {
     "title": "Kalender",

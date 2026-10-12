@@ -17,6 +17,12 @@ The second address line gets special treatment: lookups try the full address fir
 
 The map itself is built on MapLibre GL, giving you smooth zooming, panning, and clustering of nearby markers. Contacts with a photo appear as a small circular photo thumbnail, ringed in the color of the first group they belong to; contacts without a photo show as a plain colored dot in that same group color, falling back to the default marker color when they aren't in a colored group. When multiple people share the same address (such as partners or family members living together), the map shows a single count circle at that location instead of stacking individual markers on top of each other. Click a marker to see who it belongs to and the full address, with a link to their contact page and a link to get directions. Clicking a co-located count circle opens a popup listing everyone at that address.
 
+## Base map: map or satellite
+
+In dark mode the map uses a graphite style tuned for contrast: land a step above the page background, darker water, lighter roads, and labels you can read, with gold left to the markers.
+
+When your instance has satellite imagery set up, a **Map / Satellite** switch appears in the top-left corner of every map (this one, the Family map and the profile minimaps). Your choice is remembered in this browser and applies to all of them. See [Map & Geocoding](/self-hosting/map-geocoding/#satellite-imagery) for how to set it up.
+
 ## Filtering
 
 A filter bar above the map lets you narrow down what's shown:

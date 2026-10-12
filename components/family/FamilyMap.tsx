@@ -3,10 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-
-// Same OpenFreeMap styles as the main map.
-const DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
-const LIGHT_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+import { styleFor, styleKey, tuneStyle } from '@/lib/map-styles';
+import { useBaseMap } from '@/components/map/useBaseMap';
+import BaseMapToggle from '@/components/map/BaseMapToggle';
 const SINGLE_ZOOM = 15;
 const MAX_FIT_ZOOM = 15;
 
@@ -125,16 +124,18 @@ export default function FamilyMap({ points, height, compact = false, ariaLabel }
   const pointsRef = useRef(points);
   const currentStyleRef = useRef<string | null>(null);
   const isDark = useIsDark();
+  const { base, setBase, satellite } = useBaseMap();
 
   // Create the map once. Effects run in order, so the map exists before the
   // theme and marker effects below run in the same commit.
   useEffect(() => {
     if (!containerRef.current) return;
-    const initialStyle = document.documentElement.classList.contains('dark') ? DARK_STYLE : LIGHT_STYLE;
-    currentStyleRef.current = initialStyle;
+    // The satellite source arrives later; start on the map and switch then.
+    const dark = document.documentElement.classList.contains('dark');
+    currentStyleRef.current = styleKey(dark, 'map', null);
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: initialStyle,
+      style: styleFor(dark, 'map', null),
       center: [12.5, 41.9],
       zoom: 4,
       attributionControl: { compact: true },
@@ -144,6 +145,7 @@ export default function FamilyMap({ points, height, compact = false, ariaLabel }
 
     // Runs after the first style load and after every setStyle.
     map.on('style.load', () => {
+      tuneStyle(map, currentStyleRef.current ?? '');
       map.addSource('accuracy', { type: 'geojson', data: halosFor(pointsRef.current) });
       map.addLayer({ id: 'accuracy-fill', type: 'fill', source: 'accuracy', paint: { 'fill-color': '#D4A72C', 'fill-opacity': 0.12 } });
       map.addLayer({ id: 'accuracy-line', type: 'line', source: 'accuracy', paint: { 'line-color': '#D4A72C', 'line-opacity': 0.5, 'line-width': 1 } });
@@ -158,15 +160,15 @@ export default function FamilyMap({ points, height, compact = false, ariaLabel }
     };
   }, [compact]);
 
-  // Follow the theme.
+  // Follow the theme and the Map / Satellite choice.
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const next = isDark ? DARK_STYLE : LIGHT_STYLE;
-    if (currentStyleRef.current === next) return;
-    currentStyleRef.current = next;
-    map.setStyle(next);
-  }, [isDark]);
+    const key = styleKey(isDark, base, satellite);
+    if (currentStyleRef.current === key) return;
+    currentStyleRef.current = key;
+    map.setStyle(styleFor(isDark, base, satellite));
+  }, [isDark, base, satellite]);
 
   // Draw markers and halos, then frame them.
   useEffect(() => {
@@ -200,12 +202,9 @@ export default function FamilyMap({ points, height, compact = false, ariaLabel }
   }, [compact]);
 
   return (
-    <div
-      ref={containerRef}
-      role="region"
-      aria-label={ariaLabel}
-      style={{ height }}
-      className="w-full border border-border rounded-lg overflow-hidden"
-    />
+    <div className="relative w-full border border-border rounded-lg overflow-hidden" style={{ height }}>
+      <div ref={containerRef} role="region" aria-label={ariaLabel} className="h-full w-full" />
+      {satellite && <BaseMapToggle base={base} onChange={setBase} />}
+    </div>
   );
 }

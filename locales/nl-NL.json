@@ -2010,7 +2010,12 @@
     "viewContact": "Contact bekijken",
     "directions": "Routebeschrijving",
     "webglUnavailable": "Uw browser kan de kaart niet weergeven omdat WebGL niet beschikbaar of uitgeschakeld is. Schakel grafische versnelling of WebGL in uw browser in en laad de pagina opnieuw.",
-    "colocatedTitle": "{count, plural, one {1 persoon op deze locatie} other {# personen op deze locatie}}"
+    "colocatedTitle": "{count, plural, one {1 persoon op deze locatie} other {# personen op deze locatie}}",
+    "baseMap": {
+      "label": "Basiskaart",
+      "map": "Kaart",
+      "satellite": "Satelliet"
+    }
   },
   "calendar": {
     "title": "Kalender",

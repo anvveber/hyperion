@@ -87,6 +87,9 @@ If `DATABASE_URL` is set, it takes precedence over the individual `DB_*` variabl
 | `RECORDINGS_ARCHIVE_DIR` | Where the MP3 files are, if not `{RECORDINGS_LIBRARY_PATH}/archive` | `{library}/archive` |
 | `RECORDINGS_TEXT_DIR` | Where the whisper.cpp JSON transcripts are, if not `{RECORDINGS_LIBRARY_PATH}/text` | `{library}/text` |
 | `RECORDINGS_INDEX_DB` | The SQLite FTS5 search index, if not `{RECORDINGS_LIBRARY_PATH}/index.db` | `{library}/index.db` |
+| `MAP_SATELLITE_URL` | Tile URL of a satellite imagery provider, with `{z}`, `{x}` and `{y}` and your key. Turns on the Map / Satellite switch. Stays on the server. See [Satellite imagery](/self-hosting/map-geocoding/#satellite-imagery) | Not set |
+| `MAP_SATELLITE_ATTRIBUTION` | Credit shown on the map for the imagery, as the provider requires | `Satellite imagery` |
+| `MAP_SATELLITE_MAXZOOM` | Highest zoom level the provider has imagery for | `19` |
 | `LOCATION_PORT` | Port of the location server the family's phones send their positions to. Turns on family location sharing. Publish this port and give it its own domain. See [Family locations](/features/family-locations/) | Not set |
 | `LOCATION_PUBLIC_URL` | Public address of the location server (for example `https://loc.example.org`), used for the phone setup QR code | Not set |
 | `TRASH_RETENTION_DAYS` | How many days deleted items stay in the trash before the `purge-deleted` job removes them for good, or `never` to keep them until a user deletes them by hand | `never` |

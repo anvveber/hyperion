@@ -6,10 +6,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useTranslations } from 'next-intl';
 import type { MapMarker } from '@/lib/map/types';
 import { groupByCoordinates } from '@/lib/map/colocation';
-
-// OpenFreeMap hosted styles: free, no API key, commercial use permitted.
-const DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
-const LIGHT_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+import { styleFor, styleKey, tuneStyle } from '@/lib/map-styles';
+import { useBaseMap } from './useBaseMap';
+import BaseMapToggle from './BaseMapToggle';
 
 const SOURCE_ID = 'people';
 const FOCUS_ZOOM = 15;
@@ -177,6 +176,7 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
   const appliedFiltersKeyRef = useRef<string | null>(null);
   const isDark = useIsDarkTheme();
   const isDarkRef = useRef(isDark);
+  const { base, setBase, satellite } = useBaseMap();
   const translationsRef = useRef({
     viewContact: t('viewContact'),
     directions: t('directions'),
@@ -231,8 +231,11 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
       return;
     }
 
-    const initialStyle = document.documentElement.classList.contains('dark') ? DARK_STYLE : LIGHT_STYLE;
-    currentStyleRef.current = initialStyle;
+    // OpenFreeMap styles (free, no key). The satellite source, when the
+    // instance has one, arrives later; the style effect switches to it.
+    const initialDark = document.documentElement.classList.contains('dark');
+    const initialStyle = styleFor(initialDark, 'map', null);
+    currentStyleRef.current = styleKey(initialDark, 'map', null);
 
     let map: maplibregl.Map;
     try {
@@ -446,7 +449,9 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
       });
     };
 
-    // Fires after initial style load AND after every setStyle (theme switch)
+    // Fires after initial style load AND after every setStyle (theme or
+    // base map switch)
+    map.on('style.load', () => tuneStyle(map, currentStyleRef.current ?? ''));
     map.on('style.load', addDataLayers);
 
     map.on('click', 'clusters', (event) => {
@@ -534,15 +539,16 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
     };
   }, []);
 
-  // Switch style on theme change (layers re-added via the style.load handler)
+  // Switch style on theme or base map change (layers re-added via the
+  // style.load handler)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const nextStyle = isDark ? DARK_STYLE : LIGHT_STYLE;
-    if (currentStyleRef.current === nextStyle) return;
-    currentStyleRef.current = nextStyle;
-    map.setStyle(nextStyle);
-  }, [isDark]);
+    const key = styleKey(isDark, base, satellite);
+    if (currentStyleRef.current === key) return;
+    currentStyleRef.current = key;
+    map.setStyle(styleFor(isDark, base, satellite));
+  }, [isDark, base, satellite]);
 
   // Push marker updates into the source, and load/register any newly
   // visible photo icons (upgrading their markers from dot to photo once
@@ -629,6 +635,7 @@ export default function MapView({ markers, focusId, filtersKey }: MapViewProps) 
   return (
     <div className="absolute inset-0" aria-label={t('title')} role="application">
       <div ref={containerRef} className="h-full w-full" />
+      {satellite && <BaseMapToggle base={base} onChange={setBase} />}
     </div>
   );
 }

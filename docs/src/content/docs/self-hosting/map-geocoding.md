@@ -53,6 +53,27 @@ With this set, the cron endpoint returns immediately without processing anything
 
 Even without the instance-wide flag, individual users can turn off geocoding for their own account under **Settings > Map**. This is useful on a multi-user self-hosted instance where not everyone wants their contacts' addresses geocoded, even against your own private Nominatim instance.
 
+## Satellite imagery
+
+The maps can show satellite imagery instead of the street map. It is off until you choose a provider, because the free imagery services each want their own account and terms accepted. Set the provider's tile URL, with your key in it:
+
+```bash
+MAP_SATELLITE_URL=https://provider.example/{z}/{x}/{y}.jpg?key=YOUR_KEY
+MAP_SATELLITE_ATTRIBUTION=© Provider
+# Optional, the provider's highest zoom level (default 19)
+MAP_SATELLITE_MAXZOOM=19
+```
+
+The URL must use `https` and contain `{z}`, `{x}` and `{y}`. Some providers put `{y}` before `{x}`; write it in the order the provider documents.
+
+Some providers to start from (check each provider's own documentation for the exact URL and current terms):
+
+- **MapTiler**: a free plan for non-commercial use, with an API key from your MapTiler account. Copy the raster tile URL of the Satellite map from your account.
+- **Esri World Imagery** through the ArcGIS Location Platform: a free tier with an API key. The tile URL takes `{z}/{y}/{x}`.
+- **swisstopo SWISSIMAGE**: free and without a key, very detailed, but covers Switzerland only.
+
+The browser never sees this URL or your key: maps load tiles from `/api/map/satellite/{z}/{x}/{y}`, and hyperion fetches each tile from the provider when it is asked for. Nothing is stored on the server. Browsers keep tiles they have loaded for a day.
+
 ## Technical specs
 
 | Setting | Value |

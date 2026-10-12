@@ -74,6 +74,55 @@ export function mapPaths(): Record<string, Record<string, unknown>> {
         },
       },
     },
+    '/api/map/config': {
+      get: {
+        tags: ['Map'],
+        summary: 'Base map settings',
+        description:
+          'Returns the satellite base map the instance offers (when MAP_SATELLITE_URL is set), or null. ' +
+          'Tiles are loaded from /api/map/satellite/{z}/{x}/{y}; the provider URL and key are never returned.',
+        security: sessionOrToken(),
+        responses: {
+          '200': jsonResponse('Base map settings', {
+            type: 'object',
+            properties: {
+              satellite: {
+                type: ['object', 'null'],
+                properties: {
+                  attribution: { type: 'string' },
+                  maxzoom: { type: 'integer' },
+                },
+                required: ['attribution', 'maxzoom'],
+              },
+            },
+            required: ['satellite'],
+          }),
+          '401': ref401(),
+        },
+      },
+    },
+    '/api/map/satellite/{z}/{x}/{y}': {
+      get: {
+        tags: ['Map'],
+        summary: 'Satellite tile',
+        description:
+          'One satellite imagery tile, fetched from the provider configured with MAP_SATELLITE_URL and passed through. ' +
+          'Nothing is stored on the server; the browser may cache the tile for a day.',
+        security: sessionOrToken(),
+        parameters: [
+          { name: 'z', in: 'path', required: true, schema: { type: 'integer', minimum: 0 } },
+          { name: 'x', in: 'path', required: true, schema: { type: 'integer', minimum: 0 } },
+          { name: 'y', in: 'path', required: true, schema: { type: 'integer', minimum: 0 } },
+        ],
+        responses: {
+          '200': { description: 'Tile image', content: { 'image/*': { schema: { type: 'string', format: 'binary' } } } },
+          '401': ref401(),
+          '404': ref404(),
+          '502': { description: 'The provider refused the tile' },
+          '504': { description: 'The provider could not be reached' },
+        },
+      },
+    },
     '/api/map/geocode-retry': {
       post: {
         tags: ['Map'],

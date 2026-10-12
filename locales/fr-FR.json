@@ -2010,7 +2010,12 @@
     "viewContact": "Voir le contact",
     "directions": "Itinéraire",
     "webglUnavailable": "Votre navigateur ne peut pas afficher la carte car WebGL est indisponible ou désactivé. Activez l'accélération graphique ou WebGL dans votre navigateur, puis rechargez la page.",
-    "colocatedTitle": "{count, plural, one {1 personne à cet endroit} other {# personnes à cet endroit}}"
+    "colocatedTitle": "{count, plural, one {1 personne à cet endroit} other {# personnes à cet endroit}}",
+    "baseMap": {
+      "label": "Fond de carte",
+      "map": "Carte",
+      "satellite": "Satellite"
+    }
   },
   "calendar": {
     "title": "Calendrier",
