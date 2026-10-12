@@ -1138,17 +1138,22 @@ model NotificationEndpoint {
 // not (someone who only runs the OwnTracks app). Positions are never stored
 // here: they are read from the Recorder when a page asks for them.
 model FamilyMember {
-  id             String   @id @default(cuid())
-  name           String
-  recorderUser   String   // OwnTracks user, as the Recorder knows it (lowercase)
-  recorderDevice String   // OwnTracks device
-  userId         String?  @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  username     String    @unique // what the phone logs in with (lowercase)
+  passwordHash String?   // scrypt; null until a password is set
+  userId       String?   @unique
+  // Last position the phone sent. Overwritten on every update: no history.
+  lastLat      Float?
+  lastLon      Float?
+  lastAcc      Float?
+  lastBatt     Int?
+  lastAt       DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   people  Person[]
 
-  @@unique([recorderUser, recorderDevice])
   @@map("family_members")
 }

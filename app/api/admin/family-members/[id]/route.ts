@@ -4,7 +4,7 @@ import { apiResponse, handleApiError, parseRequestBody } from '@/lib/api-utils';
 import { withAdmin } from '@/lib/admin';
 import { familyMemberUpdateSchema, validateRequest } from '@/lib/validations';
 import { logger } from '@/lib/logger';
-import { familyMemberSelect } from '../route';
+import { DUPLICATE_MESSAGE, familyMemberSelect, toAdminMember } from '@/lib/family-members-admin';
 
 // PATCH /api/admin/family-members/[id] - Change a family member
 export const PATCH = withAdmin(async (request, session, context) => {
@@ -26,20 +26,17 @@ export const PATCH = withAdmin(async (request, session, context) => {
         where: { id },
         data: {
           ...(data.name !== undefined && { name: data.name }),
-          ...(data.recorderUser !== undefined && { recorderUser: data.recorderUser }),
-          ...(data.recorderDevice !== undefined && { recorderDevice: data.recorderDevice }),
+          ...(data.username !== undefined && { username: data.username }),
           ...(data.userId !== undefined && { userId: data.userId }),
         },
         select: familyMemberSelect,
       });
       logger.info({ adminId: session.user.id, memberId: id }, 'Family member updated');
-      return apiResponse.ok({ member });
+      return apiResponse.ok({ member: toAdminMember(member) });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') return apiResponse.notFound('Family member not found');
-        if (error.code === 'P2002') {
-          return apiResponse.error('That Recorder user and device, or that account, is already a family member');
-        }
+        if (error.code === 'P2002') return apiResponse.error(DUPLICATE_MESSAGE);
       }
       throw error;
     }
@@ -48,7 +45,7 @@ export const PATCH = withAdmin(async (request, session, context) => {
   }
 });
 
-// DELETE /api/admin/family-members/[id] - Stop showing someone (their data on the Recorder is not touched)
+// DELETE /api/admin/family-members/[id] - Remove someone, with their last position and phone login
 export const DELETE = withAdmin(async (_request, session, context) => {
   try {
     const { id } = await context.params;

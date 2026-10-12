@@ -78,5 +78,3 @@ docs/.astro
 playwright-report
 test-results
 
-# Family location proxy credentials
-/location/Caddyfile

@@ -26,7 +26,6 @@ interface FamilyData {
   enabled: boolean;
   canView: boolean;
   isAdmin: boolean;
-  recorderReachable: boolean;
   members: Member[];
 }
 
@@ -129,12 +128,6 @@ export default function FamilyPageClient() {
           </Link>
         )}
       </div>
-
-      {!data.recorderReachable && (
-        <div className="mb-4 p-3 border border-warning/40 bg-warning/10 rounded-lg text-sm text-warning">
-          {t('recorderUnreachable')}
-        </div>
-      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem] items-start">
         <div className="bg-surface border border-border rounded-lg p-4">
