@@ -73,7 +73,7 @@ export function generateOpenAPISpec(): OpenAPISpec {
       { name: 'Photos', description: 'Person and user photo management' },
       { name: 'Map', description: 'Map markers and address geocoding' },
       { name: 'Calendar', description: 'Important dates as an iCalendar (.ics) download' },
-      { name: 'Family', description: 'Family location sharing through an OwnTracks Recorder' },
+      { name: 'Family', description: 'Family location sharing: the last positions sent by the family phones' },
       { name: 'Notifications', description: 'Reminder delivery channels: email and browser push' },
       { name: 'Cron', description: 'Background jobs authenticated via CRON_SECRET bearer token' },
       { name: 'System', description: 'Health checks and system endpoints' },

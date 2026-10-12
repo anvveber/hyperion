@@ -4,15 +4,8 @@ import { apiResponse, handleApiError, parseRequestBody } from '@/lib/api-utils';
 import { withAdmin } from '@/lib/admin';
 import { familyMemberSchema, validateRequest } from '@/lib/validations';
 import { logger } from '@/lib/logger';
-
-export const familyMemberSelect = {
-  id: true,
-  name: true,
-  recorderUser: true,
-  recorderDevice: true,
-  userId: true,
-  user: { select: { email: true, name: true, surname: true } },
-} as const;
+import { getLocationPublicUrl } from '@/lib/family-locations';
+import { DUPLICATE_MESSAGE, familyMemberSelect, newPhoneLogin, toAdminMember } from '@/lib/family-members-admin';
 
 // GET /api/admin/family-members - Everyone set up for location sharing (no positions)
 export const GET = withAdmin(async () => {
@@ -21,7 +14,7 @@ export const GET = withAdmin(async () => {
       prisma.familyMember.findMany({ orderBy: { name: 'asc' }, select: familyMemberSelect }),
       prisma.user.findMany({ orderBy: { name: 'asc' }, select: { id: true, email: true, name: true, surname: true } }),
     ]);
-    return apiResponse.ok({ members, users });
+    return apiResponse.ok({ members: members.map(toAdminMember), users, publicUrl: getLocationPublicUrl() });
   } catch (error) {
     return handleApiError(error, 'GET /api/admin/family-members');
   }
@@ -41,21 +34,22 @@ export const POST = withAdmin(async (request, session) => {
       return apiResponse.error('Account not found');
     }
 
+    const login = await newPhoneLogin(data.username, data.name);
     try {
       const member = await prisma.familyMember.create({
         data: {
           name: data.name,
-          recorderUser: data.recorderUser,
-          recorderDevice: data.recorderDevice,
+          username: data.username,
+          passwordHash: login.passwordHash,
           userId: data.userId ?? null,
         },
         select: familyMemberSelect,
       });
       logger.info({ adminId: session.user.id, memberId: member.id }, 'Family member added');
-      return apiResponse.created({ member });
+      return apiResponse.created({ member: toAdminMember(member), setup: login.setup });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        return apiResponse.error('That Recorder user and device, or that account, is already a family member');
+        return apiResponse.error(DUPLICATE_MESSAGE);
       }
       throw error;
     }

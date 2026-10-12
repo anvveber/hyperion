@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { apiResponse, handleApiError, parseRequestBody, withAuth } from '@/lib/api-utils';
 import { personFamilyMemberSchema, validateRequest } from '@/lib/validations';
-import { fetchLastPositions, getViewerMembership, isLocationSharingEnabled, positionKey } from '@/lib/family-locations';
+import { getViewerMembership, isLocationSharingEnabled, lastPositionSelect, toLastPosition } from '@/lib/family-locations';
 
 // GET /api/people/[id]/location - Last shared position of the family member this person is linked to
 export const GET = withAuth(async (_request, session, context) => {
@@ -14,7 +14,7 @@ export const GET = withAuth(async (_request, session, context) => {
 
     const person = await prisma.person.findUnique({
       where: { id, userId: session.user.id, deletedAt: null },
-      select: { familyMember: { select: { id: true, name: true, recorderUser: true, recorderDevice: true } } },
+      select: { familyMember: { select: { id: true, name: true, ...lastPositionSelect } } },
     });
     if (!person) {
       return apiResponse.notFound('Person not found');
@@ -25,18 +25,14 @@ export const GET = withAuth(async (_request, session, context) => {
       return apiResponse.ok({ enabled: true, canView: false, member: null, position: null, options: [] });
     }
 
-    const [options, positions] = await Promise.all([
-      prisma.familyMember.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
-      person.familyMember ? fetchLastPositions() : Promise.resolve(null),
-    ]);
+    const options = await prisma.familyMember.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } });
 
     const member = person.familyMember;
     return apiResponse.ok({
       enabled: true,
       canView: true,
       member: member ? { id: member.id, name: member.name } : null,
-      position: member ? positions?.get(positionKey(member)) ?? null : null,
-      recorderReachable: member ? positions !== null : true,
+      position: member ? toLastPosition(member) : null,
       options,
     });
   } catch (error) {

@@ -23,7 +23,6 @@ interface LocationData {
   canView: boolean;
   member: { id: string; name: string } | null;
   position: Position | null;
-  recorderReachable?: boolean;
   options: { id: string; name: string }[];
 }
 
@@ -106,9 +105,7 @@ export default function PersonLocation({ personId }: { personId: string }) {
 
       {data.member ? (
         <>
-          {data.recorderReachable === false ? (
-            <p className="text-sm text-warning mb-2">{t('recorderUnreachable')}</p>
-          ) : !position ? (
+          {!position ? (
             <p className="text-sm text-muted mb-2">{t('noPositionYet', { name: data.member.name })}</p>
           ) : (
             <>

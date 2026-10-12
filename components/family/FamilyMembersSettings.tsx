@@ -1,8 +1,9 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '../ui/Button';
 
 interface Account {
@@ -15,9 +16,58 @@ interface Account {
 interface Member {
   id: string;
   name: string;
-  recorderUser: string;
-  recorderDevice: string;
+  username: string;
   userId: string | null;
+  hasPassword: boolean;
+  lastSeenAt: string | null;
+}
+
+/** Shown once, right after a password is generated. */
+interface PhoneSetup {
+  name: string;
+  username: string;
+  password: string;
+  url: string | null;
+  link: string | null;
+}
+
+function PhoneSetupPanel({ setup, onClose }: { setup: PhoneSetup; onClose: () => void }) {
+  const t = useTranslations('settings.family.setup');
+  return (
+    <section className="border border-primary/50 rounded-lg p-4 space-y-4" aria-live="polite">
+      <div>
+        <h3 className="text-lg font-semibold text-foreground">{t('title', { name: setup.name })}</h3>
+        <p className="text-sm text-muted mt-1">{t('onlyOnce')}</p>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-6">
+        {setup.link && (
+          <div className="shrink-0">
+            <div className="bg-white p-3 rounded-lg inline-block">
+              <QRCodeSVG value={setup.link} size={200} level="M" />
+            </div>
+            <p className="text-xs text-muted mt-2 max-w-[13rem]">{t('scan')}</p>
+          </div>
+        )}
+        <div className="min-w-0 space-y-3">
+          {!setup.link && <p className="text-sm text-muted">{t('noPublicUrl')}</p>}
+          <p className="text-sm text-foreground">{t('manual')}</p>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+            <dt className="text-muted">{t('mode')}</dt>
+            <dd className="font-mono text-foreground">HTTP</dd>
+            <dt className="text-muted">{t('url')}</dt>
+            <dd className="font-mono text-foreground break-all">{setup.url ?? t('yourUrl')}</dd>
+            <dt className="text-muted">{t('username')}</dt>
+            <dd className="font-mono text-foreground">{setup.username}</dd>
+            <dt className="text-muted">{t('password')}</dt>
+            <dd className="font-mono text-foreground select-all">{setup.password}</dd>
+          </dl>
+        </div>
+      </div>
+      <Button variant="secondary" size="sm" onClick={onClose}>
+        {t('done')}
+      </Button>
+    </section>
+  );
 }
 
 const inputClass =
@@ -38,15 +88,16 @@ function resetFamilyTabCache() {
 
 export default function FamilyMembersSettings() {
   const t = useTranslations('settings.family');
+  const locale = useLocale();
   const [members, setMembers] = useState<Member[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState('');
-  const [recorderUser, setRecorderUser] = useState('');
-  const [recorderDevice, setRecorderDevice] = useState('phone');
+  const [username, setUsername] = useState('');
   const [userId, setUserId] = useState('');
   const [saving, setSaving] = useState(false);
+  const [setup, setSetup] = useState<PhoneSetup | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -75,16 +126,16 @@ export default function FamilyMembersSettings() {
       const res = await fetch('/api/admin/family-members', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, recorderUser, recorderDevice, userId: userId || null }),
+        body: JSON.stringify({ name, username, userId: userId || null }),
       });
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.details?.[0]?.message || data.error || t('saveFailed'));
         return;
       }
+      setSetup({ name, ...(data as { setup: Omit<PhoneSetup, 'name'> }).setup });
       setName('');
-      setRecorderUser('');
-      setRecorderDevice('phone');
+      setUsername('');
       setUserId('');
       resetFamilyTabCache();
       toast.success(t('added'));
@@ -112,6 +163,18 @@ export default function FamilyMembersSettings() {
     await load();
   };
 
+  const newPassword = async (member: Member) => {
+    if (member.hasPassword && !window.confirm(t('confirmNewPassword', { name: member.name }))) return;
+    const res = await fetch(`/api/admin/family-members/${member.id}/password`, { method: 'POST' });
+    if (!res.ok) {
+      toast.error(t('saveFailed'));
+      return;
+    }
+    const data = (await res.json()) as { setup: Omit<PhoneSetup, 'name'> };
+    setSetup({ name: member.name, ...data.setup });
+    await load();
+  };
+
   const remove = async (member: Member) => {
     if (!window.confirm(t('confirmRemove', { name: member.name }))) return;
     const res = await fetch(`/api/admin/family-members/${member.id}`, { method: 'DELETE' });
@@ -126,6 +189,7 @@ export default function FamilyMembersSettings() {
 
   return (
     <div className="space-y-8">
+      {setup && <PhoneSetupPanel setup={setup} onClose={() => setSetup(null)} />}
       <section>
         <h3 className="text-lg font-semibold text-foreground mb-3">{t('membersTitle')}</h3>
         {loading ? (
@@ -139,7 +203,13 @@ export default function FamilyMembersSettings() {
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-foreground">{m.name}</p>
                   <p className="text-xs font-mono text-muted">
-                    {t('recorderIdentity', { user: m.recorderUser, device: m.recorderDevice })}
+                    {t('usernameLine', { username: m.username })}
+                    {' · '}
+                    {!m.hasPassword
+                      ? t('noPassword')
+                      : m.lastSeenAt
+                        ? t('lastSeen', { date: new Date(m.lastSeenAt).toLocaleString(locale) })
+                        : t('neverSeen')}
                   </p>
                 </div>
                 <label className="sr-only" htmlFor={`account-${m.id}`}>
@@ -158,6 +228,9 @@ export default function FamilyMembersSettings() {
                     </option>
                   ))}
                 </select>
+                <Button variant="secondary" size="sm" onClick={() => void newPassword(m)}>
+                  {t('newPassword')}
+                </Button>
                 <Button variant="secondary" size="sm" onClick={() => void remove(m)}>
                   {t('remove')}
                 </Button>
@@ -192,27 +265,13 @@ export default function FamilyMembersSettings() {
           </div>
           <div>
             <label htmlFor="fm-user" className="block mb-1 text-foreground">
-              {t('recorderUser')}
+              {t('username')}
             </label>
             <input
               id="fm-user"
               required
-              value={recorderUser}
-              onChange={(e) => setRecorderUser(e.target.value)}
-              className={`${inputClass} font-mono`}
-              autoCapitalize="none"
-              spellCheck={false}
-            />
-          </div>
-          <div>
-            <label htmlFor="fm-device" className="block mb-1 text-foreground">
-              {t('recorderDevice')}
-            </label>
-            <input
-              id="fm-device"
-              required
-              value={recorderDevice}
-              onChange={(e) => setRecorderDevice(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className={`${inputClass} font-mono`}
               autoCapitalize="none"
               spellCheck={false}

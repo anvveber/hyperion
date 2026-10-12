@@ -43,6 +43,9 @@ RUN npm run build
 # Compile production seed to JavaScript using esbuild
 RUN npx esbuild prisma/seed.production.ts --platform=node --format=cjs --outfile=prisma/seed.production.js --bundle --external:@prisma/client --external:pg --minify
 
+# Bundle the entry point that also runs the family location server (LOCATION_PORT)
+RUN npx esbuild server/start.ts --platform=node --format=cjs --outfile=start.js --bundle --external:pg --external:./server.js --minify
+
 # Stage 3: Runner
 FROM node:24-alpine AS runner
 WORKDIR /app
@@ -66,6 +69,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
 # Copy standalone build (includes node_modules with production dependencies)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/start.js ./start.js
 
 # IMPORTANT: Copy public folder AFTER standalone
 # Standalone output includes public, but we copy again to ensure all assets are present
@@ -95,6 +99,8 @@ RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 USER nextjs
 
 EXPOSE 3000
+# Family location server, only when LOCATION_PORT is set
+EXPOSE 3001
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
@@ -105,4 +111,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Use entrypoint script to run migrations before starting app
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["node", "server.js"]
+CMD ["node", "start.js"]
