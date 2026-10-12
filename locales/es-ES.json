@@ -2010,7 +2010,12 @@
     "viewContact": "Ver contacto",
     "directions": "Cómo llegar",
     "webglUnavailable": "Tu navegador no puede mostrar el mapa porque WebGL no está disponible o está desactivado. Activa la aceleración gráfica o WebGL en tu navegador y vuelve a cargar la página.",
-    "colocatedTitle": "{count, plural, one {1 persona en esta ubicación} other {# personas en esta ubicación}}"
+    "colocatedTitle": "{count, plural, one {1 persona en esta ubicación} other {# personas en esta ubicación}}",
+    "baseMap": {
+      "label": "Mapa base",
+      "map": "Mapa",
+      "satellite": "Satélite"
+    }
   },
   "calendar": {
     "title": "Calendario",

@@ -55,3 +55,25 @@ curl https://your-instance.example.com/api/map/markers \
 | `geocodingEnabled` | Whether automatic geocoding is enabled instance-wide and for this user. See [Settings](/features/settings/) and [Map Geocoding](/self-hosting/map-geocoding/) for configuration. |
 
 If `geocodingEnabled` is `false`, `markers` will only include manually entered GEO locations, since street addresses are never sent to a geocoding provider.
+
+## Base map settings
+
+```
+GET /api/map/config
+```
+
+Returns the satellite base map the instance offers, or `null` when `MAP_SATELLITE_URL` is not set:
+
+```json
+{ "satellite": { "attribution": "© Provider", "maxzoom": 19 } }
+```
+
+The provider URL and key are never returned.
+
+## Satellite tile
+
+```
+GET /api/map/satellite/{z}/{x}/{y}
+```
+
+One satellite tile, fetched from the configured provider and passed through with its image type. Returns `404` when satellite imagery is not configured or the tile is out of range, `502` when the provider refuses the tile, and `504` when it cannot be reached.
