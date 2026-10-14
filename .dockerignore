@@ -17,10 +17,10 @@ docker-compose.yml
 docker-compose.*.yml
 .dockerignore
 
-# Environment files
-.env
-.env.local
-.env.*.local
+# Environment files: secrets are passed at runtime (env_file), never baked
+# into the image. This covers .env, .env.test, .env.production and the rest.
+.env*
+!.env.example
 
 # Logs
 npm-debug.log*
