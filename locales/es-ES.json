@@ -1092,6 +1092,8 @@
       "recenterGraph": "Volver a centrar el gráfico",
       "switchTo3d": "Cambiar a vista 3D",
       "switchToFlat": "Cambiar a vista plana (Mayús + arrastrar gira la vista 3D)",
+      "ariaLabel": "Gráfico de red de personas y sus relaciones",
+      "legendLabel": "Grupos del gráfico. Pasa el cursor o toca uno para resaltar a sus miembros.",
       "matchMode": {
         "any": "Cualquiera",
         "all": "Todo",

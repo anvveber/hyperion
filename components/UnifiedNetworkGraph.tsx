@@ -15,6 +15,7 @@ import { GraphFilterGroupPill } from './GraphFilterPills';
 import { paintScene, pickNode, type NodePlacement } from './graph/scene-renderer';
 import { approach, nearestFullTurn, project, unprojectToPlane, type Camera } from './graph/camera';
 import { computeElevations, hashUnit } from './graph/elevation';
+import { createShapeForce } from './graph/shape-force';
 import { getLODTier } from './graph/lod';
 import { getCachedPhoto, loadPhoto } from './graph/photo-cache';
 import { diffSimulationData } from './graph/diff-simulation';
@@ -29,6 +30,8 @@ interface Group { id: string; name: string; color: string | null; }
 type IncludeMode = 'or' | 'and';
 type GroupFilterItem = { id: string; label: string; color: string | null; isNegative: boolean; };
 type ViewMode = '3d' | 'flat';
+type LegendItem = { id: string; name: string; color: string | null; count: number };
+type FitTarget = { k: number; x: number; y: number; stretchX: number; stretchY: number };
 
 const VIEW_STORAGE_KEY = 'hyperion:graphView';
 const PITCH_3D = 0.9;
@@ -36,9 +39,14 @@ const PITCH_3D = 0.9;
 // upright) get a steeper, more top-down angle and use their height.
 const PITCH_3D_TALL = 0.45;
 const PITCH_MIN = 0.15;
-const PITCH_MAX = 1.25;
-const IDLE_DRIFT_RAD_PER_S = 0.05;
+const PITCH_MAX = 1.1;
+// When idle the 3D view sways a little around its angle instead of spinning
+// all the way round: a full turn would rotate a tall layout sideways.
+const IDLE_SWAY_RAD = 0.15;
+const IDLE_SWAY_SPEED = (Math.PI * 2) / 40;
 const IDLE_DRIFT_DELAY_MS = 2500;
+// Most the view may stretch on one axis to fill a canvas of another shape.
+const MAX_VIEW_STRETCH = 1.5;
 const APPEAR_SECONDS = 0.8;
 const INTRO_HOP_DELAY = 0.18;
 const nowSeconds = (): number => performance.now() / 1000;
@@ -59,15 +67,21 @@ function pitchForAspect(aspect: number): number {
   return PITCH_3D + (PITCH_3D_TALL - PITCH_3D) * t;
 }
 
-/**
- * Pull toward the center, stronger along the short side of the canvas, so
- * the layout stretches to the canvas shape instead of staying a circle.
- */
-function centerPull(node: SimulationNode, axis: 'x' | 'y', aspect: number): number {
+/** Pull toward the center: firm for "you", none for expanded group ghosts. */
+function centerPull(node: SimulationNode): number {
   if (node.kind === 'person' && node.isCenter) return 0.5;
   if (node.kind === 'bubble' && node.isExpanded) return 0;
-  const stretch = aspect;
-  return axis === 'x' ? 0.15 * stretch : 0.15 / stretch;
+  return 0.15;
+}
+
+/**
+ * Height-to-width ratio the layout should have so it fills the canvas once
+ * drawn. The 3D tilt squashes height by cos(pitch), so the layout is made
+ * that much taller to make up for it.
+ */
+function layoutRatioFor(aspect: number, pitch: number): number {
+  const ratio = aspect / Math.max(0.5, Math.cos(pitch));
+  return Math.min(1.9, Math.max(0.6, ratio));
 }
 
 /** Perspective distance that keeps depth effects similar for small and large graphs. */
@@ -115,8 +129,8 @@ export default function UnifiedNetworkGraph({
   const cameraRef = useRef<Camera>({
     yaw: -0.9, pitch: 0, lift: 0, distance: 1200, pivotX: 0, pivotY: 0,
   });
-  const cameraTargetRef = useRef<{ yaw: number; pitch: number; lift: number }>({
-    yaw: 0, pitch: PITCH_3D, lift: 1,
+  const cameraTargetRef = useRef<{ yaw: number; pitch: number; lift: number; stretchX: number; stretchY: number }>({
+    yaw: 0, pitch: PITCH_3D, lift: 1, stretchX: 1, stretchY: 1,
   });
   const elevationRef = useRef<Map<string, number>>(new Map());
   const bornAtRef = useRef<Map<string, number>>(new Map());
@@ -128,6 +142,21 @@ export default function UnifiedNetworkGraph({
   const lastInteractionRef = useRef<number>(0);
   const orbitRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const viewModeRef = useRef<ViewMode>('3d');
+  const aspectRef = useRef<number>(1);
+  const swayRef = useRef<{ phase: number; offset: number }>({ phase: 0, offset: 0 });
+  // Auto-framing: until the user zooms or pans, the view keeps easing toward
+  // a frame that fits the whole network, so it follows the layout as it
+  // settles and as filters change it.
+  const autoFrameRef = useRef<boolean>(true);
+  const fitTargetRef = useRef<FitTarget | null>(null);
+  const lastFitAtRef = useRef<number>(0);
+  // Legend: a group picked by click (sticky) and one previewed by hover.
+  const [legend, setLegend] = useState<LegendItem[]>([]);
+  const [pinnedGroupId, setPinnedGroupId] = useState<string | null>(null);
+  const [previewGroupId, setPreviewGroupId] = useState<string | null>(null);
+  const focusGroupRef = useRef<string | null>(null);
+  const legendRef = useRef<HTMLDivElement>(null);
+  const hasLegendRef = useRef<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>('3d');
   const transformRef = useRef<ZoomTransform>(zoomIdentity);
   const zoomBehaviorRef = useRef<ZoomBehavior<HTMLCanvasElement, unknown> | null>(null);
@@ -196,11 +225,12 @@ export default function UnifiedNetworkGraph({
         if (center) center.x(w / 2).y(h / 2);
 
         const aspect = aspectOf(canvas);
+        aspectRef.current = aspect;
         const fx = sim.force('centerX') as XForce | undefined;
-        if (fx) fx.x(w / 2).strength((d) => centerPull(d, 'x', aspect));
+        if (fx) fx.x(w / 2);
 
         const fy = sim.force('centerY') as YForce | undefined;
-        if (fy) fy.y(h / 2).strength((d) => centerPull(d, 'y', aspect));
+        if (fy) fy.y(h / 2);
 
         // Rotating a phone changes the best tilt; follow it unless the
         // user is in flat view.
@@ -221,10 +251,9 @@ export default function UnifiedNetworkGraph({
 
   // Zoom and pan so the whole network fits, as seen from the camera's
   // target angle. Small graphs get only a slight zoom-in, never a huge one.
-  const fitView = useCallback((animate: boolean) => {
+  const computeFit = useCallback((): FitTarget | null => {
     const canvas = canvasRef.current;
-    const zoomBehavior = zoomBehaviorRef.current;
-    if (!canvas || !zoomBehavior) return;
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     const cam = cameraRef.current;
     const target = cameraTargetRef.current;
@@ -234,6 +263,8 @@ export default function UnifiedNetworkGraph({
       pitch: target.pitch,
       lift: target.lift,
       distance: distanceFor(nodesRef.current, cam.pivotX, cam.pivotY),
+      stretchX: 1,
+      stretchY: 1,
     };
     let minX = Infinity;
     let minY = Infinity;
@@ -247,27 +278,66 @@ export default function UnifiedNetworkGraph({
       minY = Math.min(minY, p.y);
       maxY = Math.max(maxY, p.y);
     }
-    let next = zoomIdentity;
-    if (Number.isFinite(minX)) {
+    if (!Number.isFinite(minX)) return null;
+    {
       const pad = isMobile ? 32 : 56;
+      // Keep the top clear of the group legend, which sits over the canvas.
+      // On first load the legend may not be on screen yet, so fall back to
+      // its usual height when there will be one.
+      const legendEl = legendRef.current;
+      const legendBottom = legendEl
+        ? legendEl.offsetTop + legendEl.offsetHeight
+        : hasLegendRef.current ? 40 : 0;
+      const topInset = legendBottom > 0 ? legendBottom + 20 - pad / 2 : 0;
+      // On phones the control buttons span much of the bottom edge.
+      const bottomInset = isMobile ? 48 : 0;
+      const usableH = rect.height - pad * 2 - Math.max(0, topInset) - bottomInset;
+      const usableW = rect.width - pad * 2;
+      const graphW = Math.max(maxX - minX, 1);
+      const graphH = Math.max(maxY - minY, 1);
+      // If the network is rounder than the canvas, stretch the view along the
+      // canvas's long side (within limits) so it uses the space.
+      const shapeGap = (usableH / usableW) / (graphH / graphW);
+      const stretchY = Math.min(MAX_VIEW_STRETCH, Math.max(1, shapeGap));
+      const stretchX = Math.min(MAX_VIEW_STRETCH, Math.max(1, 1 / shapeGap));
       const k = Math.min(
         1.25,
-        Math.max(0.15, Math.min(
-          (rect.width - pad * 2) / Math.max(maxX - minX, 1),
-          (rect.height - pad * 2) / Math.max(maxY - minY, 1),
-        )),
+        Math.max(0.15, Math.min(usableW / (graphW * stretchX), usableH / (graphH * stretchY))),
       );
       // Labels hang below nodes, so nudge the frame up a little.
-      const cx = (minX + maxX) / 2;
-      const cy = (minY + maxY) / 2 + 8;
-      next = zoomIdentity.translate(rect.width / 2 - k * cx, rect.height / 2 - k * cy).scale(k);
-    }
-    if (animate) {
-      select(canvas).transition().duration(750).call(zoomBehavior.transform, next);
-    } else {
-      select(canvas).call(zoomBehavior.transform, next);
+      const cx = cam.pivotX + ((minX + maxX) / 2 - cam.pivotX) * stretchX;
+      const cy = cam.pivotY + ((minY + maxY) / 2 - cam.pivotY) * stretchY + 8;
+      const screenCy = (rect.height + Math.max(0, topInset) - bottomInset) / 2;
+      return { k, x: rect.width / 2 - k * cx, y: screenCy - k * cy, stretchX, stretchY };
     }
   }, [isMobile]);
+
+  const applyTransform = useCallback((k: number, x: number, y: number) => {
+    const canvas = canvasRef.current;
+    const zoomBehavior = zoomBehaviorRef.current;
+    if (!canvas || !zoomBehavior) return;
+    select(canvas).call(zoomBehavior.transform, zoomIdentity.translate(x, y).scale(k));
+  }, []);
+
+  // Turn auto-framing (back) on and frame the network: at once, or eased in
+  // by the animation loop.
+  const fitView = useCallback((animate: boolean) => {
+    autoFrameRef.current = true;
+    const fit = computeFit();
+    lastFitAtRef.current = performance.now();
+    if (!fit) return;
+    fitTargetRef.current = fit;
+    const target = cameraTargetRef.current;
+    target.stretchX = fit.stretchX;
+    target.stretchY = fit.stretchY;
+    if (!animate || reducedMotionRef.current) {
+      const cam = cameraRef.current;
+      cam.stretchX = fit.stretchX;
+      cam.stretchY = fit.stretchY;
+      applyTransform(fit.k, fit.x, fit.y);
+    }
+    dirtyRef.current = true;
+  }, [computeFit, applyTransform]);
 
   // Re-center the graph view
   const recenterGraph = useCallback(() => {
@@ -349,6 +419,12 @@ export default function UnifiedNetworkGraph({
       // Storage can be unavailable (private mode); the choice just won't persist.
     }
   }, [fitView]);
+
+  // The legend's focus: a hovered entry previews, a clicked one sticks.
+  useEffect(() => {
+    focusGroupRef.current = previewGroupId ?? pinnedGroupId;
+    dirtyRef.current = true;
+  }, [previewGroupId, pinnedGroupId]);
 
   // Restore the saved view mode and follow the reduced-motion preference.
   useEffect(() => {
@@ -436,6 +512,7 @@ export default function UnifiedNetworkGraph({
         time,
         reducedMotion: reducedMotionRef.current,
         hoveredNodeId: touchSelectedNodeIdRef.current ?? hoveredNodeIdRef.current,
+        focusGroupId: focusGroupRef.current,
         elevation: elevationOf,
         appear: appearOf,
         getPhoto: getCachedPhoto,
@@ -468,7 +545,11 @@ export default function UnifiedNetworkGraph({
         && !pointerInsideRef.current && !orbitRef.current && !isDraggingRef.current
         && nowMs - lastInteractionRef.current > IDLE_DRIFT_DELAY_MS
       ) {
-        target.yaw += dt * IDLE_DRIFT_RAD_PER_S;
+        const sway = swayRef.current;
+        sway.phase += dt;
+        const offset = IDLE_SWAY_RAD * Math.sin(sway.phase * IDLE_SWAY_SPEED);
+        target.yaw += offset - sway.offset;
+        sway.offset = offset;
       }
 
       // Perspective strength follows the size of the graph.
@@ -481,14 +562,42 @@ export default function UnifiedNetworkGraph({
           cam.yaw = target.yaw;
           cam.pitch = target.pitch;
           cam.lift = target.lift;
+          cam.stretchX = target.stretchX;
+          cam.stretchY = target.stretchY;
           cam.distance = wantDistance;
         } else {
-          const before = cam.yaw + cam.pitch + cam.lift;
+          const before = cam.yaw + cam.pitch + cam.lift + (cam.stretchX ?? 1) + (cam.stretchY ?? 1);
           cam.yaw = approach(cam.yaw, target.yaw, dt, rate);
           cam.pitch = approach(cam.pitch, target.pitch, dt, rate);
           cam.lift = approach(cam.lift, target.lift, dt, rate);
+          cam.stretchX = approach(cam.stretchX ?? 1, target.stretchX, dt, 4);
+          cam.stretchY = approach(cam.stretchY ?? 1, target.stretchY, dt, 4);
           cam.distance = approach(cam.distance, wantDistance, dt, 2);
-          moving = Math.abs(cam.yaw + cam.pitch + cam.lift - before) > 1e-5;
+          moving = Math.abs(cam.yaw + cam.pitch + cam.lift + (cam.stretchX ?? 1) + (cam.stretchY ?? 1) - before) > 1e-5;
+        }
+      }
+
+      if (autoFrameRef.current && introStartedRef.current && !isDraggingRef.current) {
+        if (nowMs - lastFitAtRef.current > 400) {
+          lastFitAtRef.current = nowMs;
+          const fit = computeFit();
+          if (fit) {
+            fitTargetRef.current = fit;
+            target.stretchX = fit.stretchX;
+            target.stretchY = fit.stretchY;
+          }
+        }
+        const fit = fitTargetRef.current;
+        if (fit) {
+          const t = transformRef.current;
+          const rate = reduced ? 1000 : 3;
+          const k = approach(t.k, fit.k, dt, rate);
+          const x = approach(t.x, fit.x, dt, rate);
+          const y = approach(t.y, fit.y, dt, rate);
+          if (Math.abs(k - t.k) > 1e-4 || Math.abs(x - t.x) > 0.05 || Math.abs(y - t.y) > 0.05) {
+            applyTransform(k, x, y);
+            moving = true;
+          }
         }
       }
 
@@ -507,7 +616,7 @@ export default function UnifiedNetworkGraph({
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [runPaint]);
+  }, [runPaint, computeFit, applyTransform]);
 
   // Step 2: Simulation builder
   const buildSimulation = useCallback((nodes: SimulationNode[], edges: SimulationEdge[]) => {
@@ -516,7 +625,7 @@ export default function UnifiedNetworkGraph({
     const rect = canvas.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    const aspect = aspectOf(canvas);
+    aspectRef.current = aspectOf(canvas);
     cameraRef.current.pivotX = width / 2;
     cameraRef.current.pivotY = height / 2;
     const mobileLinkDistance = isMobile ? 110 : linkDistance;
@@ -615,8 +724,13 @@ export default function UnifiedNetworkGraph({
       .force('center', forceCenter(width / 2, height / 2))
       // Stronger pull for "you" anchors it at canvas-center under normal forces,
       // while still letting the user drag it around for fun.
-      .force('centerX', forceX<SimulationNode>(width / 2).strength((d) => centerPull(d, 'x', aspect)))
-      .force('centerY', forceY<SimulationNode>(height / 2).strength((d) => centerPull(d, 'y', aspect)))
+      .force('centerX', forceX<SimulationNode>(width / 2).strength(centerPull))
+      .force('centerY', forceY<SimulationNode>(height / 2).strength(centerPull))
+      // Stretch the layout toward the canvas shape (tall on phones, wide on monitors).
+      .force('shape', createShapeForce(
+        () => layoutRatioFor(aspectRef.current, cameraTargetRef.current.pitch),
+        () => ({ x: cameraRef.current.pivotX, y: cameraRef.current.pivotY }),
+      ))
       .force('collision', forceCollide<SimulationNode>().radius(collisionForNode))
       .force('expandedCluster', expandedClusterField);
 
@@ -652,6 +766,21 @@ export default function UnifiedNetworkGraph({
     }
     if (nextExpanded.size !== expandedBubbles.size) {
       setExpandedBubbles(nextExpanded);
+    }
+
+    // Legend: the groups that have someone in the current data, biggest first.
+    if (groups) {
+      const counts = new Map<string, number>();
+      for (const person of incomingPeople) {
+        for (const g of person.groups) counts.set(g, (counts.get(g) ?? 0) + 1);
+      }
+      const next: LegendItem[] = groups
+        .filter((g) => counts.has(g.id))
+        .map((g) => ({ id: g.id, name: g.name, color: g.color, count: counts.get(g.id) ?? 0 }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+      hasLegendRef.current = next.length > 0;
+      setLegend((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
+      setPinnedGroupId((prev) => (prev && !counts.has(prev) ? null : prev));
     }
 
     const incomingNodes = buildSimulationNodes({
@@ -770,8 +899,12 @@ export default function UnifiedNetworkGraph({
 
       if (cancelled) return;
 
+      const hadData = introStartedRef.current;
       rawCacheRef.current = data;
       recomposeAndBuildSim(data);
+      // A filter can shrink or grow the network a lot: frame the new set of
+      // people, following the layout while it moves.
+      if (hadData) fitView(true);
     };
 
     fetchData();
@@ -837,13 +970,25 @@ export default function UnifiedNetworkGraph({
         }
         return true;
       })
+      .on('start', (event) => {
+        if (event.sourceEvent?.type === 'mousedown') canvas.style.cursor = 'grabbing';
+      })
+      .on('end', () => {
+        if (!hoveredNodeIdRef.current) canvas.style.cursor = 'grab';
+      })
       .on('zoom', (event) => {
         transformRef.current = event.transform;
-        markInteraction();
+        // A zoom or pan by the user (it has a source event) takes over from
+        // auto-framing; the loop's own adjustments don't.
+        if (event.sourceEvent) {
+          autoFrameRef.current = false;
+          markInteraction();
+        }
         requestPaint();
       });
     zoomBehaviorRef.current = zoomBehavior;
     select(canvas).call(zoomBehavior);
+    canvas.style.cursor = 'grab';
 
     const onMove = (event: MouseEvent) => {
       if (orbitRef.current) return;
@@ -851,7 +996,8 @@ export default function UnifiedNetworkGraph({
       const id = node?.id ?? null;
       if (hoveredNodeIdRef.current !== id) {
         hoveredNodeIdRef.current = id;
-        canvas.style.cursor = id ? 'pointer' : 'default';
+        const clickable = node && !(centerNodeNonClickable && node.kind === 'person' && node.isCenter);
+        canvas.style.cursor = !node ? 'grab' : clickable ? 'pointer' : 'default';
         requestPaint();
       }
     };
@@ -1026,7 +1172,7 @@ export default function UnifiedNetworkGraph({
       if (!orbit || orbit.pointerId !== event.pointerId) return;
       orbitRef.current = null;
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-      canvas.style.cursor = 'default';
+      canvas.style.cursor = 'grab';
       markInteraction();
     };
     const onContextMenu = (event: MouseEvent) => {
@@ -1168,12 +1314,52 @@ export default function UnifiedNetworkGraph({
       <div className="relative">
         <canvas
           ref={canvasRef}
+          role="img"
+          aria-label={t('ariaLabel')}
           className={`w-full bg-surface rounded-lg border border-border ${
             compact
               ? 'h-[62svh] min-h-[380px] sm:h-[500px] lg:h-[600px] xl:h-[700px] 2xl:h-[800px]'
               : 'h-[72svh] min-h-[420px] sm:h-[500px] lg:h-[70vh] lg:min-h-[600px]'
           }`}
         />
+        {legend.length > 0 && (
+          <div
+            ref={legendRef}
+            role="group"
+            aria-label={t('legendLabel')}
+            title={t('legendLabel')}
+            className="absolute top-3 left-3 right-3 sm:right-auto sm:max-w-[45%] flex gap-1.5 overflow-x-auto sm:flex-wrap [scrollbar-width:none]"
+            onMouseLeave={() => setPreviewGroupId(null)}
+          >
+            {legend.map((item) => {
+              const active = (previewGroupId ?? pinnedGroupId) === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-pressed={pinnedGroupId === item.id}
+                  onMouseEnter={() => setPreviewGroupId(item.id)}
+                  onFocus={() => setPreviewGroupId(item.id)}
+                  onBlur={() => setPreviewGroupId(null)}
+                  onClick={() => setPinnedGroupId((prev) => (prev === item.id ? null : item.id))}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded border px-2 py-1 font-mono text-[11px] uppercase tracking-wider backdrop-blur-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                    active
+                      ? 'border-primary/60 bg-surface-elevated/90 text-foreground'
+                      : 'border-border bg-surface/75 text-muted hover:text-foreground'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: item.color ?? '#9CA3AF', boxShadow: `0 0 6px ${item.color ?? '#9CA3AF'}` }}
+                  />
+                  <span className="max-w-[12rem] truncate">{item.name}</span>
+                  <span className="tabular-nums opacity-60">{item.count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className="absolute bottom-4 right-4 flex gap-2">
           {groups && (() => {
             const bubblesActive = resolveGraphMode(localGraphMode) === 'bubbles';

@@ -1092,6 +1092,8 @@
       "recenterGraph": "Diagram opnieuw centreren",
       "switchTo3d": "Overschakelen naar 3D-weergave",
       "switchToFlat": "Overschakelen naar platte weergave (Shift + slepen draait de 3D-weergave)",
+      "ariaLabel": "Netwerkgrafiek van personen en hun relaties",
+      "legendLabel": "Groepen in de grafiek. Beweeg over een groep of tik erop om de leden te markeren.",
       "matchMode": {
         "any": "Elke",
         "all": "Alle",

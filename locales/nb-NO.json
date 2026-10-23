@@ -1092,6 +1092,8 @@
       "recenterGraph": "Sentrer grafen på nytt",
       "switchTo3d": "Bytt til 3D-visning",
       "switchToFlat": "Bytt til flat visning (Shift + dra roterer 3D-visningen)",
+      "ariaLabel": "Nettverksgraf over personer og relasjonene deres",
+      "legendLabel": "Grupper i grafen. Hold over eller trykk på en gruppe for å fremheve medlemmene.",
       "matchMode": {
         "any": "Noen",
         "all": "Alle",

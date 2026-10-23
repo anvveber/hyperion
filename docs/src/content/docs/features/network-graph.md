@@ -34,16 +34,22 @@ A help button next to the filters walks through these modes with visual examples
 
 ## 3D and flat views
 
-The graph opens in a 3D view: people float above a radar-style floor, with "you" (or the selected person) on top and each further ring of connections a level lower. A thin line drops from every node to its spot on the floor, and farther nodes fade slightly so depth is easy to read. When the pointer is away from the graph, the view turns slowly on its own.
+The graph opens in a 3D view: people float above a patterned floor, with "you" (or the selected person) on top and each further ring of connections a level lower. A thin line drops from every node to its spot on the floor, and farther nodes fade slightly so depth is easy to read. When the pointer is away from the graph, the view sways gently.
 
 The cube button in the corner switches between the 3D view and a flat, top-down view. Your choice is remembered in this browser.
 
-On first load the network unfolds from the center outward and the view zooms to fit everyone. If your system asks for reduced motion, the entrance, the slow turning, the radar sweep and the moving pulses on links are all switched off.
+On first load the network unfolds from the center outward. The view frames the whole network and keeps it framed while the layout settles or a filter changes who is shown. On tall screens such as phones held upright, the layout stretches to use the height and the 3D tilt is gentler. Once you zoom or pan yourself, the view stays where you put it; the recenter button frames everything again.
+
+If your system asks for reduced motion, the entrance, the swaying and the moving pulses on links are all switched off.
+
+## Group legend
+
+On the dashboard, the groups present in the graph are listed in the top corner with their color and how many people they contain. Hover a group (or tap it on a phone) to highlight its members and the links between them; click it to keep the highlight on, and click again to clear it.
 
 ## Node and edge appearance
 
 - Each node shows the person's photo, or their initials if they haven't uploaded one
-- Nodes are colored by group membership
+- Nodes are colored by group membership. Someone in several groups gets a ring split into one arc per group color
 - Edges are colored by relationship type, so you can tell at a glance whether a connection is family, a friendship, or something else
 
 ## Interactions
@@ -53,7 +59,7 @@ On first load the network unfolds from the center outward and the view zooms to 
 - **Scroll to zoom** in and out
 - **Drag the background** to pan around
 - **Shift + drag** (or drag with the right mouse button) to rotate and tilt the 3D view
-- **Hover a node** to highlight its connections: other people dim, and the links show what each relationship is
+- **Hover a node** to highlight its connections: other people dim, and the links show what each relationship is (for people with many links, only the names are shown)
 - A **recenter button** resets the angle and zooms so the whole network fits
 
 There are no dedicated keyboard shortcuts beyond these pointer interactions today.

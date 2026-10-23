@@ -1092,6 +1092,8 @@
       "recenterGraph": "重新居中图形",
       "switchTo3d": "切换到 3D 视图",
       "switchToFlat": "切换到平面视图（Shift + 拖动可旋转 3D 视图）",
+      "ariaLabel": "人物及其关系的网络图",
+      "legendLabel": "图中的分组。悬停或点按分组可突出显示其成员。",
       "matchMode": {
         "any": "任意",
         "all": "全部",
