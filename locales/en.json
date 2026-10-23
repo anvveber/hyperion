@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "Type to filter by groups...",
       "noGroupsFound": "No groups found matching",
       "recenterGraph": "Re-center graph",
+      "switchTo3d": "Switch to 3D view",
+      "switchToFlat": "Switch to flat view (Shift + drag rotates the 3D view)",
       "matchMode": {
         "any": "Any",
         "all": "All",

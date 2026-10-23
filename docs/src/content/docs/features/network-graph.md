@@ -32,6 +32,14 @@ A pill selector above the graph lets you narrow down who's shown, with a few fil
 
 A help button next to the filters walks through these modes with visual examples if you ever need a refresher.
 
+## 3D and flat views
+
+The graph opens in a 3D view: people float above a radar-style floor, with "you" (or the selected person) on top and each further ring of connections a level lower. A thin line drops from every node to its spot on the floor, and farther nodes fade slightly so depth is easy to read. When the pointer is away from the graph, the view turns slowly on its own.
+
+The cube button in the corner switches between the 3D view and a flat, top-down view. Your choice is remembered in this browser.
+
+On first load the network unfolds from the center outward and the view zooms to fit everyone. If your system asks for reduced motion, the entrance, the slow turning, the radar sweep and the moving pulses on links are all switched off.
+
 ## Node and edge appearance
 
 - Each node shows the person's photo, or their initials if they haven't uploaded one
@@ -44,13 +52,15 @@ A help button next to the filters walks through these modes with visual examples
 - **Drag a node** to rearrange it manually. Nametag's force simulation will let it settle back into place once you let go, unless you've pinned it by moving it
 - **Scroll to zoom** in and out
 - **Drag the background** to pan around
-- A **recenter button** resets the zoom and pan back to the default view
+- **Shift + drag** (or drag with the right mouse button) to rotate and tilt the 3D view
+- **Hover a node** to highlight its connections: other people dim, and the links show what each relationship is
+- A **recenter button** resets the angle and zooms so the whole network fits
 
 There are no dedicated keyboard shortcuts beyond these pointer interactions today.
 
 ## Technical details
 
-For the curious: the graph is powered by a D3.js force-directed simulation, rendered to an HTML canvas rather than SVG for performance. A level-of-detail (LOD) system simplifies what gets drawn depending on zoom level, showing simple dots when zoomed far out, adding labels at a middle zoom level, and rendering full detail (photos, names, colors) only once you're zoomed in close enough to read them.
+For the curious: the graph is powered by a D3.js force-directed simulation, rendered to an HTML canvas rather than SVG for performance. The layout itself stays two-dimensional; the 3D view gives each node a height based on how many steps it is from the center and projects the result through a simple perspective camera. Names that would overlap are skipped (the hovered person, the center and their direct connections always win), which keeps large networks readable. A level-of-detail (LOD) system simplifies what gets drawn depending on zoom level, showing simple dots when zoomed far out, adding labels at a middle zoom level, and rendering full detail (photos, names, colors) only once you're zoomed in close enough to read them.
 
 ## Performance at scale
 

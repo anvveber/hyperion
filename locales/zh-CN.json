@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "输入以按分组筛选...",
       "noGroupsFound": "未找到匹配的分组",
       "recenterGraph": "重新居中图形",
+      "switchTo3d": "切换到 3D 视图",
+      "switchToFlat": "切换到平面视图（Shift + 拖动可旋转 3D 视图）",
       "matchMode": {
         "any": "任意",
         "all": "全部",

@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "Typ om te filteren op groepen...",
       "noGroupsFound": "Geen groepen gevonden die overeenkomen",
       "recenterGraph": "Diagram opnieuw centreren",
+      "switchTo3d": "Overschakelen naar 3D-weergave",
+      "switchToFlat": "Overschakelen naar platte weergave (Shift + slepen draait de 3D-weergave)",
       "matchMode": {
         "any": "Elke",
         "all": "Alle",
