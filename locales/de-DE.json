@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "Tippen, um nach Gruppen zu filtern...",
       "noGroupsFound": "Keine Gruppen gefunden passend zu",
       "recenterGraph": "Graph neu zentrieren",
+      "switchTo3d": "Zur 3D-Ansicht wechseln",
+      "switchToFlat": "Zur flachen Ansicht wechseln (Umschalt + Ziehen dreht die 3D-Ansicht)",
       "matchMode": {
         "any": "Beliebig",
         "all": "Alle",

@@ -12,10 +12,11 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import PillSelector from './PillSelector';
 import { GraphFilterGroupPill } from './GraphFilterPills';
-import { paintFrame } from './graph/canvas-renderer';
+import { paintScene, pickNode, type NodePlacement } from './graph/scene-renderer';
+import { approach, nearestFullTurn, project, unprojectToPlane, type Camera } from './graph/camera';
+import { computeElevations, hashUnit } from './graph/elevation';
 import { getLODTier } from './graph/lod';
 import { getCachedPhoto, loadPhoto } from './graph/photo-cache';
-import { buildQuadtree, findNodeAtPoint, type NodeQuadtree } from './graph/hit-test';
 import { diffSimulationData } from './graph/diff-simulation';
 import { resolveGraphMode } from './graph/mode-resolution';
 import { buildSimulationNodes, type RawGraphPerson } from './graph/bubble-composition';
@@ -23,10 +24,32 @@ import { buildHubAndSpokeEdges } from './graph/edge-composition';
 import { UNGROUPED_SYNTHETIC_ID } from './graph/simulation-types';
 import type { SimulationNode, SimulationEdge } from './graph/simulation-types';
 
-// Props interface — unchanged from pre-rewrite file
+// Props interface - unchanged from pre-rewrite file
 interface Group { id: string; name: string; color: string | null; }
 type IncludeMode = 'or' | 'and';
 type GroupFilterItem = { id: string; label: string; color: string | null; isNegative: boolean; };
+type ViewMode = '3d' | 'flat';
+
+const VIEW_STORAGE_KEY = 'hyperion:graphView';
+const PITCH_3D = 0.9;
+const PITCH_MIN = 0.15;
+const PITCH_MAX = 1.25;
+const IDLE_DRIFT_RAD_PER_S = 0.05;
+const IDLE_DRIFT_DELAY_MS = 2500;
+const APPEAR_SECONDS = 0.8;
+const INTRO_HOP_DELAY = 0.18;
+const nowSeconds = (): number => performance.now() / 1000;
+
+/** Perspective distance that keeps depth effects similar for small and large graphs. */
+function distanceFor(nodes: SimulationNode[], pivotX: number, pivotY: number): number {
+  let radius = 0;
+  for (const n of nodes) {
+    if (n.x === undefined || n.y === undefined) continue;
+    const d = Math.hypot(n.x - pivotX, n.y - pivotY);
+    if (d > radius) radius = d;
+  }
+  return Math.max(900, radius * 2.6);
+}
 
 interface UnifiedNetworkGraphProps {
   apiEndpoint?: string;
@@ -58,7 +81,24 @@ export default function UnifiedNetworkGraph({
   const simRef = useRef<Simulation<SimulationNode, SimulationEdge> | null>(null);
   const nodesRef = useRef<SimulationNode[]>([]);
   const edgesRef = useRef<SimulationEdge[]>([]);
-  const quadtreeRef = useRef<NodeQuadtree | null>(null);
+  const placementsRef = useRef<NodePlacement[]>([]);
+  const cameraRef = useRef<Camera>({
+    yaw: -0.9, pitch: 0, lift: 0, distance: 1200, pivotX: 0, pivotY: 0,
+  });
+  const cameraTargetRef = useRef<{ yaw: number; pitch: number; lift: number }>({
+    yaw: 0, pitch: PITCH_3D, lift: 1,
+  });
+  const elevationRef = useRef<Map<string, number>>(new Map());
+  const bornAtRef = useRef<Map<string, number>>(new Map());
+  const introStartedRef = useRef<boolean>(false);
+  const introEndRef = useRef<number>(0);
+  const reducedMotionRef = useRef<boolean>(false);
+  const visibleRef = useRef<boolean>(true);
+  const pointerInsideRef = useRef<boolean>(false);
+  const lastInteractionRef = useRef<number>(0);
+  const orbitRef = useRef<{ x: number; y: number; pointerId: number } | null>(null);
+  const viewModeRef = useRef<ViewMode>('3d');
+  const [viewMode, setViewMode] = useState<ViewMode>('3d');
   const transformRef = useRef<ZoomTransform>(zoomIdentity);
   const zoomBehaviorRef = useRef<ZoomBehavior<HTMLCanvasElement, unknown> | null>(null);
   const hoveredNodeIdRef = useRef<string | null>(null);
@@ -115,6 +155,8 @@ export default function UnifiedNetworkGraph({
         const rect = canvas.getBoundingClientRect();
         const w = rect.width;
         const h = rect.height;
+        cameraRef.current.pivotX = w / 2;
+        cameraRef.current.pivotY = h / 2;
 
         type CenterForce = ReturnType<typeof forceCenter<SimulationNode>>;
         type XForce = ReturnType<typeof forceX<SimulationNode>>;
@@ -140,16 +182,64 @@ export default function UnifiedNetworkGraph({
     };
   }, []);
 
-  // Re-center the graph view
-  const recenterGraph = useCallback(() => {
+  // Zoom and pan so the whole network fits, as seen from the camera's
+  // target angle. Small graphs get only a slight zoom-in, never a huge one.
+  const fitView = useCallback((animate: boolean) => {
     const canvas = canvasRef.current;
     const zoomBehavior = zoomBehaviorRef.current;
     if (!canvas || !zoomBehavior) return;
-    select(canvas)
-      .transition()
-      .duration(750)
-      .call(zoomBehavior.transform, zoomIdentity);
-  }, []);
+    const rect = canvas.getBoundingClientRect();
+    const cam = cameraRef.current;
+    const target = cameraTargetRef.current;
+    const view: Camera = {
+      ...cam,
+      yaw: target.yaw,
+      pitch: target.pitch,
+      lift: target.lift,
+      distance: distanceFor(nodesRef.current, cam.pivotX, cam.pivotY),
+    };
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const n of nodesRef.current) {
+      if (n.x === undefined || n.y === undefined) continue;
+      const p = project(view, n.x, n.y, elevationRef.current.get(n.id) ?? 0);
+      minX = Math.min(minX, p.x);
+      maxX = Math.max(maxX, p.x);
+      minY = Math.min(minY, p.y);
+      maxY = Math.max(maxY, p.y);
+    }
+    let next = zoomIdentity;
+    if (Number.isFinite(minX)) {
+      const pad = isMobile ? 32 : 56;
+      const k = Math.min(
+        1.25,
+        Math.max(0.15, Math.min(
+          (rect.width - pad * 2) / Math.max(maxX - minX, 1),
+          (rect.height - pad * 2) / Math.max(maxY - minY, 1),
+        )),
+      );
+      // Labels hang below nodes, so nudge the frame up a little.
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2 + 8;
+      next = zoomIdentity.translate(rect.width / 2 - k * cx, rect.height / 2 - k * cy).scale(k);
+    }
+    if (animate) {
+      select(canvas).transition().duration(750).call(zoomBehavior.transform, next);
+    } else {
+      select(canvas).call(zoomBehavior.transform, next);
+    }
+  }, [isMobile]);
+
+  // Re-center the graph view
+  const recenterGraph = useCallback(() => {
+    const target = cameraTargetRef.current;
+    target.yaw = nearestFullTurn(cameraRef.current.yaw);
+    target.pitch = viewModeRef.current === '3d' ? PITCH_3D : 0;
+    lastInteractionRef.current = performance.now();
+    fitView(true);
+  }, [fitView]);
 
   const toggleFilterSign = (id: string) => {
     setSelectedGroupFilters((prev) =>
@@ -192,8 +282,76 @@ export default function UnifiedNetworkGraph({
     };
   }, [tPeople, capitalizeType]);
 
-  // Step 1: Paint loop
-  const runPaint = useCallback(() => {
+  const appearOf = useCallback((id: string): number => {
+    if (reducedMotionRef.current) return 1;
+    const born = bornAtRef.current.get(id);
+    if (born === undefined) return 1;
+    return Math.min(1, Math.max(0, (nowSeconds() - born) / APPEAR_SECONDS));
+  }, []);
+
+  const elevationOf = useCallback((id: string): number => elevationRef.current.get(id) ?? 0, []);
+
+  const setView = useCallback((mode: ViewMode) => {
+    viewModeRef.current = mode;
+    setViewMode(mode);
+    const cam = cameraRef.current;
+    const target = cameraTargetRef.current;
+    if (mode === '3d') {
+      target.pitch = PITCH_3D;
+      target.lift = 1;
+    } else {
+      target.pitch = 0;
+      target.lift = 0;
+      target.yaw = nearestFullTurn(cam.yaw);
+    }
+    lastInteractionRef.current = performance.now();
+    fitView(true);
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, mode);
+    } catch {
+      // Storage can be unavailable (private mode); the choice just won't persist.
+    }
+  }, [fitView]);
+
+  // Restore the saved view mode and follow the reduced-motion preference.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
+      if (saved === 'flat' || saved === '3d') {
+        viewModeRef.current = saved;
+        setViewMode(saved);
+        const target = cameraTargetRef.current;
+        target.pitch = saved === '3d' ? PITCH_3D : 0;
+        target.lift = saved === '3d' ? 1 : 0;
+      }
+    } catch {
+      // Ignore storage errors and keep the default.
+    }
+
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => {
+      reducedMotionRef.current = media.matches;
+      dirtyRef.current = true;
+    };
+    apply();
+    media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
+
+  // Stop drawing while the graph is scrolled out of view.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver((entries) => {
+      visibleRef.current = entries.some((e) => e.isIntersecting);
+      if (visibleRef.current) dirtyRef.current = true;
+    });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
+
+  // Step 1: Paint
+  const runPaint = useCallback((time: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -214,51 +372,97 @@ export default function UnifiedNetworkGraph({
     const lod = getLODTier(transform.k);
     const isDark = document.documentElement.classList.contains('dark');
 
-    // Request photos for nodes that will render at full LOD and are in viewport.
+    // Request photos for nodes that were on screen last frame.
     if (lod !== 'dots') {
       const padPx = 64;
-      for (const node of nodesRef.current) {
-        if (node.kind !== 'person') continue;
-        if (!node.photo) continue;
-        if (node.x === undefined || node.y === undefined) continue;
-        const screenX = node.x * transform.k + transform.x;
-        const screenY = node.y * transform.k + transform.y;
-        if (
-          screenX < -padPx || screenX > rect.width + padPx ||
-          screenY < -padPx || screenY > rect.height + padPx
-        ) continue;
-        const src = node.id.startsWith('user-')
-          ? '/api/photos/user'
-          : `/api/photos/${node.id}`;
+      for (const p of placementsRef.current) {
+        const node = p.node;
+        if (node.kind !== 'person' || !node.photo) continue;
+        if (p.x < -padPx || p.x > rect.width + padPx || p.y < -padPx || p.y > rect.height + padPx) continue;
+        const src = node.id.startsWith('user-') ? '/api/photos/user' : `/api/photos/${node.id}`;
         loadPhoto(node.id, src, requestPaint);
       }
     }
 
-    paintFrame(
+    placementsRef.current = paintScene(
       {
         ctx,
         transform,
+        camera: cameraRef.current,
         width: rect.width,
         height: rect.height,
         lod,
         isDark,
         isMobile,
+        time,
+        reducedMotion: reducedMotionRef.current,
         hoveredNodeId: touchSelectedNodeIdRef.current ?? hoveredNodeIdRef.current,
+        elevation: elevationOf,
+        appear: appearOf,
         getPhoto: getCachedPhoto,
         formatEdgeLabel,
       },
       nodesRef.current,
       edgesRef.current,
     );
-  }, [isMobile, requestPaint, formatEdgeLabel]);
+  }, [isMobile, requestPaint, formatEdgeLabel, elevationOf, appearOf]);
 
+  // Animation loop: moves the camera toward its target, drifts slowly when
+  // idle, and repaints. Ambient effects run at 30 fps; interaction at full rate.
   useEffect(() => {
-    const tick = () => {
-      if (dirtyRef.current) {
-        dirtyRef.current = false;
-        runPaint();
-      }
+    let last = performance.now();
+    let lastPaint = 0;
+    const tick = (nowMs: number) => {
       rafRef.current = requestAnimationFrame(tick);
+      const dt = Math.min(0.1, (nowMs - last) / 1000);
+      last = nowMs;
+      if (!visibleRef.current) return;
+
+      const cam = cameraRef.current;
+      const target = cameraTargetRef.current;
+      const reduced = reducedMotionRef.current;
+      const time = nowMs / 1000;
+      const introActive = time < introEndRef.current;
+
+      if (
+        viewModeRef.current === '3d' && !reduced && introStartedRef.current
+        && !pointerInsideRef.current && !orbitRef.current && !isDraggingRef.current
+        && nowMs - lastInteractionRef.current > IDLE_DRIFT_DELAY_MS
+      ) {
+        target.yaw += dt * IDLE_DRIFT_RAD_PER_S;
+      }
+
+      // Perspective strength follows the size of the graph.
+      const wantDistance = distanceFor(nodesRef.current, cam.pivotX, cam.pivotY);
+
+      let moving = false;
+      if (introStartedRef.current) {
+        const rate = introActive ? 1.5 : 4;
+        if (reduced) {
+          cam.yaw = target.yaw;
+          cam.pitch = target.pitch;
+          cam.lift = target.lift;
+          cam.distance = wantDistance;
+        } else {
+          const before = cam.yaw + cam.pitch + cam.lift;
+          cam.yaw = approach(cam.yaw, target.yaw, dt, rate);
+          cam.pitch = approach(cam.pitch, target.pitch, dt, rate);
+          cam.lift = approach(cam.lift, target.lift, dt, rate);
+          cam.distance = approach(cam.distance, wantDistance, dt, 2);
+          moving = Math.abs(cam.yaw + cam.pitch + cam.lift - before) > 1e-5;
+        }
+      }
+
+      const interacting = hoveredNodeIdRef.current !== null || isDraggingRef.current || orbitRef.current !== null;
+      if (!reduced) {
+        const minGap = moving || introActive || interacting || dirtyRef.current ? 0 : 1000 / 30;
+        if (nowMs - lastPaint < minGap) return;
+      } else if (!moving && !dirtyRef.current) {
+        return;
+      }
+      dirtyRef.current = false;
+      lastPaint = nowMs;
+      runPaint(time);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => {
@@ -273,6 +477,8 @@ export default function UnifiedNetworkGraph({
     const rect = canvas.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
+    cameraRef.current.pivotX = width / 2;
+    cameraRef.current.pivotY = height / 2;
     const mobileLinkDistance = isMobile ? 110 : linkDistance;
     const mobileChargeStrength = isMobile ? -250 : chargeStrength;
     const personCollisionR = isMobile ? 38 : 52;
@@ -383,18 +589,17 @@ export default function UnifiedNetworkGraph({
       .force('expandedCluster', expandedClusterField);
 
     sim.on('tick', () => {
-      quadtreeRef.current = buildQuadtree(nodes);
       requestPaint();
     });
 
     return sim;
   }, [isMobile, linkDistance, chargeStrength, requestPaint]);
 
-  // Step 3: Composition helper — recomposes sim data from raw cache
+  // Step 3: Composition helper - recomposes sim data from raw cache
   const recomposeAndBuildSim = useCallback((raw: { nodes: RawGraphPerson[]; edges: SimulationEdge[] }) => {
     const incomingPeople = raw.nodes;
 
-    // If no groups prop, we're not on the dashboard — skip bubble logic.
+    // If no groups prop, we're not on the dashboard - skip bubble logic.
     const resolvedMode = groups ? resolveGraphMode(localGraphMode) : 'individuals';
 
     // Always expand any group that's currently in the include filter.
@@ -437,7 +642,7 @@ export default function UnifiedNetworkGraph({
     // d3-force's forceLink mutates each edge's source/target from string ids
     // to node-object references on the first sim build. If we reused those
     // mutated edges on a later rebuild, forceLink would keep the stale refs
-    // (it skips resolution when source/target is already an object) — so the
+    // (it skips resolution when source/target is already an object) - so the
     // new simulation would move new node objects while edges still drew
     // between the previous sim's node objects, leaving the visible
     // disconnect from #240. Clone edges with string ids each time.
@@ -451,15 +656,66 @@ export default function UnifiedNetworkGraph({
     nodesRef.current = nodes;
     edgesRef.current = edges;
 
+    // Heights for the 3D view, and entrance times for nodes we haven't shown yet.
+    // The first load staggers by hop count so the network unfolds from the center.
+    const { elevation, hops } = computeElevations(nodes, edges);
+    elevationRef.current = elevation;
+    const now = nowSeconds();
+    const born = bornAtRef.current;
+    const firstLoad = !introStartedRef.current;
+    let latest = now;
+    for (const n of nodes) {
+      if (born.has(n.id)) continue;
+      const delay = firstLoad
+        ? 0.15 + Math.min(hops.get(n.id) ?? 3, 4) * INTRO_HOP_DELAY + hashUnit(n.id) * 0.3
+        : hashUnit(n.id) * 0.2;
+      born.set(n.id, now + delay);
+      latest = Math.max(latest, now + delay);
+    }
+    if (firstLoad) {
+      introStartedRef.current = true;
+      introEndRef.current = latest + APPEAR_SECONDS + 0.6;
+    }
+
     simRef.current?.stop();
+    if (firstLoad) {
+      // Start from a spiral around the center instead of a single point, so
+      // the pre-settled layout below is clean.
+      const rect = canvasRef.current?.getBoundingClientRect();
+      const pivotX = (rect?.width ?? 0) / 2;
+      const pivotY = (rect?.height ?? 0) / 2;
+      cameraRef.current.pivotX = pivotX;
+      cameraRef.current.pivotY = pivotY;
+      nodes.forEach((n, i) => {
+        if (n.x !== 0 || n.y !== 0) return;
+        const r = 30 * Math.sqrt(i + 0.5);
+        const a = i * Math.PI * (3 - Math.sqrt(5));
+        n.x = pivotX + r * Math.cos(a);
+        n.y = pivotY + r * Math.sin(a);
+      });
+    }
     const sim = buildSimulation(nodes, edges);
     if (sim) {
-      sim.alpha(0.3).restart();
-      simRef.current = sim;
+      if (firstLoad) {
+        // Settle the layout before the first frame: the entrance animation
+        // then reveals a stable network instead of nodes flying into place.
+        // Big graphs get fewer ticks up front (to keep the first paint quick)
+        // and finish settling live, which the entrance animation hides.
+        sim.stop();
+        sim.tick(Math.round(Math.min(300, Math.max(100, 50000 / Math.max(nodes.length, 1)))));
+        sim.restart();
+        simRef.current = sim;
+        // Start with the right perspective strength instead of easing into it.
+        cameraRef.current.distance = distanceFor(nodes, cameraRef.current.pivotX, cameraRef.current.pivotY);
+        fitView(false);
+      } else {
+        sim.alpha(0.3).restart();
+        simRef.current = sim;
+      }
     }
   }, [
     groups, localGraphMode, expandedBubbles,
-    includeGroupIds, ungroupedLabel, buildSimulation,
+    includeGroupIds, ungroupedLabel, buildSimulation, fitView,
   ]);
 
   // Step 4: Data-fetch effect
@@ -487,7 +743,7 @@ export default function UnifiedNetworkGraph({
     return () => { cancelled = true; };
     // recomposeAndBuildSim intentionally excluded: it depends on bubble state
     // (expandedBubbles, localGraphMode) which are handled by the Step 5 effect
-    // from the cached raw data — no need to re-fetch.
+    // from the cached raw data - no need to re-fetch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiEndpoint, refreshKey, includeMode, includeGroupIds, excludeGroupIds]);
 
@@ -514,26 +770,30 @@ export default function UnifiedNetworkGraph({
       return [me.clientX, me.clientY];
     };
 
-    const toGraphCoords = (clientX: number, clientY: number): [number, number] => {
+    // Screen point to simulation coordinates on the plane at height z.
+    const toGraphCoords = (clientX: number, clientY: number, z: number): [number, number] => {
       const rect = canvas.getBoundingClientRect();
-      const xPx = clientX - rect.left;
-      const yPx = clientY - rect.top;
       const t = transformRef.current;
-      return [(xPx - t.x) / t.k, (yPx - t.y) / t.k];
+      const px = (clientX - rect.left - t.x) / t.k;
+      const py = (clientY - rect.top - t.y) / t.k;
+      const hit = unprojectToPlane(cameraRef.current, px, py, z);
+      return hit ? [hit.x, hit.y] : [px, py];
     };
 
     const nodeAt = (clientX: number, clientY: number): SimulationNode | undefined => {
-      const tree = quadtreeRef.current;
-      if (!tree) return undefined;
-      const [gx, gy] = toGraphCoords(clientX, clientY);
-      return findNodeAtPoint(tree, gx, gy, isMobile ? 28 : 22);
+      const rect = canvas.getBoundingClientRect();
+      return pickNode(placementsRef.current, clientX - rect.left, clientY - rect.top, isMobile ? 12 : 6);
+    };
+
+    const markInteraction = () => {
+      lastInteractionRef.current = performance.now();
     };
 
     const zoomBehavior = zoom<HTMLCanvasElement, unknown>()
       .scaleExtent([0.1, 3])
       .filter((event: Event) => {
         const me = event as MouseEvent;
-        if (me.ctrlKey || me.button) return false;
+        if (me.ctrlKey || me.button || me.shiftKey) return false;
         if (event.type === 'mousedown' || event.type === 'touchstart') {
           const touch = 'touches' in event ? (event as TouchEvent).touches[0] : null;
           const cx = touch ? touch.clientX : me.clientX;
@@ -544,12 +804,14 @@ export default function UnifiedNetworkGraph({
       })
       .on('zoom', (event) => {
         transformRef.current = event.transform;
+        markInteraction();
         requestPaint();
       });
     zoomBehaviorRef.current = zoomBehavior;
     select(canvas).call(zoomBehavior);
 
     const onMove = (event: MouseEvent) => {
+      if (orbitRef.current) return;
       const node = nodeAt(event.clientX, event.clientY);
       const id = node?.id ?? null;
       if (hoveredNodeIdRef.current !== id) {
@@ -629,11 +891,13 @@ export default function UnifiedNetworkGraph({
 
     let dragStartX = 0;
     let dragStartY = 0;
+    let dragZ = 0;
     const CLICK_TRAVEL_PX = 4;
     const TOUCH_TRAVEL_PX = 12;
 
     const drag_ = drag<HTMLCanvasElement, unknown>()
       .container(canvas)
+      .filter((event: MouseEvent) => !event.ctrlKey && !event.button && !event.shiftKey)
       .subject((event) => {
         const [cx, cy] = clientCoordsOf(event.sourceEvent);
         const node = nodeAt(cx, cy);
@@ -644,7 +908,9 @@ export default function UnifiedNetworkGraph({
         if (!d) return;
         dragStartX = event.x;
         dragStartY = event.y;
+        dragZ = elevationOf(d.id);
         isDraggingRef.current = true;
+        markInteraction();
         if (!event.active && simRef.current) simRef.current.alphaTarget(0.1).restart();
         d.fx = d.x;
         d.fy = d.y;
@@ -653,7 +919,7 @@ export default function UnifiedNetworkGraph({
         const d = event.subject as SimulationNode | null;
         if (!d) return;
         const [cx, cy] = clientCoordsOf(event.sourceEvent);
-        const [gx, gy] = toGraphCoords(cx, cy);
+        const [gx, gy] = toGraphCoords(cx, cy, dragZ);
         d.fx = gx;
         d.fy = gy;
       })
@@ -694,12 +960,76 @@ export default function UnifiedNetworkGraph({
       }
     };
 
+    // Orbit the 3D view: Shift + drag, or drag with the right mouse button.
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') markInteraction();
+      if (viewModeRef.current !== '3d') return;
+      if (!(event.shiftKey || event.button === 2)) return;
+      orbitRef.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+      canvas.setPointerCapture(event.pointerId);
+      canvas.style.cursor = 'grabbing';
+      event.preventDefault();
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      const orbit = orbitRef.current;
+      if (!orbit || orbit.pointerId !== event.pointerId) return;
+      const dx = event.clientX - orbit.x;
+      const dy = event.clientY - orbit.y;
+      orbit.x = event.clientX;
+      orbit.y = event.clientY;
+      const cam = cameraRef.current;
+      const target = cameraTargetRef.current;
+      target.yaw += dx * 0.006;
+      target.pitch = Math.min(PITCH_MAX, Math.max(PITCH_MIN, target.pitch - dy * 0.005));
+      cam.yaw = target.yaw;
+      cam.pitch = target.pitch;
+      markInteraction();
+      requestPaint();
+    };
+    const endOrbit = (event: PointerEvent) => {
+      const orbit = orbitRef.current;
+      if (!orbit || orbit.pointerId !== event.pointerId) return;
+      orbitRef.current = null;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      canvas.style.cursor = 'default';
+      markInteraction();
+    };
+    const onContextMenu = (event: MouseEvent) => {
+      if (viewModeRef.current === '3d') event.preventDefault();
+    };
+    const onPointerEnter = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') pointerInsideRef.current = true;
+    };
+    const onPointerLeave = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+      pointerInsideRef.current = false;
+      markInteraction();
+      if (hoveredNodeIdRef.current !== null) {
+        hoveredNodeIdRef.current = null;
+        requestPaint();
+      }
+    };
+
     canvas.addEventListener('mousemove', onMove);
     canvas.addEventListener('touchend', onTapEmpty);
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', endOrbit);
+    canvas.addEventListener('pointercancel', endOrbit);
+    canvas.addEventListener('contextmenu', onContextMenu);
+    canvas.addEventListener('pointerenter', onPointerEnter);
+    canvas.addEventListener('pointerleave', onPointerLeave);
 
     return () => {
       canvas.removeEventListener('mousemove', onMove);
       canvas.removeEventListener('touchend', onTapEmpty);
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerup', endOrbit);
+      canvas.removeEventListener('pointercancel', endOrbit);
+      canvas.removeEventListener('contextmenu', onContextMenu);
+      canvas.removeEventListener('pointerenter', onPointerEnter);
+      canvas.removeEventListener('pointerleave', onPointerLeave);
       select(canvas).on('.zoom', null);
       select(canvas).on('.drag', null);
       if (unpinTimeoutRef.current !== null) {
@@ -707,7 +1037,7 @@ export default function UnifiedNetworkGraph({
         unpinTimeoutRef.current = null;
       }
     };
-  }, [centerNodeNonClickable, isMobile, requestPaint, router]);
+  }, [centerNodeNonClickable, isMobile, requestPaint, router, elevationOf]);
 
   return (
     <div className="w-full h-full">
@@ -826,7 +1156,7 @@ export default function UnifiedNetworkGraph({
                         body: JSON.stringify({ graphMode: next }),
                       });
                     } catch {
-                      // Silent fail — local state is source of truth until next page load.
+                      // Silent fail - local state is source of truth until next page load.
                     }
                   }}
                   className={`p-3 border rounded-lg transition-colors ${
@@ -868,6 +1198,31 @@ export default function UnifiedNetworkGraph({
               </>
             );
           })()}
+          <button
+            onClick={() => setView(viewMode === '3d' ? 'flat' : '3d')}
+            className={`p-3 border rounded-lg transition-colors ${
+              viewMode === '3d'
+                ? 'bg-primary/20 border-primary/40 dark:bg-primary dark:border-primary'
+                : 'bg-surface border-border hover:bg-surface-elevated'
+            }`}
+            aria-label={viewMode === '3d' ? t('switchToFlat') : t('switchTo3d')}
+            aria-pressed={viewMode === '3d'}
+            title={viewMode === '3d' ? t('switchToFlat') : t('switchTo3d')}
+          >
+            <svg
+              className="w-5 h-5 text-primary dark:text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2l9 5v10l-9 5-9-5V7z" />
+              <path d="M3 7l9 5 9-5" />
+              <path d="M12 12v10" />
+            </svg>
+          </button>
           <button
             onClick={recenterGraph}
             className="p-3 bg-surface border border-border rounded-lg hover:bg-surface-elevated transition-colors"

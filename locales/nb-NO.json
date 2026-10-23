@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "Skriv for å filtrere etter grupper...",
       "noGroupsFound": "Fant ingen grupper som samsvarer",
       "recenterGraph": "Sentrer grafen på nytt",
+      "switchTo3d": "Bytt til 3D-visning",
+      "switchToFlat": "Bytt til flat visning (Shift + dra roterer 3D-visningen)",
       "matchMode": {
         "any": "Noen",
         "all": "Alle",

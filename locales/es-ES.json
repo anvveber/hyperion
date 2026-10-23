@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "Escribe para filtrar por grupos...",
       "noGroupsFound": "No se encontraron grupos que coincidan",
       "recenterGraph": "Volver a centrar el gráfico",
+      "switchTo3d": "Cambiar a vista 3D",
+      "switchToFlat": "Cambiar a vista plana (Mayús + arrastrar gira la vista 3D)",
       "matchMode": {
         "any": "Cualquiera",
         "all": "Todo",

@@ -1090,6 +1090,8 @@
       "filterPlaceholder": "グループでフィルタリングするには入力してください...",
       "noGroupsFound": "一致するグループは見つかりませんでした",
       "recenterGraph": "グラフを再中心に配置",
+      "switchTo3d": "3D表示に切り替え",
+      "switchToFlat": "平面表示に切り替え（Shift + ドラッグで3D表示を回転）",
       "matchMode": {
         "any": "いずれか",
         "all": "すべて",
