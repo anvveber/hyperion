@@ -32,6 +32,9 @@ type ViewMode = '3d' | 'flat';
 
 const VIEW_STORAGE_KEY = 'hyperion:graphView';
 const PITCH_3D = 0.9;
+// Tilting squashes the graph vertically, so tall canvases (phones held
+// upright) get a steeper, more top-down angle and use their height.
+const PITCH_3D_TALL = 0.45;
 const PITCH_MIN = 0.15;
 const PITCH_MAX = 1.25;
 const IDLE_DRIFT_RAD_PER_S = 0.05;
@@ -39,6 +42,33 @@ const IDLE_DRIFT_DELAY_MS = 2500;
 const APPEAR_SECONDS = 0.8;
 const INTRO_HOP_DELAY = 0.18;
 const nowSeconds = (): number => performance.now() / 1000;
+
+/** Canvas height over width, kept in a sane range. Above 1 means portrait. */
+function aspectOf(canvas: HTMLCanvasElement | null): number {
+  if (!canvas) return 1;
+  const rect = canvas.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return 1;
+  return Math.min(2.2, Math.max(0.45, rect.height / rect.width));
+}
+
+/** 3D tilt for a canvas of this shape: full tilt on wide screens, less on tall ones. */
+function pitchForAspect(aspect: number): number {
+  if (aspect <= 0.9) return PITCH_3D;
+  if (aspect >= 1.4) return PITCH_3D_TALL;
+  const t = (aspect - 0.9) / 0.5;
+  return PITCH_3D + (PITCH_3D_TALL - PITCH_3D) * t;
+}
+
+/**
+ * Pull toward the center, stronger along the short side of the canvas, so
+ * the layout stretches to the canvas shape instead of staying a circle.
+ */
+function centerPull(node: SimulationNode, axis: 'x' | 'y', aspect: number): number {
+  if (node.kind === 'person' && node.isCenter) return 0.5;
+  if (node.kind === 'bubble' && node.isExpanded) return 0;
+  const stretch = aspect;
+  return axis === 'x' ? 0.15 * stretch : 0.15 / stretch;
+}
 
 /** Perspective distance that keeps depth effects similar for small and large graphs. */
 function distanceFor(nodes: SimulationNode[], pivotX: number, pivotY: number): number {
@@ -165,11 +195,18 @@ export default function UnifiedNetworkGraph({
         const center = sim.force('center') as CenterForce | undefined;
         if (center) center.x(w / 2).y(h / 2);
 
+        const aspect = aspectOf(canvas);
         const fx = sim.force('centerX') as XForce | undefined;
-        if (fx) fx.x(w / 2);
+        if (fx) fx.x(w / 2).strength((d) => centerPull(d, 'x', aspect));
 
         const fy = sim.force('centerY') as YForce | undefined;
-        if (fy) fy.y(h / 2);
+        if (fy) fy.y(h / 2).strength((d) => centerPull(d, 'y', aspect));
+
+        // Rotating a phone changes the best tilt; follow it unless the
+        // user is in flat view.
+        if (viewModeRef.current === '3d') {
+          cameraTargetRef.current.pitch = pitchForAspect(aspect);
+        }
 
         sim.alpha(0.3).restart();
       }, 150);
@@ -236,7 +273,7 @@ export default function UnifiedNetworkGraph({
   const recenterGraph = useCallback(() => {
     const target = cameraTargetRef.current;
     target.yaw = nearestFullTurn(cameraRef.current.yaw);
-    target.pitch = viewModeRef.current === '3d' ? PITCH_3D : 0;
+    target.pitch = viewModeRef.current === '3d' ? pitchForAspect(aspectOf(canvasRef.current)) : 0;
     lastInteractionRef.current = performance.now();
     fitView(true);
   }, [fitView]);
@@ -297,7 +334,7 @@ export default function UnifiedNetworkGraph({
     const cam = cameraRef.current;
     const target = cameraTargetRef.current;
     if (mode === '3d') {
-      target.pitch = PITCH_3D;
+      target.pitch = pitchForAspect(aspectOf(canvasRef.current));
       target.lift = 1;
     } else {
       target.pitch = 0;
@@ -321,7 +358,7 @@ export default function UnifiedNetworkGraph({
         viewModeRef.current = saved;
         setViewMode(saved);
         const target = cameraTargetRef.current;
-        target.pitch = saved === '3d' ? PITCH_3D : 0;
+        target.pitch = saved === '3d' ? pitchForAspect(aspectOf(canvasRef.current)) : 0;
         target.lift = saved === '3d' ? 1 : 0;
       }
     } catch {
@@ -358,7 +395,9 @@ export default function UnifiedNetworkGraph({
     if (!ctx) return;
 
     // Keep backing store in sync with CSS size and DPR.
-    const dpr = window.devicePixelRatio || 1;
+    // Phones report 3x or more; 2x looks the same on a small screen and
+    // halves the pixels to fill every frame.
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 2 : 3);
     const rect = canvas.getBoundingClientRect();
     const wantW = Math.floor(rect.width * dpr);
     const wantH = Math.floor(rect.height * dpr);
@@ -477,6 +516,7 @@ export default function UnifiedNetworkGraph({
     const rect = canvas.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
+    const aspect = aspectOf(canvas);
     cameraRef.current.pivotX = width / 2;
     cameraRef.current.pivotY = height / 2;
     const mobileLinkDistance = isMobile ? 110 : linkDistance;
@@ -575,16 +615,8 @@ export default function UnifiedNetworkGraph({
       .force('center', forceCenter(width / 2, height / 2))
       // Stronger pull for "you" anchors it at canvas-center under normal forces,
       // while still letting the user drag it around for fun.
-      .force('centerX', forceX<SimulationNode>(width / 2).strength((d) => {
-        if (d.kind === 'person' && d.isCenter) return 0.5;
-        if (d.kind === 'bubble' && d.isExpanded) return 0;
-        return 0.15;
-      }))
-      .force('centerY', forceY<SimulationNode>(height / 2).strength((d) => {
-        if (d.kind === 'person' && d.isCenter) return 0.5;
-        if (d.kind === 'bubble' && d.isExpanded) return 0;
-        return 0.15;
-      }))
+      .force('centerX', forceX<SimulationNode>(width / 2).strength((d) => centerPull(d, 'x', aspect)))
+      .force('centerY', forceY<SimulationNode>(height / 2).strength((d) => centerPull(d, 'y', aspect)))
       .force('collision', forceCollide<SimulationNode>().radius(collisionForNode))
       .force('expandedCluster', expandedClusterField);
 
@@ -674,6 +706,9 @@ export default function UnifiedNetworkGraph({
     }
     if (firstLoad) {
       introStartedRef.current = true;
+      if (viewModeRef.current === '3d') {
+        cameraTargetRef.current.pitch = pitchForAspect(aspectOf(canvasRef.current));
+      }
       introEndRef.current = latest + APPEAR_SECONDS + 0.6;
     }
 
@@ -1135,8 +1170,8 @@ export default function UnifiedNetworkGraph({
           ref={canvasRef}
           className={`w-full bg-surface rounded-lg border border-border ${
             compact
-              ? 'h-[400px] sm:h-[500px] lg:h-[600px] xl:h-[700px] 2xl:h-[800px]'
-              : 'h-[400px] sm:h-[500px] lg:h-[70vh] lg:min-h-[600px]'
+              ? 'h-[62svh] min-h-[380px] sm:h-[500px] lg:h-[600px] xl:h-[700px] 2xl:h-[800px]'
+              : 'h-[72svh] min-h-[420px] sm:h-[500px] lg:h-[70vh] lg:min-h-[600px]'
           }`}
         />
         <div className="absolute bottom-4 right-4 flex gap-2">

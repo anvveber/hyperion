@@ -58,11 +58,17 @@ const NODE_RADIUS = {
 } as const;
 
 const FONT_SIZE = {
-  desktop: { center: 13, normal: 11 },
-  mobile: { center: 11, normal: 10 },
+  desktop: { center: 15, normal: 13 },
+  mobile: { center: 14, normal: 12 },
 } as const;
 
+// How far labels may shrink when zoomed out. Phones shrink less, since a
+// fitted 100+ person graph is zoomed far out there.
+const LABEL_MIN_SCALE = { desktop: 0.85, mobile: 1 } as const;
+
 const GRID_STEP = 160;
+// Smallest on-screen dot radius, so zoomed-out graphs stay tappable and visible.
+const MIN_SCREEN_RADIUS = { desktop: 3.5, mobile: 4.5 } as const;
 const NEUTRAL_NODE = '#9CA3AF';
 
 interface Palette {
@@ -663,9 +669,10 @@ function drawLabels(
     const isCenter = node.kind === 'person' && node.isCenter;
     const table = sc.isMobile ? FONT_SIZE.mobile : FONT_SIZE.desktop;
     const base = isCenter ? table.center : table.normal;
-    const size = Math.round(base * clamp(sc.transform.k * p.scale, 0.8, 1.35));
+    const minScale = sc.isMobile ? LABEL_MIN_SCALE.mobile : LABEL_MIN_SCALE.desktop;
+    const size = Math.round(base * clamp(sc.transform.k * p.scale, minScale, 1.35));
     const isHovered = node.id === hovered;
-    const weight = isCenter || isHovered ? '600 ' : '';
+    const weight = isCenter || isHovered ? '600 ' : '500 ';
     const font = `${weight}${size}px ${GRAPH_FONT}`;
     const text = node.kind === 'bubble' ? node.label.split(' · ')[0] : node.label;
     const w = textWidth(ctx, font, text);
@@ -687,7 +694,7 @@ function drawLabels(
     const fade = p.dimmed ? 0.25 : 1;
     ctx.font = font;
     ctx.globalAlpha = Math.min(1, p.alpha * 1.15) * fade;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 3.5;
     ctx.strokeStyle = pal.labelHalo;
     ctx.strokeText(text, p.x, top);
     ctx.fillStyle = isHovered ? pal.accent : pal.label;
@@ -771,7 +778,8 @@ export function paintScene(
     const z = GROUND_Z + (sc.elevation(node.id) + bob - GROUND_Z) * eased;
     const s = toScreen(sc, node.x, node.y, z);
     const pop = appear < 1 ? Math.max(0, easeOutBack(appear)) : 1;
-    const radius = baseRadius(node, sc.isMobile) * k * s.scale * pop;
+    const minRadius = sc.isMobile ? MIN_SCREEN_RADIUS.mobile : MIN_SCREEN_RADIUS.desktop;
+    const radius = Math.max(baseRadius(node, sc.isMobile) * k * s.scale, minRadius) * pop;
     const ground = camera.lift > 0.05 ? toScreen(sc, node.x, node.y, GROUND_Z) : null;
     const dimmed = hoverActive && node.id !== hovered && !neighbors.has(node.id);
     const p: Placed = {
