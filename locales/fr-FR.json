@@ -1092,6 +1092,8 @@
       "recenterGraph": "Recentrer le graphe",
       "switchTo3d": "Passer en vue 3D",
       "switchToFlat": "Passer en vue plane (Maj + glisser fait pivoter la vue 3D)",
+      "ariaLabel": "Graphe du réseau des personnes et de leurs relations",
+      "legendLabel": "Groupes du graphe. Survolez ou touchez un groupe pour mettre ses membres en évidence.",
       "matchMode": {
         "any": "Au moins un",
         "all": "Tous",

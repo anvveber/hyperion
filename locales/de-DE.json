@@ -1092,6 +1092,8 @@
       "recenterGraph": "Graph neu zentrieren",
       "switchTo3d": "Zur 3D-Ansicht wechseln",
       "switchToFlat": "Zur flachen Ansicht wechseln (Umschalt + Ziehen dreht die 3D-Ansicht)",
+      "ariaLabel": "Netzwerkgraph der Personen und ihrer Beziehungen",
+      "legendLabel": "Gruppen im Graphen. Fahre über eine Gruppe oder tippe sie an, um ihre Mitglieder hervorzuheben.",
       "matchMode": {
         "any": "Beliebig",
         "all": "Alle",

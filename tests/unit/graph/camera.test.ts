@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { project, unprojectToPlane, approach, nearestFullTurn, type Camera } from '@/components/graph/camera';
+import { project, makeProjector, unprojectToPlane, approach, nearestFullTurn, type Camera } from '@/components/graph/camera';
 
 const base: Camera = { yaw: 0, pitch: 0, lift: 1, distance: 1000, pivotX: 400, pivotY: 300 };
 
@@ -42,6 +42,20 @@ describe('project', () => {
   });
 });
 
+describe('makeProjector', () => {
+  it('matches project for the same camera', () => {
+    const cam: Camera = { ...base, yaw: 2.1, pitch: 0.7, lift: 0.5 };
+    const fast = makeProjector(cam);
+    for (const [x, y, z] of [[0, 0, 0], [612, 77, 30], [400, 300, -70]]) {
+      const a = project(cam, x, y, z);
+      const b = fast(x, y, z);
+      expect(b.x).toBeCloseTo(a.x);
+      expect(b.y).toBeCloseTo(a.y);
+      expect(b.scale).toBeCloseTo(a.scale);
+    }
+  });
+});
+
 describe('unprojectToPlane', () => {
   it('inverts project for a point on the given plane', () => {
     const cam: Camera = { ...base, yaw: 0.7, pitch: 0.9, lift: 0.8 };
@@ -52,6 +66,14 @@ describe('unprojectToPlane', () => {
       expect(back?.x).toBeCloseTo(x, 6);
       expect(back?.y).toBeCloseTo(y, 6);
     }
+  });
+
+  it('inverts project with a stretched view', () => {
+    const cam: Camera = { ...base, yaw: -0.4, pitch: 0.6, stretchX: 1, stretchY: 1.4 };
+    const p = project(cam, 250, 520, 20);
+    const back = unprojectToPlane(cam, p.x, p.y, 20);
+    expect(back?.x).toBeCloseTo(250, 6);
+    expect(back?.y).toBeCloseTo(520, 6);
   });
 
   it('returns null above the horizon', () => {

@@ -20,6 +20,12 @@ export interface Camera {
   /** Orbit pivot in simulation coordinates. */
   pivotX: number;
   pivotY: number;
+  /**
+   * Stretch of the projected picture around the pivot (default 1). Lets a
+   * round network fill a tall or wide canvas without changing the layout.
+   */
+  stretchX?: number;
+  stretchY?: number;
 }
 
 export interface Projected {
@@ -33,29 +39,36 @@ export interface Projected {
 
 const MIN_DENOMINATOR_RATIO = 0.15;
 
-export function project(cam: Camera, x: number, y: number, z: number): Projected {
-  const dx = x - cam.pivotX;
-  const dy = y - cam.pivotY;
+export type Projector = (x: number, y: number, z: number) => Projected;
+
+/**
+ * A project() bound to one camera, with the trigonometry done once. Use it
+ * when projecting many points with the same camera, e.g. once per frame.
+ */
+export function makeProjector(cam: Camera): Projector {
   const cosYaw = Math.cos(cam.yaw);
   const sinYaw = Math.sin(cam.yaw);
-  const rx = dx * cosYaw - dy * sinYaw;
-  const ry = dx * sinYaw + dy * cosYaw;
-
-  const zl = z * cam.lift;
   const cosP = Math.cos(cam.pitch);
   const sinP = Math.sin(cam.pitch);
-  const viewY = ry * cosP - zl * sinP;
-  const depth = ry * sinP + zl * cosP;
-
-  const denominator = Math.max(cam.distance - depth, cam.distance * MIN_DENOMINATOR_RATIO);
-  const scale = cam.distance / denominator;
-
-  return {
-    x: cam.pivotX + rx * scale,
-    y: cam.pivotY + viewY * scale,
-    scale,
-    depth,
+  const { pivotX, pivotY, lift, distance } = cam;
+  const sx = cam.stretchX ?? 1;
+  const sy = cam.stretchY ?? 1;
+  const minDenominator = distance * MIN_DENOMINATOR_RATIO;
+  return (x, y, z) => {
+    const dx = x - pivotX;
+    const dy = y - pivotY;
+    const rx = dx * cosYaw - dy * sinYaw;
+    const ry = dx * sinYaw + dy * cosYaw;
+    const zl = z * lift;
+    const viewY = ry * cosP - zl * sinP;
+    const depth = ry * sinP + zl * cosP;
+    const scale = distance / Math.max(distance - depth, minDenominator);
+    return { x: pivotX + rx * scale * sx, y: pivotY + viewY * scale * sy, scale, depth };
   };
+}
+
+export function project(cam: Camera, x: number, y: number, z: number): Projected {
+  return makeProjector(cam)(x, y, z);
 }
 
 /**
@@ -69,8 +82,8 @@ export function unprojectToPlane(
   py: number,
   z: number,
 ): { x: number; y: number } | null {
-  const u = px - cam.pivotX;
-  const v = py - cam.pivotY;
+  const u = (px - cam.pivotX) / (cam.stretchX ?? 1);
+  const v = (py - cam.pivotY) / (cam.stretchY ?? 1);
   const zl = z * cam.lift;
   const cosP = Math.cos(cam.pitch);
   const sinP = Math.sin(cam.pitch);

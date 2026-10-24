@@ -1,7 +1,6 @@
 // components/graph/scene-renderer.ts
 //
-// Paints the network graph as a 3D "operations table": a polar floor grid
-// with a radar sweep, nodes as lit spheres floating at their elevation, drop
+// Paints the network graph as a 3D "operations table": a floor like the app background, nodes as lit spheres floating at their elevation, drop
 // lines to the floor, glowing links with travelling pulses, and labels that
 // skip themselves when they would overlap.
 //
@@ -10,7 +9,7 @@
 // landed on screen so the component can hit-test against what was drawn.
 
 import type { ZoomTransform } from 'd3-zoom';
-import { project, type Camera } from './camera';
+import { makeProjector, type Camera, type Projector } from './camera';
 import { GROUND_Z, hashUnit } from './elevation';
 import type { LODTier, PhotoCacheEntry, SimulationEdge, SimulationNode } from './simulation-types';
 
@@ -33,6 +32,8 @@ export interface SceneContext {
   time: number;
   reducedMotion: boolean;
   hoveredNodeId: string | null;
+  /** Group highlighted from the legend; its members stay lit, others dim. */
+  focusGroupId?: string | null;
   elevation: (id: string) => number;
   /** 0..1 entrance progress for a node (1 = fully in place). */
   appear: (id: string) => number;
@@ -58,11 +59,21 @@ const NODE_RADIUS = {
 } as const;
 
 const FONT_SIZE = {
-  desktop: { center: 13, normal: 11 },
-  mobile: { center: 11, normal: 10 },
+  desktop: { center: 15, normal: 13 },
+  mobile: { center: 14, normal: 12 },
 } as const;
 
+// How far labels may shrink when zoomed out. Phones shrink less, since a
+// fitted 100+ person graph is zoomed far out there.
+const LABEL_MIN_SCALE = { desktop: 0.85, mobile: 1 } as const;
+
 const GRID_STEP = 160;
+// Spacing of the floor's dot pattern; GRID_STEP is a multiple of it, and
+// every GRID_STEP gets a plus mark, like the page background.
+const PATTERN_STEP = 40;
+const MAX_EDGE_LABELS = 8;
+// Smallest on-screen dot radius, so zoomed-out graphs stay tappable and visible.
+const MIN_SCREEN_RADIUS = { desktop: 3.5, mobile: 4.5 } as const;
 const NEUTRAL_NODE = '#9CA3AF';
 
 interface Palette {
@@ -167,6 +178,11 @@ function textWidth(ctx: CanvasRenderingContext2D, font: string, text: string): n
 // ---------------------------------------------------------------------------
 // Projection
 
+/** Per-frame context: the inputs plus a projector built once for this camera. */
+interface Frame extends SceneContext {
+  proj: Projector;
+}
+
 interface ScreenPoint {
   x: number;
   y: number;
@@ -174,8 +190,8 @@ interface ScreenPoint {
   depth: number;
 }
 
-function toScreen(sc: SceneContext, x: number, y: number, z: number): ScreenPoint {
-  const p = project(sc.camera, x, y, z);
+function toScreen(sc: Frame, x: number, y: number, z: number): ScreenPoint {
+  const p = sc.proj(x, y, z);
   const t = sc.transform;
   return { x: p.x * t.k + t.x, y: p.y * t.k + t.y, scale: p.scale, depth: p.depth };
 }
@@ -192,7 +208,7 @@ interface Placed extends NodePlacement {
 // ---------------------------------------------------------------------------
 // Layers
 
-function drawBackdrop(sc: SceneContext, pal: Palette, pivot: ScreenPoint): void {
+function drawBackdrop(sc: Frame, pal: Palette, pivot: ScreenPoint): void {
   const { ctx, width, height } = sc;
   const r = Math.max(width, height) * 0.7;
   const grad = ctx.createRadialGradient(pivot.x, pivot.y, 0, pivot.x, pivot.y, r);
@@ -202,51 +218,89 @@ function drawBackdrop(sc: SceneContext, pal: Palette, pivot: ScreenPoint): void 
   ctx.fillRect(0, 0, width, height);
 }
 
-function drawFloor(sc: SceneContext, pal: Palette, worldRadius: number): void {
+function drawFloor(sc: Frame, pal: Palette, worldRadius: number): void {
   const { ctx, camera } = sc;
   const cx = camera.pivotX;
   const cy = camera.pivotY;
   const z = GROUND_Z;
-  // Keep the floor well inside the perspective distance: rings that reach
+  // Keep the floor well inside the perspective distance: points that reach
   // behind the camera would project to huge coordinates and stall the canvas.
-  const maxRings = Math.max(2, Math.floor((camera.distance * 0.6) / GRID_STEP));
-  const rings = clamp(Math.ceil(worldRadius / GRID_STEP) + 1, 2, Math.min(9, maxRings));
-  const outer = rings * GRID_STEP;
-  const gridAlpha = sc.isDark ? 0.09 : 0.1;
-  const segments = 96;
+  const outer = clamp(
+    Math.ceil((worldRadius + GRID_STEP * 0.75) / GRID_STEP) * GRID_STEP,
+    GRID_STEP * 2,
+    Math.min(GRID_STEP * 9, camera.distance * 0.6),
+  );
 
   ctx.save();
-  ctx.lineWidth = 1;
 
-  // Range rings
-  for (let i = 1; i <= rings; i++) {
-    const r = i * GRID_STEP;
-    ctx.beginPath();
-    for (let s = 0; s <= segments; s++) {
-      const a = (s / segments) * Math.PI * 2;
-      const p = toScreen(sc, cx + Math.cos(a) * r, cy + Math.sin(a) * r, z);
-      if (s === 0) ctx.moveTo(p.x, p.y);
-      else ctx.lineTo(p.x, p.y);
+  // Dot lattice fixed to the world, so it turns and tilts with the camera.
+  // Spacing doubles when zoomed out, so the dots never crowd into a haze.
+  let step = PATTERN_STEP;
+  while (step * sc.transform.k < 10 && step < GRID_STEP) step *= 2;
+  const bands = 4;
+  const dots: Path2D[] = [];
+  const marks: Path2D[] = [];
+  for (let b = 0; b < bands; b++) {
+    dots.push(new Path2D());
+    marks.push(new Path2D());
+  }
+  const bandOf = (r: number): number => {
+    const fade = 1 - (r / outer) * (r / outer);
+    return Math.min(bands - 1, Math.floor(fade * bands));
+  };
+  const arm = 9;
+  const n = Math.floor(outer / step);
+  for (let i = -n; i <= n; i++) {
+    for (let j = -n; j <= n; j++) {
+      const wx = i * step;
+      const wy = j * step;
+      const r = Math.hypot(wx, wy);
+      if (r >= outer) continue;
+      const band = bandOf(r);
+      const isMark = wx % GRID_STEP === 0 && wy % GRID_STEP === 0;
+      if (isMark) {
+        const path = marks[band];
+        const l = sc.proj(cx + wx - arm, cy + wy, z);
+        const rr = sc.proj(cx + wx + arm, cy + wy, z);
+        const t = sc.proj(cx + wx, cy + wy - arm, z);
+        const bt = sc.proj(cx + wx, cy + wy + arm, z);
+        const k = sc.transform;
+        path.moveTo(l.x * k.k + k.x, l.y * k.k + k.y);
+        path.lineTo(rr.x * k.k + k.x, rr.y * k.k + k.y);
+        path.moveTo(t.x * k.k + k.x, t.y * k.k + k.y);
+        path.lineTo(bt.x * k.k + k.x, bt.y * k.k + k.y);
+      } else {
+        const p = toScreen(sc, cx + wx, cy + wy, z);
+        const size = clamp(1.3 * p.scale, 0.9, 2.2);
+        dots[band].rect(p.x - size / 2, p.y - size / 2, size, size);
+      }
     }
-    const fade = 1 - (i - 1) / (rings + 1);
-    ctx.strokeStyle = `rgba(${pal.grid},${gridAlpha * fade * (i === rings ? 1.3 : 0.7)})`;
-    ctx.stroke();
+  }
+  const dotAlpha = sc.isDark ? 0.26 : 0.24;
+  const markAlpha = sc.isDark ? 0.3 : 0.28;
+  ctx.lineWidth = 1;
+  for (let b = 0; b < bands; b++) {
+    const weight = (b + 1) / bands;
+    ctx.fillStyle = `rgba(${pal.grid},${dotAlpha * weight})`;
+    ctx.fill(dots[b]);
+    ctx.strokeStyle = `rgba(${pal.grid},${markAlpha * weight})`;
+    ctx.stroke(marks[b]);
   }
 
-  // Spokes every 30 degrees
-  ctx.strokeStyle = `rgba(${pal.grid},${gridAlpha * 0.6})`;
+  // Edge of the table: one ring with bearing ticks, long every 30 degrees.
+  const gridAlpha = sc.isDark ? 0.12 : 0.13;
+  const segments = 96;
   ctx.beginPath();
-  for (let s = 0; s < 12; s++) {
-    const a = (s / 12) * Math.PI * 2;
-    const p0 = toScreen(sc, cx + Math.cos(a) * GRID_STEP * 0.5, cy + Math.sin(a) * GRID_STEP * 0.5, z);
-    const p1 = toScreen(sc, cx + Math.cos(a) * outer, cy + Math.sin(a) * outer, z);
-    ctx.moveTo(p0.x, p0.y);
-    ctx.lineTo(p1.x, p1.y);
+  for (let s = 0; s <= segments; s++) {
+    const a = (s / segments) * Math.PI * 2;
+    const p = toScreen(sc, cx + Math.cos(a) * outer, cy + Math.sin(a) * outer, z);
+    if (s === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
   }
+  ctx.strokeStyle = `rgba(${pal.grid},${gridAlpha})`;
   ctx.stroke();
 
-  // Bearing ticks on the outer ring: long every 30 degrees, short every 5
-  ctx.strokeStyle = `rgba(${pal.grid},${gridAlpha * 1.6})`;
+  ctx.strokeStyle = `rgba(${pal.grid},${gridAlpha * 1.3})`;
   ctx.beginPath();
   for (let deg = 0; deg < 360; deg += 5) {
     const a = (deg / 180) * Math.PI;
@@ -258,40 +312,10 @@ function drawFloor(sc: SceneContext, pal: Palette, worldRadius: number): void {
   }
   ctx.stroke();
 
-  // Radar sweep: a wedge of thin slices that fade out behind the leading edge
-  if (!sc.reducedMotion) {
-    const lead = sc.time * 0.55;
-    const span = 0.7;
-    const slices = 12;
-    const maxAlpha = sc.isDark ? 0.05 : 0.035;
-    for (let i = 0; i < slices; i++) {
-      const a0 = lead - span + (i / slices) * span;
-      const a1 = lead - span + ((i + 1) / slices) * span;
-      ctx.beginPath();
-      const c = toScreen(sc, cx, cy, z);
-      ctx.moveTo(c.x, c.y);
-      for (let s = 0; s <= 3; s++) {
-        const a = a0 + ((a1 - a0) * s) / 3;
-        const p = toScreen(sc, cx + Math.cos(a) * outer, cy + Math.sin(a) * outer, z);
-        ctx.lineTo(p.x, p.y);
-      }
-      ctx.closePath();
-      ctx.fillStyle = `rgba(${pal.accentRgb},${maxAlpha * Math.pow((i + 1) / slices, 2)})`;
-      ctx.fill();
-    }
-    const c = toScreen(sc, cx, cy, z);
-    const edge = toScreen(sc, cx + Math.cos(lead) * outer, cy + Math.sin(lead) * outer, z);
-    ctx.beginPath();
-    ctx.moveTo(c.x, c.y);
-    ctx.lineTo(edge.x, edge.y);
-    ctx.strokeStyle = `rgba(${pal.accentRgb},${sc.isDark ? 0.22 : 0.18})`;
-    ctx.stroke();
-  }
-
   ctx.restore();
 }
 
-function drawStems(sc: SceneContext, placed: Placed[]): void {
+function drawStems(sc: Frame, placed: Placed[]): void {
   const { ctx } = sc;
   const lift = sc.camera.lift;
   if (lift < 0.05) return;
@@ -329,11 +353,13 @@ interface DrawnEdge {
   to: Placed;
   progress: number;
   highlighted: boolean;
+  /** Both ends belong to the group picked in the legend. */
+  emphasized: boolean;
   fog: number;
   index: number;
 }
 
-function drawEdges(sc: SceneContext, edges: DrawnEdge[], hoverActive: boolean): void {
+function drawEdges(sc: Frame, edges: DrawnEdge[], dimActive: boolean): void {
   const { ctx } = sc;
   const widthBase = clamp(1.1 * sc.transform.k, 0.6, 1.6);
   ctx.save();
@@ -344,7 +370,7 @@ function drawEdges(sc: SceneContext, edges: DrawnEdge[], hoverActive: boolean): 
   ctx.lineWidth = widthBase;
   for (const d of edges) {
     if (d.highlighted) continue;
-    const base = hoverActive ? 0.05 : 0.2;
+    const base = d.emphasized ? 0.45 : dimActive ? 0.05 : 0.2;
     ctx.globalAlpha = base * d.fog;
     ctx.strokeStyle = d.edge.color || '#999';
     const ex = d.from.x + (d.to.x - d.from.x) * d.progress;
@@ -388,7 +414,7 @@ function drawEdges(sc: SceneContext, edges: DrawnEdge[], hoverActive: boolean): 
   ctx.restore();
 }
 
-function drawPulses(sc: SceneContext, edges: DrawnEdge[], hoverActive: boolean): void {
+function drawPulses(sc: Frame, edges: DrawnEdge[], dimActive: boolean): void {
   if (sc.reducedMotion) return;
   const { ctx } = sc;
   ctx.save();
@@ -404,7 +430,7 @@ function drawPulses(sc: SceneContext, edges: DrawnEdge[], hoverActive: boolean):
     if (d.highlighted) {
       const base = (sc.time * 0.6) % 1;
       positions.push(base, (base + 0.5) % 1);
-    } else if (!hoverActive) {
+    } else if (!dimActive || d.emphasized) {
       const local = (sc.time + hashUnit(`${d.index}:${d.from.node.id}`) * cycle) % cycle;
       if (local < travel) positions.push(easeOutCubic(local / travel));
     }
@@ -427,7 +453,7 @@ function drawPulses(sc: SceneContext, edges: DrawnEdge[], hoverActive: boolean):
   ctx.restore();
 }
 
-function drawSphere(sc: SceneContext, p: Placed, pal: Palette): void {
+function drawSphere(sc: Frame, p: Placed, pal: Palette): void {
   const { ctx } = sc;
   const { x, y, radius: r } = p;
   const node = p.node;
@@ -466,17 +492,33 @@ function drawSphere(sc: SceneContext, p: Placed, pal: Palette): void {
     ctx.fill();
   }
 
-  // Rim
+  // Rim. Someone in several groups gets one arc per group color, so the
+  // groups past the first are visible too, not just the fill.
   ctx.lineWidth = r > 9 ? 1.6 : 1.2;
-  ctx.strokeStyle = node.kind === 'person' && node.isCenter ? pal.accent : p.color;
   ctx.globalAlpha = p.alpha * 0.9;
-  ctx.beginPath();
-  ctx.arc(x, y, r + 0.5, 0, Math.PI * 2);
-  ctx.stroke();
+  const groupColors = node.kind === 'person' && !node.isCenter ? [...new Set(node.colors)] : [];
+  if (groupColors.length > 1) {
+    const ringR = r + 1.5;
+    ctx.lineWidth = Math.max(1.6, r * 0.28);
+    const gap = groupColors.length > 4 ? 0.12 : 0.22;
+    const span = (Math.PI * 2) / groupColors.length;
+    groupColors.forEach((color, i) => {
+      const a0 = -Math.PI / 2 + i * span + gap / 2;
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, ringR, a0, a0 + span - gap);
+      ctx.stroke();
+    });
+  } else {
+    ctx.strokeStyle = node.kind === 'person' && node.isCenter ? pal.accent : p.color;
+    ctx.beginPath();
+    ctx.arc(x, y, r + 0.5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   ctx.globalAlpha = 1;
 }
 
-function drawBubble(sc: SceneContext, p: Placed, pal: Palette): void {
+function drawBubble(sc: Frame, p: Placed, pal: Palette): void {
   if (p.node.kind !== 'bubble') return;
   const { ctx } = sc;
   const node = p.node;
@@ -523,7 +565,7 @@ function drawBubble(sc: SceneContext, p: Placed, pal: Palette): void {
   ctx.globalAlpha = 1;
 }
 
-function drawCenterDecorations(sc: SceneContext, p: Placed, pal: Palette): void {
+function drawCenterDecorations(sc: Frame, p: Placed, pal: Palette): void {
   const { ctx } = sc;
   const { x, y, radius: r } = p;
   ctx.save();
@@ -564,7 +606,7 @@ function drawCenterDecorations(sc: SceneContext, p: Placed, pal: Palette): void 
   ctx.restore();
 }
 
-function drawReticle(sc: SceneContext, p: Placed, pal: Palette): void {
+function drawReticle(sc: Frame, p: Placed, pal: Palette): void {
   const { ctx } = sc;
   const s = p.radius + 7;
   const arm = Math.max(5, s * 0.45);
@@ -584,12 +626,15 @@ function drawReticle(sc: SceneContext, p: Placed, pal: Palette): void {
   ctx.restore();
 }
 
-function drawEdgeLabels(sc: SceneContext, edges: DrawnEdge[], pal: Palette): void {
+function drawEdgeLabels(sc: Frame, edges: DrawnEdge[], pal: Palette): void {
   if (!sc.formatEdgeLabel || sc.lod === 'dots') return;
   const { ctx } = sc;
   const fontSize = sc.isMobile ? 10 : 11;
   const normalFont = `${fontSize}px ${GRAPH_FONT}`;
   const boldFont = `700 ${fontSize}px ${GRAPH_FONT}`;
+  // A hub like "you" can have dozens of links; that many chips would just
+  // pile up, so past a handful the names alone have to do.
+  if (edges.filter((d) => d.highlighted).length > MAX_EDGE_LABELS) return;
   ctx.save();
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
@@ -626,7 +671,7 @@ const overlaps = (a: Rect, b: Rect): boolean =>
   a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
 function drawLabels(
-  sc: SceneContext,
+  sc: Frame,
   placed: Placed[],
   pal: Palette,
   neighbors: Set<string>,
@@ -638,6 +683,7 @@ function drawLabels(
     if (p.node.id === hovered) return 0;
     if (p.node.kind === 'person' && p.node.isCenter) return 1;
     if (neighbors.has(p.node.id)) return 2;
+    if (sc.focusGroupId && !p.dimmed) return 2;
     if (p.node.kind === 'bubble') return 3;
     return 4;
   };
@@ -663,9 +709,10 @@ function drawLabels(
     const isCenter = node.kind === 'person' && node.isCenter;
     const table = sc.isMobile ? FONT_SIZE.mobile : FONT_SIZE.desktop;
     const base = isCenter ? table.center : table.normal;
-    const size = Math.round(base * clamp(sc.transform.k * p.scale, 0.8, 1.35));
+    const minScale = sc.isMobile ? LABEL_MIN_SCALE.mobile : LABEL_MIN_SCALE.desktop;
+    const size = Math.round(base * clamp(sc.transform.k * p.scale, minScale, 1.35));
     const isHovered = node.id === hovered;
-    const weight = isCenter || isHovered ? '600 ' : '';
+    const weight = isCenter || isHovered ? '600 ' : '500 ';
     const font = `${weight}${size}px ${GRAPH_FONT}`;
     const text = node.kind === 'bubble' ? node.label.split(' · ')[0] : node.label;
     const w = textWidth(ctx, font, text);
@@ -673,7 +720,11 @@ function drawLabels(
     const gap = node.kind === 'bubble' ? 9 : 5;
     const below = p.y + p.radius + gap;
     const above = p.y - p.radius - gap - size;
-    const rectAt = (y: number): Rect => ({ x: p.x - w / 2 - 3, y: y - 1, w: w + 6, h: size + 3 });
+    // Keep the text inside the canvas: near an edge it slides inward rather
+    // than getting cut off.
+    const edge = 6;
+    const textX = clamp(p.x, edge + w / 2, Math.max(edge + w / 2, sc.width - edge - w / 2));
+    const rectAt = (y: number): Rect => ({ x: textX - w / 2 - 3, y: y - 1, w: w + 6, h: size + 3 });
     const force = priority(p) === 0 || isCenter;
     let top = below;
     if (!force) {
@@ -687,16 +738,16 @@ function drawLabels(
     const fade = p.dimmed ? 0.25 : 1;
     ctx.font = font;
     ctx.globalAlpha = Math.min(1, p.alpha * 1.15) * fade;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 3.5;
     ctx.strokeStyle = pal.labelHalo;
-    ctx.strokeText(text, p.x, top);
+    ctx.strokeText(text, textX, top);
     ctx.fillStyle = isHovered ? pal.accent : pal.label;
-    ctx.fillText(text, p.x, top);
+    ctx.fillText(text, textX, top);
   }
   ctx.restore();
 }
 
-function drawFrame(sc: SceneContext, pal: Palette): void {
+function drawFrame(sc: Frame, pal: Palette): void {
   const { ctx, width, height } = sc;
   const inset = 10;
   const arm = 16;
@@ -721,10 +772,11 @@ function drawFrame(sc: SceneContext, pal: Palette): void {
 // Frame
 
 export function paintScene(
-  sc: SceneContext,
+  input: SceneContext,
   nodes: SimulationNode[],
   edges: SimulationEdge[],
 ): NodePlacement[] {
+  const sc: Frame = { ...input, proj: makeProjector(input.camera) };
   const { ctx, width, height, camera } = sc;
   const pal = palette(sc.isDark);
   const k = sc.transform.k;
@@ -756,6 +808,13 @@ export function paintScene(
     }
   }
   const hoverActive = hovered !== null;
+  const focusGroup = hoverActive ? null : (sc.focusGroupId ?? null);
+  const inFocus = (node: SimulationNode): boolean => {
+    if (!focusGroup) return true;
+    return node.kind === 'bubble' ? node.groupId === focusGroup : node.groups.includes(focusGroup)
+      || (node.kind === 'person' && node.isCenter);
+  };
+  const dimActive = hoverActive || focusGroup !== null;
 
   // Place nodes
   const placed: Placed[] = [];
@@ -771,9 +830,12 @@ export function paintScene(
     const z = GROUND_Z + (sc.elevation(node.id) + bob - GROUND_Z) * eased;
     const s = toScreen(sc, node.x, node.y, z);
     const pop = appear < 1 ? Math.max(0, easeOutBack(appear)) : 1;
-    const radius = baseRadius(node, sc.isMobile) * k * s.scale * pop;
+    const minRadius = sc.isMobile ? MIN_SCREEN_RADIUS.mobile : MIN_SCREEN_RADIUS.desktop;
+    const radius = Math.max(baseRadius(node, sc.isMobile) * k * s.scale, minRadius) * pop;
     const ground = camera.lift > 0.05 ? toScreen(sc, node.x, node.y, GROUND_Z) : null;
-    const dimmed = hoverActive && node.id !== hovered && !neighbors.has(node.id);
+    const dimmed = hoverActive
+      ? node.id !== hovered && !neighbors.has(node.id)
+      : !inFocus(node);
     const p: Placed = {
       node,
       x: s.x,
@@ -830,17 +892,19 @@ export function paintScene(
       to,
       progress,
       highlighted: isHighlighted(from.node.id, to.node.id),
+      emphasized: focusGroup !== null && !from.dimmed && !to.dimmed,
       fog: fogFor((from.depth + to.depth) / 2),
       index,
     });
   });
 
   drawStems(sc, placed);
-  drawEdges(sc, drawn, hoverActive);
-  drawPulses(sc, drawn, hoverActive);
+  drawEdges(sc, drawn, dimActive);
+  drawPulses(sc, drawn, dimActive);
 
-  // Nodes, far to near
-  placed.sort((a, b) => a.depth - b.depth);
+  // Nodes far to near, but anything dimmed goes behind everything lit, so
+  // the hovered person and their connections are never hidden.
+  placed.sort((a, b) => Number(b.dimmed) - Number(a.dimmed) || a.depth - b.depth);
   for (const p of placed) {
     if (p.node.kind === 'bubble') drawBubble(sc, p, pal);
     else drawSphere(sc, p, pal);
@@ -859,19 +923,31 @@ export function paintScene(
   return placed.map(({ node, x, y, radius, depth }) => ({ node, x, y, radius, depth }));
 }
 
-/** Front-most node under a screen point, or undefined. */
+/**
+ * Node under a screen point. If the point is on a drawn dot, the front-most
+ * such dot wins (what you see is what you click); otherwise the nearest dot
+ * within `slack` pixels, which makes small dots easy to hit on touch.
+ */
 export function pickNode(
   placements: NodePlacement[],
   x: number,
   y: number,
   slack: number,
 ): SimulationNode | undefined {
-  let best: NodePlacement | undefined;
+  let onTop: NodePlacement | undefined;
+  let nearest: NodePlacement | undefined;
+  let nearestGap = Infinity;
   for (const p of placements) {
-    const reach = Math.max(p.radius + slack, slack * 2);
     const d = Math.hypot(p.x - x, p.y - y);
-    if (d > reach) continue;
-    if (!best || p.depth > best.depth) best = p;
+    if (d <= p.radius) {
+      if (!onTop || p.depth > onTop.depth) onTop = p;
+      continue;
+    }
+    const gap = d - p.radius;
+    if (gap <= slack && gap < nearestGap) {
+      nearest = p;
+      nearestGap = gap;
+    }
   }
-  return best?.node;
+  return (onTop ?? nearest)?.node;
 }
